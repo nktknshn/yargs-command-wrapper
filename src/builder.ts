@@ -65,7 +65,7 @@ export function composeCommands<TCommands extends Command[], TArgv>(
   // logger.debug(`commands: ${commands.map(showCommand).join(", ")}`);
 
   if (typeof builder !== "function") {
-    commands = [builder as TCommands, ...commands] as TCommands;
+    commands = [builder, ...commands] as TCommands;
     _builder = undefined;
   }
   else {
@@ -80,29 +80,31 @@ export function composeCommands<TCommands extends Command[], TArgv>(
 export function addSubcommands<
   TCommandName extends string,
   TArgv,
-  TCommands extends Command[],
+  const TCommands extends readonly Command[],
 >(
   command: BasicCommand<TCommandName, TArgv>,
   subcommands: TCommands,
-): CommandWithSubcommands<TCommandName, TArgv, TCommands>;
+): CommandWithSubcommands<TCommandName, TArgv, TCommands, {}>;
 
 export function addSubcommands<
   TCommandName extends string,
   TArgv,
   TCommands extends Command[],
+  TComposedArgv,
 >(
   command: BasicCommand<TCommandName, TArgv>,
-  subcommands: ComposedCommands<TCommands>,
-): CommandWithSubcommands<TCommandName, TArgv, TCommands>;
+  subcommands: ComposedCommands<TCommands, TComposedArgv>,
+): CommandWithSubcommands<TCommandName, TArgv & TComposedArgv, TCommands>;
 
 export function addSubcommands<
   TCommandName extends string,
   TArgv,
   TCommands extends Command[],
+  TComposedArgv,
 >(
   command: BasicCommand<TCommandName, TArgv>,
-  subcommands: ComposedCommands<TCommands> | TCommands,
-): CommandWithSubcommands<TCommandName, TArgv, TCommands> {
+  subcommands: ComposedCommands<TCommands, TComposedArgv> | TCommands,
+): CommandWithSubcommands<TCommandName, TArgv, TCommands, TComposedArgv> {
   if (
     isObjectWithOwnProperty(subcommands, "type")
     && subcommands.type === "composed"
@@ -112,7 +114,9 @@ export function addSubcommands<
 
   return {
     command,
-    subcommands: composeCommands(...subcommands as TCommands),
+    subcommands: composeCommands(
+      ...subcommands,
+    ) as ComposedCommands<TCommands, TComposedArgv>,
     type: "with-subcommands",
   };
 }

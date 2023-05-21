@@ -32,7 +32,9 @@ export const findAlias = <TCommand extends Command>(
   }
   else if (command.type === "with-subcommands") {
     if (command.command.commandDesc.includes(alias)) {
-      return E.of([command.command.commandDesc[0], command.subcommands]);
+      return E.of(
+        [command.command.commandDesc[0], command.subcommands],
+      );
     }
   }
   else if (command.type === "composed") {
@@ -48,7 +50,7 @@ export const findAlias = <TCommand extends Command>(
 
   return E.left({
     error: "command not found",
-    message: "Alias was not found in any command",
+    message: `Alias ${alias} was not found in any command ${command.type}}`,
   });
 };
 

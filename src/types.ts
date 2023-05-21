@@ -1,7 +1,7 @@
 import * as y from "yargs";
 import { Cast, ToList, TupleKeys } from "./util";
 
-export type Builder<TArgv> = (parent: y.Argv<unknown>) => y.Argv<TArgv>;
+export type Builder<TArgv> = (parent: y.Argv<{}>) => y.Argv<TArgv>;
 
 export type GetCommandNameString<TCommandDesc extends string> =
   TCommandDesc extends `${infer TCommandName} ${string}` ? TCommandName
@@ -17,7 +17,7 @@ export type GetSubcommand<T, C extends GetSubcommands<T>> = T extends
 
 export type BasicCommand<
   TCommandName extends string = string,
-  TArgv = unknown,
+  TArgv = {},
 > = {
   commandName: TCommandName;
   commandDesc: readonly string[];
@@ -28,16 +28,17 @@ export type BasicCommand<
 
 export type CommandWithSubcommands<
   TCommandName extends string = string,
-  TArgv = unknown,
-  TCommands extends Command[] = Command[],
+  TArgv = {},
+  TCommands extends readonly Command[] = readonly Command[],
+  TComposedArgv = {},
 > = {
   command: BasicCommand<TCommandName, TArgv>;
-  subcommands: ComposedCommands<TCommands>;
+  subcommands: ComposedCommands<TCommands, TComposedArgv>;
   type: "with-subcommands";
 };
 
 export type ComposedCommands<
-  TCommands extends Command[] = Command[],
+  TCommands extends readonly Command[] = readonly Command[],
   TArgv = {},
 > = {
   commands: TCommands;
@@ -46,12 +47,12 @@ export type ComposedCommands<
 };
 
 export type Command =
-  | BasicCommand<string, unknown>
-  | ComposedCommands<Command[], {}>
-  | CommandWithSubcommands<string, unknown, Command[]>;
+  | BasicCommand<string, {}>
+  | ComposedCommands<readonly Command[], {}>
+  | CommandWithSubcommands<string, {}, readonly Command[]>;
 
 type GetSingleReturnType<
-  T extends BasicCommand<string, unknown> = BasicCommand<string, unknown>,
+  T extends BasicCommand<string, {}> = BasicCommand<string, {}>,
   TGlobalArgv = {},
 > = T extends BasicCommand<infer C, infer R>
   ? { command: C; argv: R & TGlobalArgv }
@@ -68,27 +69,27 @@ type GetComposedReturnType<
   }[TupleKeys<CS>]
   : never;
 
-export type GetCommandsReturnType<
-  CS extends Command[],
-  C extends string,
+export type GetSubcommandsReturnType<
+  TCommands extends readonly Command[],
+  TCommandName extends string,
   TArgv,
   TGlobalArgv = {},
 > = {
-  [P in TupleKeys<CS>]: AddCommand<
-    GetCommandReturnType<Cast<CS[P], Command>, TGlobalArgv>,
-    C,
+  [P in TupleKeys<TCommands>]: AddCommand<
+    GetCommandReturnType<Cast<TCommands[P], Command>, TGlobalArgv>,
+    TCommandName,
     TArgv
   >;
-}[TupleKeys<CS>];
+}[TupleKeys<TCommands>];
 
 export type GetWithSubcommandsReturnType<
   T extends CommandWithSubcommands,
   TGlobalArgv = {},
 > = T extends CommandWithSubcommands<
-  infer C,
-  infer R,
-  infer Commands
-> ? GetCommandsReturnType<Commands, C, R, TGlobalArgv>
+  infer TCommandName,
+  infer TCommandArgv,
+  infer TCommands
+> ? GetSubcommandsReturnType<TCommands, TCommandName, TCommandArgv, TGlobalArgv>
   : never;
 
 export type GetCommandReturnType<TCommand extends Command, TGlobalArgv = {}> =

@@ -3,7 +3,7 @@ export type TupleKeys<T> = Exclude<keyof T, keyof []>;
 // from https://github.com/millsp/ts-toolbelt
 
 export type ToList<U> = [U] extends [never] ? []
-  : [Last<U>, ...ToList<Exclude<U, Last<U>>>];
+  : readonly [Last<U>, ...ToList<Exclude<U, Last<U>>>];
 
 export type Last<U extends any> = IntersectOf<
   U extends unknown // Distribute U

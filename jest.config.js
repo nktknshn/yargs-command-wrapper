@@ -3,10 +3,10 @@ module.exports = {
   testEnvironment: 'node',
   // collectCoverage: true,
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }]
+    '^.+\\.tsx?$': ['ts-jest',]
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }]
+    '^.+\\.tsx?$': ['ts-jest',]
   },
   testRegex: 'test-',
   moduleFileExtensions: ['ts', 'js'],
@@ -20,8 +20,6 @@ module.exports = {
   },
 
   roots: [
-    // "<rootDir>/src/",
     "<rootDir>/test/",
   ]
-  // testMatch: ['<rootDir>/test/**/*.test.ts'],
 }
