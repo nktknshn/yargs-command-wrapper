@@ -15,7 +15,6 @@ export const findAlias = <TCommand extends Command>(
   command: TCommand,
   alias: string,
 ): E.Either<ErrorType, [string, Command | undefined]> => {
-  // console.log(`command: ${showCommand(command)}, alias: ${alias}`);
   if (command.type === "command") {
     for (const cmd of command.commandDesc) {
       // console.log(`cmd: ${cmd}, ${alias}`);
@@ -68,29 +67,16 @@ const createYargs = () => {
 export const build = <TCommand extends Command>(command: TCommand) =>
   buildYargs(command)(createYargs());
 
-// export const buildAndParseO = <TCommand extends Command>(
-//   command: TCommand,
-//   arg?: string | readonly string[],
-// ): {
-//   result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
-//   yargs: y.Argv;
-// } => {
-//   const yargsObject = build(command);
-
-//   return {
-//     result: parse(command, yargsObject, arg),
-//     yargs: yargsObject,
-//   };
-// };
+type BuildAndParseResult<TCommand extends Command> = {
+  result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
+  yargs: y.Argv;
+};
 
 export const buildAndParse = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
   builder?: Builder<{}>,
-): {
-  result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
-  yargs: y.Argv;
-} => {
+): BuildAndParseResult<TCommand> => {
   const yargsObject = build(command);
 
   return {

@@ -41,12 +41,15 @@ function server() {
   type CommandArgs = GetCommandReturnType<typeof cmd>;
 
   const startHandler = (args: GetArgs<CommandArgs, "/start/">) => {
+    // start server
   };
 
   const statusHandler = (args: GetArgs<CommandArgs, "/status/">) => {
+    // show server status
   };
 
   const stopHandler = (args: GetArgs<CommandArgs, "/stop/">) => {
+    // stop server
   };
 
   const handler = startHandler;
@@ -98,15 +101,21 @@ function client() {
 }
 
 async function main() {
+  const { command: clientCommand, handler: clientHandler } = client();
+  const { command: serverCommand, handler: serverHandler } = server();
+
   const cmd = composeCommands(
-    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-    command(
-      "get [items..]",
-      "get items",
-      _ => _.positional("items", { array: true, type: "string" }),
+    addSubcommands(
+      command("client", "client management"),
+      clientCommand,
     ),
-    command("create", "create items"),
-    command("list", "list items"),
+    addSubcommands(
+      command("main", "client management"),
+      [addSubcommands(
+        command("server", "server management"),
+        serverCommand,
+      )],
+    ),
   );
 
   const { yargs, result } = buildAndParse(cmd);
@@ -118,14 +127,21 @@ async function main() {
     process.exit(1);
   }
 
-  if (result.right.command === "get") {
-    console.log(result.right.argv.items);
-    console.log(result.right.argv.debug);
+  if (result.right.command === "client") {
+    result.right.subcommand;
+    // clientHandler(result.right);
   }
-  else if (result.right.command === "create") {
+  else if (result.right.command === "server") {
   }
-  else if (result.right.command === "list") {
-  }
+
+  // if (result.right.command === "get") {
+  //   console.log(result.right.argv.items);
+  //   console.log(result.right.argv.debug);
+  // }
+  // else if (result.right.command === "create") {
+  // }
+  // else if (result.right.command === "list") {
+  // }
 }
 
 main();
