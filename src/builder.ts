@@ -1,4 +1,4 @@
-import * as y from "yargs";
+import y from "yargs";
 import { getCommandName } from "./common";
 import {
   BasicCommand,

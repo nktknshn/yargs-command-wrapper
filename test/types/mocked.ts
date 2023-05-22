@@ -1,4 +1,4 @@
-import { buildAndParseUnsafe as _buildAndParseUnsafe } from "../../src";
+import { buildAndParseUnsafeR as _buildAndParseUnsafe } from "../../src";
 import { Command, GetCommandReturnType } from "../../src/types";
 
 export const buildAndParseUnsafe = <TCommand extends Command>(

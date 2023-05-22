@@ -50,12 +50,12 @@ export const findAlias = <TCommand extends Command>(
 
   return E.left({
     error: "command not found",
-    message: `Alias ${alias} was not found in any command ${command.type}}`,
+    message: `Alias ${alias} was not found in any command ${command.type}`,
   });
 };
 
 const createYargs = () => {
-  return y.exitProcess(false)
+  return y().exitProcess(false)
     .showHelpOnFail(false)
     .fail((msg, err, yargs) => {
       if (err) throw err;
@@ -104,6 +104,18 @@ export const buildAndParse = <TCommand extends Command>(
 };
 
 export const buildAndParseUnsafe = <TCommand extends Command>(
+  command: TCommand,
+  arg?: string | readonly string[],
+): { result: GetCommandReturnType<TCommand>; yargs: y.Argv } => {
+  const { result, yargs } = buildAndParse(command, arg);
+
+  if (E.isLeft(result)) {
+    throw new Error(result.left.message);
+  }
+  return { result: result.right, yargs };
+};
+
+export const buildAndParseUnsafeR = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
 ): GetCommandReturnType<TCommand> => {
