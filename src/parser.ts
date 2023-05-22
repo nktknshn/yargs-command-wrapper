@@ -54,20 +54,54 @@ export const findAlias = <TCommand extends Command>(
   });
 };
 
+const createYargs = () => {
+  return y.exitProcess(false)
+    .showHelpOnFail(false)
+    .fail((msg, err, yargs) => {
+      if (err) throw err;
+      if (msg) throw new Error(msg);
+    });
+};
+
+export const build = <TCommand extends Command>(command: TCommand) =>
+  buildYargs(command)(createYargs());
+
+export const buildAndParseO = <TCommand extends Command>(
+  command: TCommand,
+  arg?: string | readonly string[],
+): {
+  result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
+  yargs: y.Argv;
+} => {
+  const yargsObject = build(command);
+
+  return {
+    result: parse(command, yargsObject, arg),
+    yargs: yargsObject,
+  };
+};
+
 export const buildAndParse = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-): E.Either<ErrorType, GetCommandReturnType<TCommand>> => {
-  const yargsObject = buildYargs(command)(y);
+): {
+  result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
+  yargs: y.Argv;
+} => {
+  const yargsObject = build(command);
 
-  return parse(command, yargsObject, arg);
+  return {
+    result: parse(command, yargsObject, arg),
+    yargs: yargsObject,
+  };
 };
 
 export const buildAndParseUnsafe = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
 ): GetCommandReturnType<TCommand> => {
-  const result = buildAndParse(command, arg);
+  const { result } = buildAndParse(command, arg);
+
   if (E.isLeft(result)) {
     throw new Error(result.left.message);
   }
@@ -79,39 +113,44 @@ export const parse = <TCommand extends Command>(
   yargsObject: y.Argv,
   arg?: string | readonly string[],
 ): E.Either<ErrorType, GetCommandReturnType<TCommand>> => {
-  const argv = arg ? yargsObject.parseSync(arg) : yargsObject.parseSync();
+  try {
+    const argv = arg ? yargsObject.parseSync(arg) : yargsObject.parseSync();
 
-  const result: Record<string, unknown> = {};
-  let currentCommand: Command | undefined = command;
+    const result: Record<string, unknown> = {};
+    let currentCommand: Command | undefined = command;
 
-  const withIndex = argv._.map(String).map((x, idx) => [idx, x] as const);
+    const withIndex = argv._.map(String).map((x, idx) => [idx, x] as const);
 
-  for (let [idx, cmd] of withIndex) {
-    const prefix = replicate(idx, `sub`).join("");
+    for (let [idx, cmd] of withIndex) {
+      const prefix = replicate(idx, `sub`).join("");
 
-    if (currentCommand === undefined) {
-      return E.left({
-        error: "command not found",
-        message: "out of commands",
-      });
+      if (currentCommand === undefined) {
+        return E.left({
+          error: "command not found",
+          message: "out of commands",
+        });
+      }
+
+      const alias: E.Either<ErrorType, [string, Command | undefined]> =
+        findAlias(
+          currentCommand,
+          cmd,
+        );
+
+      if (E.isLeft(alias)) {
+        return alias;
+      }
+
+      [cmd, currentCommand] = alias.right;
+
+      result[`${prefix}command`] = cmd;
     }
 
-    const alias: E.Either<ErrorType, [string, Command | undefined]> = findAlias(
-      currentCommand,
-      cmd,
-    );
+    result["argv"] = argv;
 
-    if (E.isLeft(alias)) {
-      return alias;
-    }
-
-    [cmd, currentCommand] = alias.right;
-
-    result[`${prefix}command`] = cmd;
+    // console.log(`result: ${JSON.stringify(result, null, 2)}`);
+    return E.of(result as GetCommandReturnType<TCommand>);
+  } catch (e) {
+    return E.left({ error: "yargs error", message: String(e) });
   }
-
-  result["argv"] = argv;
-
-  // console.log(`result: ${JSON.stringify(result, null, 2)}`);
-  return E.of(result as GetCommandReturnType<TCommand>);
 };

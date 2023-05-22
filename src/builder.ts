@@ -142,6 +142,7 @@ export const buildYargs = <TCommand extends Command>(
     //     command.commands.map(_ => _.type)
     //   }. builder: ${command.builder}`,
     // );
+    yargsObject = yargsObject.demandCommand(1);
 
     return command.commands.reduce(
       (acc, cur) => buildYargs(cur)(acc),
@@ -156,7 +157,10 @@ export const buildYargs = <TCommand extends Command>(
     return yargsObject.command(
       command.command.commandDesc,
       command.command.description,
-      a => buildYargs(command.subcommands)(command.command.builder(a)),
+      a =>
+        buildYargs(command.subcommands)(
+          command.command.builder(a).demandCommand(1),
+        ),
     );
   }
   else {
