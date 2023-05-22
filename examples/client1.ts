@@ -1,24 +1,115 @@
 import {
   addSubcommands,
+  build,
   buildAndParse,
   command,
   composeCommands,
   Either,
+  GetCommandReturnType,
+  parse,
 } from "../src";
 
-async function main() {
-  const { yargs, result } = buildAndParse(
-    composeCommands(
-      _ => _.option("debug", { type: "boolean", default: false }),
-      command(
-        "get [items..]",
-        "get items",
-        _ => _.positional("items", { array: true, type: "string" }),
-      ),
-      command("create", "create items"),
-      command("list", "list items"),
+interface Address {
+  address: string;
+  port: number;
+}
+
+type PathToObject<TPath extends string, TPrefix extends string = ""> =
+  TPath extends `/${infer TName}/${infer TRest}` ? 
+      & Record<`${TPrefix}command`, TName>
+      & PathToObject<`/${TRest}`, `sub${TPrefix}`>
+    : {};
+
+type Z = PathToObject<"/c/d/e/">;
+
+type GetArgs<TArgs, TPath extends string> = TArgs extends unknown
+  ? TArgs extends PathToObject<TPath> ? TArgs : never
+  : never;
+
+function server() {
+  const cmd = composeCommands(
+    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
+    command(
+      "start",
+      "start server",
+      _ => _.positional("items", { array: true, type: "string" }),
+    ),
+    command("status", "get server status"),
+    command("stop", "stop server"),
+  );
+
+  type CommandArgs = GetCommandReturnType<typeof cmd>;
+
+  const startHandler = (args: GetArgs<CommandArgs, "/start/">) => {
+  };
+
+  const statusHandler = (args: GetArgs<CommandArgs, "/status/">) => {
+  };
+
+  const stopHandler = (args: GetArgs<CommandArgs, "/stop/">) => {
+  };
+
+  const handler = startHandler;
+
+  return {
+    command: cmd,
+    handler,
+  };
+}
+
+function client() {
+  const cmd = composeCommands(
+    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
+    command(
+      "list <address> [path[",
+      "list files",
+      _ =>
+        _
+          .positional("address", { type: "string", demandOption: true })
+          .positional("path", { type: "string", default: "/" }),
+    ),
+    command(
+      "download <address> <files..>",
+      "download files",
+      _ =>
+        _
+          .positional("address", { type: "string", demandOption: true })
+          .positional("files", { type: "string", array: true }),
+    ),
+    command(
+      "upload <address> <files..>",
+      "upload files",
+      _ =>
+        _
+          .positional("address", { type: "string", demandOption: true })
+          .positional("files", { type: "string", array: true }),
     ),
   );
+
+  type CommandArgs = GetCommandReturnType<typeof cmd>;
+
+  const listHandler = (args: GetArgs<CommandArgs, "/list/">) => {
+  };
+
+  return {
+    command: cmd,
+    handler: listHandler,
+  };
+}
+
+async function main() {
+  const cmd = composeCommands(
+    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
+    command(
+      "get [items..]",
+      "get items",
+      _ => _.positional("items", { array: true, type: "string" }),
+    ),
+    command("create", "create items"),
+    command("list", "list items"),
+  );
+
+  const { yargs, result } = buildAndParse(cmd);
 
   if (Either.isLeft(result)) {
     yargs.showHelp();
@@ -28,8 +119,8 @@ async function main() {
   }
 
   if (result.right.command === "get") {
-    result.right.argv.items;
-    result.right.argv.debug;
+    console.log(result.right.argv.items);
+    console.log(result.right.argv.debug);
   }
   else if (result.right.command === "create") {
   }

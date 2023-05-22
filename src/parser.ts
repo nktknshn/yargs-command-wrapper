@@ -3,7 +3,7 @@ import { buildYargs } from "./builder";
 import { getCommandName } from "./common";
 import * as E from "./either";
 import { ErrorType } from "./error";
-import { Command, GetCommandReturnType } from "./types";
+import { Builder, Command, GetCommandReturnType } from "./types";
 import { replicate } from "./util";
 
 /**
@@ -60,30 +60,33 @@ const createYargs = () => {
     .fail((msg, err, yargs) => {
       if (err) throw err;
       if (msg) throw new Error(msg);
-    });
+    })
+    .strict()
+    .strictCommands();
 };
 
 export const build = <TCommand extends Command>(command: TCommand) =>
   buildYargs(command)(createYargs());
 
-export const buildAndParseO = <TCommand extends Command>(
-  command: TCommand,
-  arg?: string | readonly string[],
-): {
-  result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
-  yargs: y.Argv;
-} => {
-  const yargsObject = build(command);
+// export const buildAndParseO = <TCommand extends Command>(
+//   command: TCommand,
+//   arg?: string | readonly string[],
+// ): {
+//   result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
+//   yargs: y.Argv;
+// } => {
+//   const yargsObject = build(command);
 
-  return {
-    result: parse(command, yargsObject, arg),
-    yargs: yargsObject,
-  };
-};
+//   return {
+//     result: parse(command, yargsObject, arg),
+//     yargs: yargsObject,
+//   };
+// };
 
 export const buildAndParse = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
+  builder?: Builder<{}>,
 ): {
   result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
   yargs: y.Argv;
@@ -91,7 +94,11 @@ export const buildAndParse = <TCommand extends Command>(
   const yargsObject = build(command);
 
   return {
-    result: parse(command, yargsObject, arg),
+    result: parse(
+      command,
+      builder ? builder(yargsObject) : yargsObject,
+      arg,
+    ),
     yargs: yargsObject,
   };
 };
