@@ -5,6 +5,10 @@ export type TupleKeys<T> = Exclude<keyof T, keyof []>;
 export type ToList<U> = [U] extends [never] ? []
   : readonly [Last<U>, ...ToList<Exclude<U, Last<U>>>];
 
+export type ToUnion<L> = L extends readonly [infer A, ...infer B]
+  ? A | ToUnion<B>
+  : never;
+
 export type Last<U extends any> = IntersectOf<
   U extends unknown // Distribute U
     ? (x: U) => void

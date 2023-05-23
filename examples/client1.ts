@@ -5,26 +5,17 @@ import {
   command,
   composeCommands,
   Either,
+  fail,
   GetCommandReturnType,
   parse,
 } from "../src";
+import { createHandler, GetArgs, Handler } from "../src/handler";
+import { ToUnion, TupleToUnion } from "../src/util";
 
 interface Address {
   address: string;
   port: number;
 }
-
-type PathToObject<TPath extends string, TPrefix extends string = ""> =
-  TPath extends `/${infer TName}/${infer TRest}` ? 
-      & Record<`${TPrefix}command`, TName>
-      & PathToObject<`/${TRest}`, `sub${TPrefix}`>
-    : {};
-
-type Z = PathToObject<"/c/d/e/">;
-
-type GetArgs<TArgs, TPath extends string> = TArgs extends unknown
-  ? TArgs extends PathToObject<TPath> ? TArgs : never
-  : never;
 
 function server() {
   const cmd = composeCommands(
@@ -40,23 +31,33 @@ function server() {
 
   type CommandArgs = GetCommandReturnType<typeof cmd>;
 
-  const startHandler = (args: GetArgs<CommandArgs, "/start/">) => {
-    // start server
+  const startHandler: Handler<GetArgs<CommandArgs, "/start/">["argv"]> = (
+    args,
+  ) => {
+    // start servers
   };
 
-  const statusHandler = (args: GetArgs<CommandArgs, "/status/">) => {
+  const statusHandler: Handler<GetArgs<CommandArgs, "/status/">["argv"]> = (
+    args,
+  ) => {
     // show server status
   };
 
-  const stopHandler = (args: GetArgs<CommandArgs, "/stop/">) => {
+  const stopHandler: Handler<GetArgs<CommandArgs, "/stop/">["argv"]> = (
+    args,
+  ) => {
     // stop server
   };
 
-  const handler = startHandler;
-
   return {
     command: cmd,
-    handler,
+    handler: createHandler(
+      {
+        "start": startHandler,
+        "stop": stopHandler,
+        "status": statusHandler,
+      },
+    ),
   };
 }
 
@@ -91,12 +92,46 @@ function client() {
 
   type CommandArgs = GetCommandReturnType<typeof cmd>;
 
-  const listHandler = (args: GetArgs<CommandArgs, "/list/">) => {
+  const listHandler: Handler<GetArgs<CommandArgs, "/list/">["argv"]> = (
+    argv,
+  ) => {
   };
+
+  const downloadHandler: Handler<GetArgs<CommandArgs, "/download/">["argv"]> = (
+    argv,
+  ) => {};
+
+  const uploadHandler: Handler<GetArgs<CommandArgs, "/upload/">["argv"]> = (
+    argv,
+  ) => {};
+
+  // createCommandHandler
+  /*
+  const handler = createCommandHandler(
+    cmd,
+    {
+      "list": (argv) => {},
+      "download": (argv) => {},
+      "upload": (argv) => {},
+    }
+  )
+  */
+  const handler = createHandler(
+    {
+      "list": listHandler,
+      "download": downloadHandler,
+      "upload": uploadHandler,
+    },
+  );
+
+  handler({
+    command: "list",
+    argv: { address: "localhost", path: "/", debug: true },
+  });
 
   return {
     command: cmd,
-    handler: listHandler,
+    handler,
   };
 }
 
@@ -110,29 +145,52 @@ async function main() {
       clientCommand,
     ),
     addSubcommands(
-      command("main", "client management"),
-      [addSubcommands(
-        command("server", "server management"),
-        serverCommand,
-      )],
+      command("server", "server management"),
+      serverCommand,
     ),
+    // addSubcommands(
+    //   command("main", "client management"),
+    //   [addSubcommands(
+    //     command("server", "server management"),
+    //     serverCommand,
+    //   )],
+    // ),
   );
+
+  const handler = createHandler(
+    { "client": clientHandler, "server": serverHandler },
+  );
+
+  handler({
+    command: "server",
+    subcommand: "start",
+    argv: {
+      // address: "localhost",
+      // path: "/",
+      items: [],
+      debug: true,
+    },
+    // command: "client",
+    // subcommand: "start",
+  });
 
   const { yargs, result } = buildAndParse(cmd);
 
   if (Either.isLeft(result)) {
-    yargs.showHelp();
-    console.error();
-    console.error(result.left.message);
-    process.exit(1);
+    fail(yargs, result);
   }
 
-  if (result.right.command === "client") {
-    result.right.subcommand;
-    // clientHandler(result.right);
-  }
-  else if (result.right.command === "server") {
-  }
+  handler(result.right);
+
+  // if (result.right.command === "client") {
+  //   result.right.subcommand;
+  //   // clientHandler(result.right);
+  // }
+  // else if (result.right.command === "server") {
+  //   serverHandler({
+  //     command: "start",
+  //   });
+  // }
 
   // if (result.right.command === "get") {
   //   console.log(result.right.argv.items);

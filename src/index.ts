@@ -1,6 +1,8 @@
 export { addSubcommands, command, composeCommands } from "./builder";
 
 export * as Either from "./either";
+export { createHandler } from "./handler";
+export { fail } from "./helpers";
 export {
   build,
   buildAndParse,

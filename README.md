@@ -21,7 +21,14 @@ const cmd = composeCommands(
     [
       command("start", "start server"),
       command("stop", "stop server"),
-      command("status", "stop server"),
+      command("status", "show server status"),
+      addSubcommands(
+        command("config", "config management"),
+        [
+          command("list", "list config"),
+          command("set", "set config"),
+        ],
+      ),
     ],
   ),
   addSubcommands(
@@ -30,6 +37,13 @@ const cmd = composeCommands(
       command("list", "list files"),
       command("download", "download files"),
       command("upload", "upload files"),
+      addSubcommands(
+        command("config", "config management"),
+        [
+          command("list", "list config"),
+          command("set", "set config"),
+        ],
+      ),
     ],
   ),
 );
