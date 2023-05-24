@@ -24,11 +24,6 @@ type CommandArgs = {
   "argv": unknown;
 };
 
-type F = () => void;
-
-const a: F = () => {};
-const b: F = async () => {};
-
 type HandlerType = "sync" | "async";
 
 /**
@@ -49,16 +44,6 @@ export type ComposedHandler<
 
 type Handler = BasicHandler<any> | ComposedHandler<any>;
 
-export type HandlerSync<TArgv extends Record<string, unknown>> = (
-  args: TArgv,
-) => void;
-
-export type HandlerAsync<TArgv extends Record<string, unknown>> = (
-  args: TArgv,
-) => Promise<void>;
-
-// type HandlersRecord = Record<string, Handler<never>>;
-
 type HandlersUnion<T extends {}> = {
   [K in Extract<keyof T, string>]: T[K] extends ComposedHandler<infer TArgs>
     ? AddCommand<TArgs, Cast<K, string>, {}>
@@ -66,7 +51,7 @@ type HandlersUnion<T extends {}> = {
     : never;
 }[Extract<keyof T, string>];
 
-type TypeError<TMessage extends string> = never;
+type TypeError<TMessage extends string> = TMessage;
 type HandlersStruct = Record<string, Handler>;
 
 type IsHandlersRecord<T extends HandlersStruct> = T extends
@@ -107,9 +92,6 @@ export const createHandler = <TRec extends HandlersStruct>(
   }
 };
 
-// let a: unknown = 1;
-// let b: number = 0 as unknown;
-
 export const shiftCommand = <
   T extends {
     command: string;
@@ -144,14 +126,16 @@ type GetCommandName<TCommand extends Command> = TCommand extends
 
 export type HandlerFor<
   TCommand extends Command,
+  TType extends HandlerType = "sync",
   TGlobalArgv extends {} = {},
 > = TCommand extends BasicCommand<infer TName, infer TArgv>
-  ? BasicHandler<TArgv & TGlobalArgv>
+  ? BasicHandler<TArgv & TGlobalArgv, TType>
   : TCommand extends ComposedCommands<
     infer TCommands,
     infer TArgv
   > ? ComposedHandler<
-      GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>
+      GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
+      TType
     >
   : TCommand extends CommandWithSubcommands<
     infer TName,
@@ -159,7 +143,12 @@ export type HandlerFor<
     infer TCommands,
     infer TCommandArgv
   > ? ComposedHandler<
-      GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>
+      AddCommand<
+        GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>,
+        TName,
+        TGlobalArgv
+      >,
+      TType
     >
   : never;
 
@@ -167,39 +156,63 @@ export type GetArgv<TCommand extends Command> = Parameters<
   HandlerFor<TCommand>
 >[0];
 
-// export type InputHandlerFor<
-//   TCommand extends Command,
-//   TGlobalArgv extends {} = {},
-// > = TCommand extends BasicCommand<infer TName, infer TArgv>
-//   ? BasicHandler<TArgv & TGlobalArgv>
-//   : TCommand extends ComposedCommands<
-//     infer TCommands,
-//     infer TArgv
-//   > ? {
-//       [
-//         P in TupleKeys<TCommands> as GetCommandName<
-//           Cast<TCommands[P], Command>
-//         >
-//       ]: HandlerFor<
-//         Cast<TCommands[P], Command>,
-//         TArgv
-//       >;
-//     }
-//   : TCommand extends CommandWithSubcommands<
-//     infer TName,
-//     infer TArgv,
-//     infer TCommands,
-//     infer TCommandArgv
-//   > ? ComposedHandler<
-//       GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>
-//     >
-//   : never;
+export const createHandlerFor = <
+  TCommand extends Command,
+  TInput extends InputStructHandlerFor<TCommand>,
+>(
+  command: TCommand,
+  recordOrFunction: TInput,
+): HandlerFor<TCommand, GetInputStructHandlerType<TInput>> => {
+  if (command.type === "command") {
+    return ((args: any) => (recordOrFunction as any)(args)) as any;
+  }
+  else if (command.type === "composed") {
+    return createHandler(recordOrFunction as any) as any;
+  }
+  else {
+    return createHandler({
+      [command.command.commandName]: recordOrFunction as any,
+    }) as any;
+  }
+};
 
-// export const createHandlerFor = <
-//   TCommand extends Command,
-// >(
-//   command: TCommand,
-//   record: InputHandlerFor<TCommand>,
-// ): HandlerFor<TCommand> => {
-//   return {} as any;
-// };
+type GetInputStructHandlerType<T extends InputStructHandlerFor<Command>> =
+  T extends Handler ? GetHandlerType<T>
+    : T extends HandlersStruct ? GetStructHandlersType<T>
+    : never;
+
+type ComposedCommandsInputStruct<TCommand extends ComposedCommands> =
+  TCommand extends ComposedCommands<
+    infer TCommands,
+    infer TArgv
+  > ? {
+      [
+        P in TupleKeys<TCommands> as GetCommandName<Cast<TCommands[P], Command>>
+      ]: HandlerFor<
+        Cast<TCommands[P], Command>,
+        HandlerType,
+        TArgv
+      >;
+    }
+    : never;
+
+export type InputStructHandlerFor<
+  TCommand extends Command,
+  // TType extends HandlerType = "sync",
+  TGlobalArgv extends {} = {},
+> = TCommand extends BasicCommand<infer TName, infer TArgv>
+  ? BasicHandler<TArgv & TGlobalArgv, HandlerType>
+  : TCommand extends ComposedCommands<
+    infer TCommands,
+    infer TArgv
+  > ? ComposedCommandsInputStruct<TCommand>
+  : TCommand extends CommandWithSubcommands<
+    infer TName,
+    infer TArgv,
+    infer TCommands,
+    infer TCommandArgv
+  > ? ComposedHandler<
+      GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>,
+      HandlerType
+    >
+  : never;

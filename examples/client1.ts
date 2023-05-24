@@ -3,21 +3,24 @@ import {
   buildAndParse,
   command,
   composeCommands,
+  createHandler,
   Either,
   fail,
+  GetArgv,
 } from "../src";
-
-import { createHandler, GetArgv, HandlerFor } from "../src/handler";
-
-type SyncHandler<T> = (args: T) => void;
-type AsyncHandler<T> = (args: T) => Promise<void>;
-type Handler<T> = SyncHandler<T> | AsyncHandler<T>;
-
-const h: SyncHandler<{}> = async () => {};
+import { createHandlerFor } from "../src/handler";
 
 interface Address {
   address: string;
   port: number;
+}
+
+function parseAddress(address: string): Address {
+  const [addr, port] = address.split(":");
+  if (port === undefined) {
+    throw new Error(`invalid address: ${address}`);
+  }
+  return { address: addr, port: parseInt(port) };
 }
 
 function server() {
@@ -26,12 +29,12 @@ function server() {
     command(
       "start",
       "start server",
-      _ => _.positional("address", { type: "string" }),
+      _ => _.positional("address", { type: "string", coerce: parseAddress }),
     ),
     command(
       "status",
       "get server status",
-      _ => _.option("force", { type: "boolean" }),
+      _ => _.option("json", { type: "boolean", default: false }),
     ),
     command(
       "stop",
@@ -41,48 +44,80 @@ function server() {
   );
 
   const startHandler = async (
-    args: GetArgv<typeof cmd["commands"][0]>,
+    args: GetArgv<typeof cmd["commands"][0]> & { debug: boolean },
   ) => {
-    // start servers
+    const address = args.address ?? { address: "0.0.0.0", port: 8080 };
+    console.log(
+      `start server at ${address.address}:${address.port}`,
+    );
   };
 
-  const statusHandler: HandlerFor<typeof cmd["commands"][1]> = (
-    args,
+  const statusHandler = async (
+    args: GetArgv<typeof cmd["commands"][1]>,
   ) => {
-    // show server status
+    console.log(
+      `get server status ${args.json ? "as json" : ""}`,
+    );
   };
 
-  const stopHandler: HandlerFor<typeof cmd["commands"][2]> = (
-    args,
+  const stopHandler = async (
+    args: GetArgv<typeof cmd["commands"][2]>,
   ) => {
-    // stop server
-  };
-
-  // const h: HandlerFor<typeof cmd> = createHandler({
-  //   "start": (args: {}) => {},
-  //   "stop": stopHandler,
-  //   "status": statusHandler,
-  // });
-
-  const hs = {
-    "start": async () => {},
-    "stop": async () => {},
-    "status": async () => {},
+    console.log(
+      `stop server ${args.grateful ? "gracefully" : "forcefully"}`,
+    );
   };
 
   return {
     command: cmd,
-    handler: createHandler(hs),
+    handler: createHandler({
+      "start": startHandler,
+      "status": statusHandler,
+      "stop": stopHandler,
+    }),
   };
 }
 
 function client() {
+  const configCommand = composeCommands(
+    command(
+      "get [key]",
+      "get config value",
+      _ => _.positional("key", { type: "string" }),
+    ),
+    command(
+      "set <key> <value>",
+      "set config key",
+      _ =>
+        _
+          .positional("value", { type: "string", demandOption: true })
+          .positional("key", { type: "string", demandOption: true }),
+    ),
+  );
+
+  const configHandler = createHandlerFor(configCommand, {
+    "get": async (argv) => {
+      console.log(
+        `get config ${argv.key ?? "all"}`,
+      );
+    },
+    "set": async (argv) => {
+      console.log(
+        `set config ${argv.key} ${argv.value}`,
+      );
+    },
+  });
+
   const commandList = command(
-    "list <address> [path[",
+    "list <address> [path]",
     "list files",
     _ =>
       _
-        .positional("address", { type: "string", demandOption: true })
+        .positional("address", {
+          type: "string",
+          coerce: parseAddress,
+          demandOption: true,
+        })
         .positional("path", { type: "string", default: "/" }),
   );
 
@@ -91,7 +126,11 @@ function client() {
     "download files",
     _ =>
       _
-        .positional("address", { type: "string", demandOption: true })
+        .positional("address", {
+          type: "string",
+          demandOption: true,
+          coerce: parseAddress,
+        })
         .positional("files", { type: "string", array: true }),
   );
 
@@ -100,7 +139,11 @@ function client() {
     "upload files",
     _ =>
       _
-        .positional("address", { type: "string", demandOption: true })
+        .positional("address", {
+          type: "string",
+          demandOption: true,
+          coerce: parseAddress,
+        })
         .positional("files", { type: "string", array: true }),
   );
 
@@ -109,37 +152,35 @@ function client() {
     commandList,
     commandDownload,
     commandUpload,
+    addSubcommands(
+      command("config", "config management"),
+      configCommand,
+    ),
   );
 
-  const listHandler = async (
-    argv: GetArgv<typeof commandList>,
-  ): Promise<void> => {
+  const listHandler = async (argv: GetArgv<typeof commandList>) => {
+    console.log(
+      `list ${argv.address.address}:${argv.address.port} at ${argv.path}`,
+    );
   };
 
-  const downloadHandler = async (
-    argv: GetArgv<typeof commandDownload>,
-  ) => {};
+  const downloadHandler = async (argv: GetArgv<typeof commandDownload>) => {
+    console.log(
+      `download ${argv.address.address}:${argv.address.port} ${argv.files}`,
+    );
+  };
 
-  const uploadHandler = async (
-    argv: GetArgv<typeof commandUpload>,
-  ) => {};
-
-  // const handler2: HandlerFor<typeof cmd> = createHandlerFor(
-  //   cmd,
-  //   {
-  //     download: ({ address, debug, files }) => {},
-  //     list: listHandler,
-  //     upload: uploadHandler,
-  //   },
-  // );
-
-  // const a: (a: number) => void = (a: never) => {};
-  // const b: (a: never) => void = (a: number) => {};
+  const uploadHandler = async (argv: GetArgv<typeof commandUpload>) => {
+    console.log(
+      `upload ${argv.address.address}:${argv.address.port} ${argv.files}`,
+    );
+  };
 
   const handler = createHandler({
     "list": listHandler,
     "download": downloadHandler,
     "upload": uploadHandler,
+    "config": configHandler,
   });
 
   return {
@@ -157,29 +198,31 @@ async function main() {
     clientCommand,
   );
 
+  const commandServer = addSubcommands(
+    command("server", "server management"),
+    serverCommand,
+  );
+
   const cmd = composeCommands(
+    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
     commandClient,
-    addSubcommands(
-      command("server", "server management"),
-      serverCommand,
-    ),
-    // addSubcommands(
-    //   command("main", "client management"),
-    //   [addSubcommands(
-    //     command("server", "server management"),
-    //     serverCommand,
-    //   )],
-    // ),
+    commandServer,
   );
 
   const handler = createHandler(
     { "client": clientHandler, "server": serverHandler },
   );
 
-  const { yargs, result } = buildAndParse(commandClient);
+  const { yargs, result } = buildAndParse(cmd, process.argv.slice(2));
 
   if (Either.isLeft(result)) {
     fail(yargs, result);
+  }
+
+  if (result.right.argv.debug) {
+    console.log(
+      JSON.stringify(result.right, null, 2),
+    );
   }
 
   await handler(result.right);

@@ -25,9 +25,6 @@ export const findAlias = <TCommand extends Command>(
         return E.of([alias, undefined]);
       }
     }
-    // if (command.commandDesc.includes(alias)) {
-    //   return E.of([command.commandDesc[0], undefined]);
-    // }
   }
   else if (command.type === "with-subcommands") {
     if (command.command.commandDesc.includes(alias)) {
@@ -60,6 +57,7 @@ const createYargs = () => {
       if (err) throw err;
       if (msg) throw new Error(msg);
     })
+    .demandCommand(1)
     .strict()
     .strictCommands();
 };
@@ -119,7 +117,13 @@ export const parse = <TCommand extends Command>(
   arg?: string | readonly string[],
 ): E.Either<ErrorType, GetCommandReturnType<TCommand>> => {
   try {
-    const argv = arg ? yargsObject.parseSync(arg) : yargsObject.parseSync();
+    const argv = arg !== undefined
+      ? yargsObject.parseSync(arg)
+      : yargsObject.parseSync();
+
+    // console.log(
+    //   `argv: ${JSON.stringify(argv, null, 2)}`,
+    // );
 
     const result: Record<string, unknown> = {};
     let currentCommand: Command | undefined = command;
