@@ -1,4 +1,4 @@
-import { createHandler, GetArgv } from "../../../src";
+import { composeHandlers, GetArgv } from "../../../src";
 import { Address } from "../common";
 import { commandDownload, commandList, commandUpload } from "./args";
 import * as config from "./config";
@@ -25,7 +25,7 @@ const uploadHandler = async (argv: GetArgv<typeof commandUpload>) => {
   );
 };
 
-export const handler = createHandler({
+export const handler = composeHandlers({
   "list": listHandler,
   "download": downloadHandler,
   "upload": uploadHandler,

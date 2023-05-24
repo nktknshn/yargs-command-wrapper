@@ -1,37 +1,37 @@
 import {
-  addSubcommands,
   buildAndParse,
-  command,
-  composeCommands,
+  comm,
+  comp,
   createHandlerFor,
   Either,
-  fail,
+  failClient,
+  subs,
 } from "../src";
 
-const cmd = composeCommands(
+const cmd = comp(
   _ => _.option("debug", { type: "boolean", default: false }),
-  addSubcommands(
-    command(["server", "s"], "server management"),
+  subs(
+    comm(["server", "s"], "server management"),
     [
-      command(
+      comm(
         ["start", "sta"],
         "start server",
         _ => _.option("port", { type: "number" }),
       ),
-      command(
+      comm(
         ["stop", "sto"],
         "stop server",
         _ => _.option("force", { type: "boolean", default: false }),
       ),
-      addSubcommands(
-        command(["config", "c"], "config management"),
+      subs(
+        comm(["config", "c"], "config management"),
         [
-          command(
+          comm(
             ["get [key]", "g"],
             "get config value",
             _ => _.positional("key", { type: "string" }),
           ),
-          command(
+          comm(
             ["set <key> <value>", "s"],
             "set config key",
             _ =>
@@ -43,33 +43,33 @@ const cmd = composeCommands(
       ),
     ],
   ),
-  addSubcommands(
-    command(["client", "c"], "client management"),
+  subs(
+    comm(["client", "c"], "client management"),
     [
-      command(["list", "l", "ls"], "list files", _ =>
+      comm(["list", "l", "ls"], "list files", _ =>
         _.options({
           address: { type: "string", demandOption: true },
           path: { type: "string", default: "/" },
         })),
-      command(["download <files..>", "d"], "download files", _ =>
+      comm(["download <files..>", "d"], "download files", _ =>
         _.options({
           address: { type: "string", demandOption: true },
           files: { type: "string", array: true },
         })),
-      command(["upload <files..>", "u"], "upload files", _ =>
+      comm(["upload <files..>", "u"], "upload files", _ =>
         _.options({
           address: { type: "string", demandOption: true },
           files: { type: "string", array: true },
         })),
-      addSubcommands(
-        command(["config", "c"], "config management"),
+      subs(
+        comm(["config", "c"], "config management"),
         [
-          command(
+          comm(
             ["get [key]", "g"],
             "get config value",
             _ => _.positional("key", { type: "string" }),
           ),
-          command(
+          comm(
             ["set <key> <value>", "s"],
             "set config key",
             _ =>
@@ -86,7 +86,7 @@ const cmd = composeCommands(
 const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));
 
 if (Either.isLeft(result)) {
-  fail(yargs, result);
+  failClient(yargs, result);
 }
 
 if (result.right.argv.debug) {
@@ -132,6 +132,13 @@ if (result.right.command === "client") {
       "config": configHandler,
     },
   );
+
+  // clientHandler({
+  //   command: "client",
+  //   subcommand: "config",
+  //   subsubcommand: "set",
+  //   argv: { key: "foo", value: "bar" },
+  // });
 
   // handle parsed arguments
   clientHandler(result.right);

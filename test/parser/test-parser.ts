@@ -1,29 +1,29 @@
 import assert from "assert";
 import yargs from "yargs";
 import {
-  addSubcommands,
   buildAndParse,
   buildAndParseUnsafe,
   buildAndParseUnsafeR,
-  command,
-  composeCommands,
+  comm,
+  comp,
   Either as E,
+  subs,
 } from "../../src";
 import { addCommand } from "../../src/parser";
 
 const demandCommand = <T>(y: yargs.Argv<T>) => yargs.demandCommand(1);
 
 describe("parser commands", () => {
-  const cmd = composeCommands(
+  const cmd = comp(
     // _ => _.demandCommand(1),
     // demandCommand,
-    addSubcommands(
-      command("command1", "desc"),
-      [command("sc1", "desc"), command("sc2", "desc")],
+    subs(
+      comm("command1", "desc"),
+      [comm("sc1", "desc"), comm("sc2", "desc")],
     ),
-    addSubcommands(
-      command("command2", "desc"),
-      [command("sc3", "desc"), command("sc4", "desc")],
+    subs(
+      comm("command2", "desc"),
+      [comm("sc3", "desc"), comm("sc4", "desc")],
     ),
   );
 
@@ -48,9 +48,9 @@ describe("parser commands", () => {
 
 describe("parser commands", () => {
   test("mix options 1", () => {
-    const cmd = composeCommands(
+    const cmd = comp(
       _ => _.option("debug", { type: "boolean", default: false }),
-      command("get", "get", _ => _.option("debug", { type: "boolean" })),
+      comm("get", "get", _ => _.option("debug", { type: "boolean" })),
     );
 
     expect(buildAndParseUnsafeR(cmd, "--debug get").argv.debug)
@@ -64,14 +64,14 @@ describe("parser commands", () => {
   });
 
   test("mix options 2", () => {
-    const cmd = composeCommands(
+    const cmd = comp(
       _ => _.option("debug", { type: "boolean", default: false }),
-      addSubcommands(
-        command("command1", "command 1"),
-        composeCommands(
+      subs(
+        comm("command1", "command 1"),
+        comp(
           _ => _.option("debug", { type: "boolean" }),
-          command("get", "get"),
-          command("list", "get"),
+          comm("get", "get"),
+          comm("list", "get"),
         ),
       ),
     );

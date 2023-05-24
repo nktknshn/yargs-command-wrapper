@@ -1,5 +1,5 @@
 import { expectTypeOf } from "expect-type";
-import { createHandler } from "../../src";
+import { composeHandlers } from "../../src";
 import { shiftCommand } from "../../src/handler";
 
 describe("handler", () => {
@@ -21,7 +21,7 @@ describe("handler", () => {
   test("test basic", () => {
     const [statusfn, startfn, stopfn] = [jest.fn(), jest.fn(), jest.fn()];
 
-    const handler = createHandler({
+    const handler = composeHandlers({
       "status": (args: { items: string[] }) => statusfn(args),
       "start": (args: { address: string }) => startfn(args),
       "stop": (args: { grateful: boolean }) => stopfn(args),
@@ -39,14 +39,14 @@ describe("handler", () => {
   test("test nested", () => {
     const [getfn, setfn] = [jest.fn(), jest.fn()];
 
-    const configHandler = createHandler({
+    const configHandler = composeHandlers({
       "get": (args: { key: string }) => getfn(args),
       "set": (args: { key: string }) => setfn(args),
     });
 
     const [statusfn, startfn, stopfn] = [jest.fn(), jest.fn(), jest.fn()];
 
-    const serverHandler = createHandler({
+    const serverHandler = composeHandlers({
       "status": (args: { items: string[] }) => statusfn(args),
       "start": (args: { address: string }) => startfn(args),
       "stop": (args: { grateful: boolean }) => stopfn(args),
@@ -54,14 +54,14 @@ describe("handler", () => {
 
     const [listfn, uploadfn, downloadfn] = [jest.fn(), jest.fn(), jest.fn()];
 
-    const handlerClient = createHandler({
+    const handlerClient = composeHandlers({
       "list": (args: { path: string }) => listfn(args),
       "upload": (args: { items: string[] }) => uploadfn(args),
       "download": (args: { files: string[] }) => downloadfn(args),
       "config": configHandler,
     });
 
-    const handler = createHandler({
+    const handler = composeHandlers({
       "server": serverHandler,
       "client": handlerClient,
     });

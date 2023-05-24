@@ -8,7 +8,7 @@ import { buildAndParse } from "./parser";
 import { Command } from "./types";
 import { isObjectWithOwnProperty } from "./util";
 
-export function fail(
+export function failClient(
   yargs: y.Argv,
   error: string | ErrorType | E.Left<ErrorType>,
 ): never {
@@ -39,7 +39,7 @@ async () => {
   const { yargs, result } = buildAndParse(cmd, process.argv.slice(2));
 
   if (Either.isLeft(result)) {
-    fail(yargs, result);
+    failClient(yargs, result);
   }
   const res = (handler as any)(result.right);
 

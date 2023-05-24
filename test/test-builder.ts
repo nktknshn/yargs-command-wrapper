@@ -1,30 +1,30 @@
 import * as y from "yargs";
-import { addSubcommands, command, composeCommands } from "../src";
+import { comm, comp, subs } from "../src";
 
 describe("test builder functions", () => {
   test("test command", () => {
-    const command1 = command("command1", "desc");
+    const command1 = comm("command1", "desc");
     expect(command1.commandName).toBe("command1");
     expect(command1.commandDesc).toStrictEqual(["command1"]);
 
-    expect(command(["command1"], "desc").commandName).toBe(
+    expect(comm(["command1"], "desc").commandName).toBe(
       "command1",
     );
 
-    const command2 = command("command2 <id>", "desc");
+    const command2 = comm("command2 <id>", "desc");
     expect(command2.commandName).toBe("command2");
     expect(command2.commandDesc).toStrictEqual(["command2 <id>"]);
 
-    expect(command(["command2 <id>", "cmd2", "c"], "desc").commandName).toBe(
+    expect(comm(["command2 <id>", "cmd2", "c"], "desc").commandName).toBe(
       "command2",
     );
   });
 
   test("test composeCommands", () => {
-    const command1 = command("command1", "desc");
-    const command2 = command("command2", "desc");
+    const command1 = comm("command1", "desc");
+    const command2 = comm("command2", "desc");
 
-    const composed1 = composeCommands(
+    const composed1 = comp(
       command1,
       command2,
     );
@@ -35,32 +35,32 @@ describe("test builder functions", () => {
 
     const builder = (_: y.Argv) => _.option("opt1", { type: "string" });
 
-    const composed2 = composeCommands(builder, command1, command2);
+    const composed2 = comp(builder, command1, command2);
 
     expect(composed2.builder).toBe(builder);
   });
 
   test("test addSubcommands", () => {
-    const command1 = command("command1", "desc");
-    const subcommand1 = command("subcommand1", "desc");
-    const subcommand2 = command("subcommand2", "desc");
+    const command1 = comm("command1", "desc");
+    const subcommand1 = comm("subcommand1", "desc");
+    const subcommand2 = comm("subcommand2", "desc");
 
     expect(
-      addSubcommands(
+      subs(
         command1,
         [subcommand1, subcommand2],
       ).subcommands,
     ).toStrictEqual(
-      composeCommands(subcommand1, subcommand2),
+      comp(subcommand1, subcommand2),
     );
 
     expect(
-      addSubcommands(
+      subs(
         command1,
         [subcommand1, subcommand2],
       ).subcommands,
     ).toStrictEqual(
-      composeCommands(subcommand1, subcommand2),
+      comp(subcommand1, subcommand2),
     );
   });
 });

@@ -1,12 +1,12 @@
-import { command, composeCommands } from "../../../../src";
+import { comm, comp } from "../../../../src";
 
-export const cmd = composeCommands(
-  command(
+export const cmd = comp(
+  comm(
     ["get [key]", "g"],
     "get config value",
     _ => _.positional("key", { type: "string" }),
   ),
-  command(
+  comm(
     ["set <key> <value>", "s"],
     "set config key",
     _ =>

@@ -1,9 +1,4 @@
-import {
-  addSubcommands,
-  command,
-  composeCommands,
-  createHandlerFor,
-} from "../../src";
+import { comm, comp, createHandlerFor, subs } from "../../src";
 import { handlerFor } from "../../src/handler";
 
 describe("create handler", () => {
@@ -11,7 +6,7 @@ describe("create handler", () => {
     const afn1 = jest.fn();
 
     const a = createHandlerFor(
-      command("foo", "bar", _ => _.option("baz", { type: "string" })),
+      comm("foo", "bar", _ => _.option("baz", { type: "string" })),
       ({ baz }) => {
         afn1(baz);
       },
@@ -24,9 +19,9 @@ describe("create handler", () => {
     const bfn2 = jest.fn();
 
     const b = createHandlerFor(
-      composeCommands(
-        command("foo", "bar", _ => _.option("baz", { type: "string" })),
-        command("goo", "bar", _ => _.option("gooz", { type: "string" })),
+      comp(
+        comm("foo", "bar", _ => _.option("baz", { type: "string" })),
+        comm("goo", "bar", _ => _.option("gooz", { type: "string" })),
       ),
       {
         "foo": async ({ baz }) => {
@@ -50,11 +45,11 @@ describe("create handler", () => {
     const afn2 = jest.fn();
 
     const handler = createHandlerFor(
-      addSubcommands(
-        command("foo", "bar"),
+      subs(
+        comm("foo", "bar"),
         [
-          command("goo", "bar", _ => _.option("gooz", { type: "string" })),
-          command("hoo", "bar", _ => _.option("hooz", { type: "string" })),
+          comm("goo", "bar", _ => _.option("gooz", { type: "string" })),
+          comm("hoo", "bar", _ => _.option("hooz", { type: "string" })),
         ],
       ),
       {
@@ -75,34 +70,34 @@ describe("create handler", () => {
   });
 
   test("create handler for mixed", () => {
-    const subsubsubcommand = addSubcommands(
-      command("subsubgoo", "bar"),
+    const subsubsubcommand = subs(
+      comm("subsubgoo", "bar"),
       [
-        command("subsubhoo", "bar", _ => _.option("hooz", { type: "string" })),
-        command("subsubboo", "bar", _ => _.option("booz", { type: "string" })),
+        comm("subsubhoo", "bar", _ => _.option("hooz", { type: "string" })),
+        comm("subsubboo", "bar", _ => _.option("booz", { type: "string" })),
       ],
     );
 
-    const subsubcommand = addSubcommands(
-      command("subgoo", "bar"),
+    const subsubcommand = subs(
+      comm("subgoo", "bar"),
       [
-        command("subhoo", "bar", _ => _.option("hooz", { type: "string" })),
-        command("subboo", "bar", _ => _.option("booz", { type: "string" })),
+        comm("subhoo", "bar", _ => _.option("hooz", { type: "string" })),
+        comm("subboo", "bar", _ => _.option("booz", { type: "string" })),
         subsubsubcommand,
       ],
     );
 
-    const subcommand = addSubcommands(
-      command("goo", "bar"),
+    const subcommand = subs(
+      comm("goo", "bar"),
       [
-        command("hoo", "bar", _ => _.option("hooz", { type: "string" })),
-        command("boo", "bar", _ => _.option("booz", { type: "string" })),
+        comm("hoo", "bar", _ => _.option("hooz", { type: "string" })),
+        comm("boo", "bar", _ => _.option("booz", { type: "string" })),
         subsubcommand,
       ],
     );
 
-    const cmd = composeCommands(
-      command("foo", "bar"),
+    const cmd = comp(
+      comm("foo", "bar"),
       subcommand,
     );
 

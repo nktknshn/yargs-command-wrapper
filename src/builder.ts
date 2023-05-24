@@ -77,7 +77,7 @@ export function composeCommands<TCommands extends Command[], TArgv extends {}>(
   return { commands, builder: _builder, type: "composed" };
 }
 
-export function addSubcommands<
+export function subs<
   TCommandName extends string,
   TArgv extends {},
   const TCommands extends readonly Command[],
@@ -86,7 +86,7 @@ export function addSubcommands<
   subcommands: TCommands,
 ): CommandWithSubcommands<TCommandName, TArgv, TCommands, {}>;
 
-export function addSubcommands<
+export function subs<
   TCommandName extends string,
   TArgv extends {},
   TCommands extends Command[],
@@ -96,7 +96,7 @@ export function addSubcommands<
   subcommands: ComposedCommands<TCommands, TComposedArgv>,
 ): CommandWithSubcommands<TCommandName, TArgv & TComposedArgv, TCommands>;
 
-export function addSubcommands<
+export function subs<
   TCommandName extends string,
   TArgv extends {},
   TCommands extends Command[],

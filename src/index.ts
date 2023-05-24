@@ -1,7 +1,13 @@
-export { addSubcommands, command, composeCommands } from "./builder";
+export {
+  command as comm,
+  command as command,
+  composeCommands as comp,
+  composeCommands as compose,
+  subs,
+} from "./builder";
 
 export * as Either from "./either";
-export { fail } from "./helpers";
+export { failClient } from "./helpers";
 export {
   build,
   buildAndParse,
@@ -11,9 +17,6 @@ export {
 } from "./parser";
 export type { GetCommandReturnType } from "./types";
 
-export {
-  createHandler,
-  createHandlerFor,
-  GetArgv,
-  HandlerFor,
-} from "./handler";
+export { composeHandlers, GetArgv, HandlerFor } from "./handler";
+
+export { createHandlerFor } from "./create-handler-for";

@@ -1,4 +1,4 @@
-import { comm, comp, subs } from "../../../src";
+import { comm, comp, subs } from "../../src";
 import { parseAddress } from "../common";
 import * as config from "./config";
 
@@ -47,5 +47,8 @@ export const cmd = comp(
   commandList,
   commandDownload,
   commandUpload,
-  subs(comm("config", "config management"), config.cmd),
+  subs(
+    comm("config", "config management"),
+    config.cmd,
+  ),
 );

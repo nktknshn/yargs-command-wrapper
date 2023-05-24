@@ -1,13 +1,13 @@
 import { expectTypeOf } from "expect-type";
-import { command, composeCommands } from "../../src";
+import { comm, comp } from "../../src";
 import { buildAndParseUnsafe } from "./mocked";
 
 describe("builder types", () => {
   test("composeCommands", () => {
     expectTypeOf(buildAndParseUnsafe(
-      composeCommands(
-        command("command1", "desc"),
-        command("command2", "desc"),
+      comp(
+        comm("command1", "desc"),
+        comm("command2", "desc"),
       ),
     )).toEqualTypeOf<
       | { command: "command1"; argv: {} }
@@ -16,10 +16,10 @@ describe("builder types", () => {
 
     // test composed command options
     expectTypeOf(buildAndParseUnsafe(
-      composeCommands(
+      comp(
         _ => _.options({ a: { type: "string", demandOption: true } }),
-        command("command1", "desc"),
-        command("command2", "desc"),
+        comm("command1", "desc"),
+        comm("command2", "desc"),
       ),
     )).toEqualTypeOf<
       | { command: "command1"; argv: { a: string } }
@@ -28,10 +28,10 @@ describe("builder types", () => {
 
     // test conflicting options
     expectTypeOf(buildAndParseUnsafe(
-      composeCommands(
+      comp(
         _ => _.options({ a: { type: "string", demandOption: true } }),
-        command("command1", "desc", _ => _.options({ a: { type: "number" } })),
-        command("command2", "desc"),
+        comm("command1", "desc", _ => _.options({ a: { type: "number" } })),
+        comm("command2", "desc"),
       ),
     )).toEqualTypeOf<
       | { command: "command1"; argv: { a: never } }
@@ -40,10 +40,10 @@ describe("builder types", () => {
 
     // test conflicting options
     expectTypeOf(buildAndParseUnsafe(
-      composeCommands(
+      comp(
         _ => _.options({ a: { type: "string", demandOption: true } }),
-        command("command1", "desc", _ => _.options({ b: { type: "number" } })),
-        command("command2", "desc", _ => _.options({ c: { type: "number" } })),
+        comm("command1", "desc", _ => _.options({ b: { type: "number" } })),
+        comm("command2", "desc", _ => _.options({ c: { type: "number" } })),
       ),
     )).toEqualTypeOf<
       | { command: "command1"; argv: { a: string; b: number | undefined } }

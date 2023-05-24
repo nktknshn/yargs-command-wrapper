@@ -1,24 +1,24 @@
 import { expectTypeOf } from "expect-type";
-import { addSubcommands, command, composeCommands } from "../../src";
+import { comm, comp, subs } from "../../src";
 import { addOption } from "./addOption";
 import { buildAndParseUnsafe } from "./mocked";
 
 describe("builder types", () => {
   test("subcommands", () => {
-    const cmd = composeCommands(
+    const cmd = comp(
       addOption("a"),
-      addSubcommands(
-        command("command1", "desc", addOption("c1argv")),
+      subs(
+        comm("command1", "desc", addOption("c1argv")),
         [
-          command("c1sc1", "desc", addOption("c1sc1argv")),
-          command("c1sc2", "desc", addOption("c1sc2argv")),
+          comm("c1sc1", "desc", addOption("c1sc1argv")),
+          comm("c1sc2", "desc", addOption("c1sc2argv")),
         ],
       ),
-      addSubcommands(
-        command("command2", "desc", addOption("c2argv")),
+      subs(
+        comm("command2", "desc", addOption("c2argv")),
         [
-          command("c2sc1", "desc", addOption("c2sc1argv")),
-          command("c2sc2", "desc", addOption("c2sc2argv")),
+          comm("c2sc1", "desc", addOption("c2sc1argv")),
+          comm("c2sc2", "desc", addOption("c2sc2argv")),
         ],
       ),
     );
@@ -48,27 +48,27 @@ describe("builder types", () => {
   });
 
   test("subcommands different levels of nest", () => {
-    const cmd = composeCommands(
+    const cmd = comp(
       addOption("a"),
-      addSubcommands(
-        command("command1", "desc", addOption("c1argv")),
+      subs(
+        comm("command1", "desc", addOption("c1argv")),
         [
-          command("c1sc1", "desc", addOption("c1sc1argv")),
-          command("c1sc2", "desc", addOption("c1sc2argv")),
+          comm("c1sc1", "desc", addOption("c1sc1argv")),
+          comm("c1sc2", "desc", addOption("c1sc2argv")),
         ],
       ),
-      addSubcommands(
-        command("command2", "desc", addOption("c2argv")),
+      subs(
+        comm("command2", "desc", addOption("c2argv")),
         [
-          addSubcommands(
-            command("c2sc1", "desc", addOption("c2sc1argv")),
-            composeCommands(
+          subs(
+            comm("c2sc1", "desc", addOption("c2sc1argv")),
+            comp(
               addOption("c2sc1argv2"),
-              command("c2sc1sc1", "desc", addOption("c2sc1sc1argv")),
-              command("c2sc1sc2", "desc", addOption("c2sc1sc2argv")),
+              comm("c2sc1sc1", "desc", addOption("c2sc1sc1argv")),
+              comm("c2sc1sc2", "desc", addOption("c2sc1sc2argv")),
             ),
           ),
-          command("c2sc2", "desc", addOption("c2sc2argv")),
+          comm("c2sc2", "desc", addOption("c2sc2argv")),
         ],
       ),
     );
