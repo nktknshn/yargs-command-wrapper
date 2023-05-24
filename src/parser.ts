@@ -111,6 +111,55 @@ export const buildAndParseUnsafeR = <TCommand extends Command>(
   return result.right;
 };
 
+export const addCommand = (
+  args: Record<string, unknown>,
+  command: string,
+) => {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(args)) {
+    if (key == "argv") {
+      result[key] = value;
+    }
+    else if (key.endsWith("command")) {
+      result[`sub${key}`] = value;
+    }
+  }
+
+  result["command"] = command;
+
+  return result;
+};
+
+export const addSubcommand = (
+  args: Record<string, unknown>,
+  subcommand: string,
+) => {
+  const result: Record<string, unknown> = {};
+
+  let longest = "command" in args ? "command" : "";
+
+  for (const [key, value] of Object.entries(args)) {
+    if (key == "argv") {
+      result[key] = value;
+    }
+    else if (key.endsWith("command")) {
+      if (key.length > longest.length) {
+        longest = key;
+      }
+      result[key] = value;
+    }
+  }
+
+  if (longest == "") {
+    result["command"] = subcommand;
+  }
+  else {
+    result[`sub${longest}`] = subcommand;
+  }
+
+  return result;
+};
 export const parse = <TCommand extends Command>(
   command: TCommand,
   yargsObject: y.Argv,
@@ -125,14 +174,15 @@ export const parse = <TCommand extends Command>(
     //   `argv: ${JSON.stringify(argv, null, 2)}`,
     // );
 
-    const result: Record<string, unknown> = {};
+    let result: Record<string, unknown> = {
+      argv,
+    };
+
     let currentCommand: Command | undefined = command;
 
     const withIndex = argv._.map(String).map((x, idx) => [idx, x] as const);
 
     for (let [idx, cmd] of withIndex) {
-      const prefix = replicate(idx, `sub`).join("");
-
       if (currentCommand === undefined) {
         return E.left({
           error: "command not found",
@@ -152,10 +202,13 @@ export const parse = <TCommand extends Command>(
 
       [cmd, currentCommand] = alias.right;
 
-      result[`${prefix}command`] = cmd;
+      result = addSubcommand(result, cmd);
+      // const prefix = replicate(idx, `sub`).join("");
+
+      // result[`${prefix}command`] = cmd;
     }
 
-    result["argv"] = argv;
+    // result["argv"] = argv;
 
     // console.log(`result: ${JSON.stringify(result, null, 2)}`);
     return E.of(result as GetCommandReturnType<TCommand>);

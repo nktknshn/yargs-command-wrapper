@@ -1,4 +1,4 @@
-import { addSubcommands, command, composeCommands } from "../../src";
+import { addSubcommands, command, composeCommands } from "../../../src";
 import { parseAddress } from "../common";
 
 export const cmd = composeCommands(

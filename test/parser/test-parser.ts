@@ -9,6 +9,7 @@ import {
   composeCommands,
   Either as E,
 } from "../../src";
+import { addCommand } from "../../src/parser";
 
 const demandCommand = <T>(y: yargs.Argv<T>) => yargs.demandCommand(1);
 
@@ -85,5 +86,30 @@ describe("parser commands", () => {
 
     expect(buildAndParseUnsafeR(cmd, "command1 get --debug").argv.debug)
       .toStrictEqual(true);
+  });
+});
+
+describe("parser helper", () => {
+  test("addCommand", () => {
+    let x = {
+      argv: { a: 1 },
+    };
+
+    const x2 = addCommand(x, "command3");
+
+    expect(x2).toStrictEqual({
+      command: "command3",
+      argv: { a: 1 },
+    });
+
+    const x3 = addCommand(x2, "command2");
+    const x4 = addCommand(x3, "command1");
+
+    expect(x4).toStrictEqual({
+      command: "command1",
+      subcommand: "command2",
+      subsubcommand: "command3",
+      argv: { a: 1 },
+    });
   });
 });

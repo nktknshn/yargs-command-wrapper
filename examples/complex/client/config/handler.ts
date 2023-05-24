@@ -1,4 +1,4 @@
-import { createHandlerFor } from "../../../src/handler";
+import { createHandlerFor } from "../../../../src/handler";
 import { cmd } from "./args";
 
 /**
@@ -10,9 +10,9 @@ const handler: (
 */
 export const handler = createHandlerFor(cmd, {
   "get": async (argv) => {
-    console.log(`get config ${argv.key ?? "all"}`);
+    console.log(`get client config ${argv.key ?? "all"}`);
   },
   "set": async (argv) => {
-    console.log(`set config ${argv.key} ${argv.value}`);
+    console.log(`set client config ${argv.key} ${argv.value}`);
   },
 });

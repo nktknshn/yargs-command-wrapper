@@ -21,7 +21,6 @@ const cmd = composeCommands(
     [
       command("start", "start server"),
       command("stop", "stop server"),
-      command("status", "show server status"),
       addSubcommands(
         command("config", "config management"),
         [

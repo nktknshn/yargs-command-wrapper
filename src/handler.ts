@@ -1,3 +1,4 @@
+import { addCommand } from "./parser";
 import {
   AddCommand,
   BasicCommand,
@@ -7,7 +8,13 @@ import {
   GetCommandNameFromDesc,
   GetCommandReturnType,
 } from "./types";
-import { Cast, isObjectWithOwnProperty, Last, TupleKeys } from "./util";
+import {
+  Cast,
+  isObjectWithOwnProperties,
+  isObjectWithOwnProperty,
+  Last,
+  TupleKeys,
+} from "./util";
 
 type PathToObject<TPath extends string, TPrefix extends string = ""> =
   TPath extends `/${infer TName}/${infer TRest}` ? 
@@ -124,13 +131,18 @@ type GetCommandName<TCommand extends Command> = TCommand extends
     CommandWithSubcommands<infer TName, infer TArgv, infer TCommands> ? TName
   : never;
 
+/**
+ * Returns function that will handle arguments returned after parsing by `TCommand`
+ */
 export type HandlerFor<
-  TCommand extends Command,
+  TCommand extends Command | readonly Command[],
   TType extends HandlerType = "sync",
   TGlobalArgv extends {} = {},
 > = TCommand extends BasicCommand<infer TName, infer TArgv>
+  // this is just a function taking TArgv and returning void for BasicCommand
   ? BasicHandler<TArgv & TGlobalArgv, TType>
   : TCommand extends ComposedCommands<infer TCommands, infer TArgv>
+  // this is a function taking { command; argv } for ComposedCommands
     ? ComposedHandler<
       GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
       TType
@@ -140,12 +152,18 @@ export type HandlerFor<
     infer TArgv,
     infer TCommands,
     infer TCommandArgv
-  > ? ComposedHandler<
+  >
+  // this is a function taking { command: TName, subcommand; argv } for CommandWithSubcommands
+    ? ComposedHandler<
       AddCommand<
         GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>,
         TName,
         TGlobalArgv
       >,
+      TType
+    >
+  : TCommand extends readonly Command[] ? ComposedHandler<
+      GetCommandReturnType<ComposedCommands<TCommand, TGlobalArgv>>,
       TType
     >
   : never;
@@ -161,23 +179,102 @@ export const handlerFor = <
   return handler;
 };
 
+/**
+ * Returns function that will handle arguments returned after parsing by `TCommand`
+ */
 export const createHandlerFor = <
-  TCommand extends Command,
+  TCommand extends Command | readonly Command[],
   TInput extends InputStructHandlerFor<TCommand>,
 >(
   command: TCommand,
   recordOrFunction: TInput,
 ): HandlerFor<TCommand, GetInputStructHandlerType<TInput>> => {
-  if (command.type === "command") {
-    return ((args: any) => (recordOrFunction as any)(args)) as any;
+  return _createHandlerFor(command, recordOrFunction);
+};
+
+const findByName = (
+  commands: readonly Command[],
+  name: string,
+): BasicCommand | CommandWithSubcommands | undefined => {
+  for (const command of commands) {
+    if (command.type === "command") {
+      if (command.commandName === name) {
+        return command;
+      }
+    }
+    else if (command.type === "composed") {
+      const found = findByName(command.commands, name);
+
+      if (found) {
+        return found;
+      }
+    }
+    else {
+      if (command.command.commandName === name) {
+        return command;
+      }
+    }
   }
-  else if (command.type === "composed") {
-    return createHandler(recordOrFunction as any) as any;
+
+  return undefined;
+};
+
+const _createHandlerFor = (
+  command: Command | readonly Command[],
+  recordOrFunction: any,
+): any => {
+  if (isObjectWithOwnProperties(command, "type")) {
+    if (command.type === "command") {
+      // recordOrFunction is function
+      return ((args: any) => recordOrFunction(args));
+    }
+    else if (command.type === "composed") {
+      // recordOrFunction is a record where command is key and handler is value
+      return (args: any) => {
+        const cmd = args["command"];
+
+        const namedCommand = findByName(command.commands, cmd);
+
+        if (namedCommand === undefined) {
+          throw new Error(`Command ${cmd} not found`);
+        }
+
+        const handler = recordOrFunction[cmd];
+
+        if (namedCommand.type === "command") {
+          return handler(args.argv);
+        }
+
+        return handler(args);
+      };
+    }
+    else {
+      return (args: any) => {
+        args = shiftCommand(args);
+        const cmd = args["command"];
+        const handler = recordOrFunction[cmd];
+
+        const namedCommand = findByName(command.subcommands.commands, cmd);
+
+        if (namedCommand === undefined) {
+          throw new Error(`Command ${cmd} not found`);
+        }
+
+        if (namedCommand.type === "command") {
+          return handler(args.argv);
+        }
+
+        return handler(args);
+      };
+      // return createHandler({
+      //   [command.command.commandName]: createHandler(
+      //     recordOrFunction,
+      //   ),
+      // });
+    }
   }
   else {
-    return createHandler({
-      [command.command.commandName]: recordOrFunction as any,
-    }) as any;
+    throw new Error("Invalid command");
   }
 };
 
@@ -193,16 +290,12 @@ type ComposedCommandsInputStruct<TCommand extends ComposedCommands> =
   > ? {
       [
         P in TupleKeys<TCommands> as GetCommandName<Cast<TCommands[P], Command>>
-      ]: HandlerFor<
-        Cast<TCommands[P], Command>,
-        HandlerType,
-        TArgv
-      >;
+      ]: HandlerFor<Cast<TCommands[P], Command>, HandlerType, TArgv>;
     }
     : never;
 
 export type InputStructHandlerFor<
-  TCommand extends Command,
+  TCommand extends Command | readonly Command[],
   // TType extends HandlerType = "sync",
   TGlobalArgv extends {} = {},
 > = TCommand extends BasicCommand<infer TName, infer TArgv>
@@ -216,8 +309,14 @@ export type InputStructHandlerFor<
     infer TArgv,
     infer TCommands,
     infer TCommandArgv
-  > ? ComposedHandler<
-      GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>,
-      HandlerType
+  > ? ComposedCommandsInputStruct<
+      ComposedCommands<TCommands, TArgv & TCommandArgv & TGlobalArgv>
     >
+  : TCommand extends readonly Command[] ? ComposedCommandsInputStruct<
+      ComposedCommands<TCommand, TGlobalArgv>
+    >
+  // > ? ComposedHandler<
+  //     GetCommandReturnType<ComposedCommands<TCommands, TArgv & TCommandArgv>>,
+  //     HandlerType
+  //   >
   : never;

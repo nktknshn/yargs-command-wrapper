@@ -6,21 +6,15 @@ import {
   createHandler,
   Either,
   fail,
-} from "../src";
+} from "../../src";
 
 import * as client from "./client";
 import * as server from "./server";
 
 const cmd = composeCommands(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-  addSubcommands(
-    command("client", "client management"),
-    client.cmd,
-  ),
-  addSubcommands(
-    command("server", "server management"),
-    server.cmd,
-  ),
+  addSubcommands(command("client", "client management"), client.cmd),
+  addSubcommands(command("server", "server management"), server.cmd),
 );
 
 const handler = createHandler({

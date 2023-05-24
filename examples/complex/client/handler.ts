@@ -1,16 +1,18 @@
-import { createHandler, GetArgv } from "../../src";
+import { createHandler, GetArgv } from "../../../src";
 import { Address } from "../common";
 import { commandDownload, commandList, commandUpload } from "./args";
-import * as config from "./config/";
+import * as config from "./config";
 
-const listHandler = async (argv: { address: Address; path: string }) => {
+const listHandler = async (
+  argv: { address: Address; path: string; debug: boolean },
+) => {
   console.log(
     `list ${argv.address.address}:${argv.address.port} at ${argv.path}`,
   );
 };
 
 const downloadHandler = async (
-  argv: { address: Address; files?: string[] },
+  argv: { address: Address; files?: string[]; debug: boolean },
 ) => {
   console.log(
     `download ${argv.address.address}:${argv.address.port} ${argv.files}`,

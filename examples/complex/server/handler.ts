@@ -1,4 +1,4 @@
-import { handlerFor } from "../../src/handler";
+import { handlerFor } from "../../../src/handler";
 import { cmd } from "./args";
 
 export const handler = handlerFor(cmd, async (args) => {
@@ -25,7 +25,7 @@ export const handler = handlerFor(cmd, async (args) => {
   else if (args.command === "config") {
     if (args.subcommand === "get") {
       console.log(
-        `get config value ${args.argv.key} from ${args.argv.file}`,
+        `get config value ${args.argv.key ?? "all"} from ${args.argv.file}`,
       );
     }
     else if (args.subcommand === "set") {
