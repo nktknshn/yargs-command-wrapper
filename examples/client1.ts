@@ -7,7 +7,13 @@ import {
   fail,
 } from "../src";
 
-import { createHandler, createHandlerFor, HandlerFor } from "../src/handler";
+import { createHandler, GetArgv, HandlerFor } from "../src/handler";
+
+type SyncHandler<T> = (args: T) => void;
+type AsyncHandler<T> = (args: T) => Promise<void>;
+type Handler<T> = SyncHandler<T> | AsyncHandler<T>;
+
+const h: SyncHandler<{}> = async () => {};
 
 interface Address {
   address: string;
@@ -20,14 +26,22 @@ function server() {
     command(
       "start",
       "start server",
-      _ => _.positional("items", { array: true, type: "string" }),
+      _ => _.positional("address", { type: "string" }),
     ),
-    command("status", "get server status"),
-    command("stop", "stop server"),
+    command(
+      "status",
+      "get server status",
+      _ => _.option("force", { type: "boolean" }),
+    ),
+    command(
+      "stop",
+      "stop server",
+      _ => _.option("grateful", { type: "boolean", default: true }),
+    ),
   );
 
-  const startHandler: HandlerFor<typeof cmd["commands"][0]> = (
-    args,
+  const startHandler = async (
+    args: GetArgv<typeof cmd["commands"][0]>,
   ) => {
     // start servers
   };
@@ -50,13 +64,15 @@ function server() {
   //   "status": statusHandler,
   // });
 
+  const hs = {
+    "start": async () => {},
+    "stop": async () => {},
+    "status": async () => {},
+  };
+
   return {
     command: cmd,
-    handler: createHandler({
-      "start": startHandler,
-      "stop": stopHandler,
-      "status": statusHandler,
-    }),
+    handler: createHandler(hs),
   };
 }
 
@@ -95,30 +111,32 @@ function client() {
     commandUpload,
   );
 
-  const listHandler: HandlerFor<typeof commandList> = (argv) => {
+  const listHandler = async (
+    argv: GetArgv<typeof commandList>,
+  ): Promise<void> => {
   };
 
-  const downloadHandler: HandlerFor<typeof commandDownload> = (
-    argv,
+  const downloadHandler = async (
+    argv: GetArgv<typeof commandDownload>,
   ) => {};
 
-  const uploadHandler: HandlerFor<typeof commandUpload> = (
-    argv,
+  const uploadHandler = async (
+    argv: GetArgv<typeof commandUpload>,
   ) => {};
 
-  const handler2: HandlerFor<typeof cmd> = createHandlerFor(
-    cmd,
-    {
-      download: ({ address, debug, files }) => {},
-      list: listHandler,
-      upload: uploadHandler,
-    },
-  );
+  // const handler2: HandlerFor<typeof cmd> = createHandlerFor(
+  //   cmd,
+  //   {
+  //     download: ({ address, debug, files }) => {},
+  //     list: listHandler,
+  //     upload: uploadHandler,
+  //   },
+  // );
 
   // const a: (a: number) => void = (a: never) => {};
   // const b: (a: never) => void = (a: number) => {};
 
-  const handler: HandlerFor<typeof cmd> = createHandler({
+  const handler = createHandler({
     "list": listHandler,
     "download": downloadHandler,
     "upload": uploadHandler,
@@ -164,7 +182,7 @@ async function main() {
     fail(yargs, result);
   }
 
-  handler(result.right);
+  await handler(result.right);
 }
 
 main();
