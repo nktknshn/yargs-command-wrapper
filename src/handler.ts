@@ -24,7 +24,7 @@ type CommandArgs = {
   "argv": unknown;
 };
 
-type HandlerType = "sync" | "async";
+export type HandlerType = "sync" | "async";
 
 /**
  * handler for a basic command. It's just a function that receives Argv
@@ -130,10 +130,8 @@ export type HandlerFor<
   TGlobalArgv extends {} = {},
 > = TCommand extends BasicCommand<infer TName, infer TArgv>
   ? BasicHandler<TArgv & TGlobalArgv, TType>
-  : TCommand extends ComposedCommands<
-    infer TCommands,
-    infer TArgv
-  > ? ComposedHandler<
+  : TCommand extends ComposedCommands<infer TCommands, infer TArgv>
+    ? ComposedHandler<
       GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
       TType
     >
@@ -155,6 +153,13 @@ export type HandlerFor<
 export type GetArgv<TCommand extends Command> = Parameters<
   HandlerFor<TCommand>
 >[0];
+
+export const handlerFor = <
+  TCommand extends Command,
+  H extends HandlerFor<TCommand>,
+>(cmd: TCommand, handler: H): H => {
+  return handler;
+};
 
 export const createHandlerFor = <
   TCommand extends Command,
