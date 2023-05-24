@@ -1,16 +1,13 @@
 import {
   addSubcommands,
-  build,
   buildAndParse,
   command,
   composeCommands,
   Either,
   fail,
-  GetCommandReturnType,
-  parse,
 } from "../src";
-import { createHandler, GetArgs, Handler } from "../src/handler";
-import { ToUnion, TupleToUnion } from "../src/util";
+
+import { createHandler, createHandlerFor, HandlerFor } from "../src/handler";
 
 interface Address {
   address: string;
@@ -29,104 +26,102 @@ function server() {
     command("stop", "stop server"),
   );
 
-  type CommandArgs = GetCommandReturnType<typeof cmd>;
-
-  const startHandler: Handler<GetArgs<CommandArgs, "/start/">["argv"]> = (
+  const startHandler: HandlerFor<typeof cmd["commands"][0]> = (
     args,
   ) => {
     // start servers
   };
 
-  const statusHandler: Handler<GetArgs<CommandArgs, "/status/">["argv"]> = (
+  const statusHandler: HandlerFor<typeof cmd["commands"][1]> = (
     args,
   ) => {
     // show server status
   };
 
-  const stopHandler: Handler<GetArgs<CommandArgs, "/stop/">["argv"]> = (
+  const stopHandler: HandlerFor<typeof cmd["commands"][2]> = (
     args,
   ) => {
     // stop server
   };
 
+  // const h: HandlerFor<typeof cmd> = createHandler({
+  //   "start": (args: {}) => {},
+  //   "stop": stopHandler,
+  //   "status": statusHandler,
+  // });
+
   return {
     command: cmd,
-    handler: createHandler(
-      {
-        "start": startHandler,
-        "stop": stopHandler,
-        "status": statusHandler,
-      },
-    ),
+    handler: createHandler({
+      "start": startHandler,
+      "stop": stopHandler,
+      "status": statusHandler,
+    }),
   };
 }
 
 function client() {
-  const cmd = composeCommands(
-    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-    command(
-      "list <address> [path[",
-      "list files",
-      _ =>
-        _
-          .positional("address", { type: "string", demandOption: true })
-          .positional("path", { type: "string", default: "/" }),
-    ),
-    command(
-      "download <address> <files..>",
-      "download files",
-      _ =>
-        _
-          .positional("address", { type: "string", demandOption: true })
-          .positional("files", { type: "string", array: true }),
-    ),
-    command(
-      "upload <address> <files..>",
-      "upload files",
-      _ =>
-        _
-          .positional("address", { type: "string", demandOption: true })
-          .positional("files", { type: "string", array: true }),
-    ),
+  const commandList = command(
+    "list <address> [path[",
+    "list files",
+    _ =>
+      _
+        .positional("address", { type: "string", demandOption: true })
+        .positional("path", { type: "string", default: "/" }),
   );
 
-  type CommandArgs = GetCommandReturnType<typeof cmd>;
+  const commandDownload = command(
+    "download <address> <files..>",
+    "download files",
+    _ =>
+      _
+        .positional("address", { type: "string", demandOption: true })
+        .positional("files", { type: "string", array: true }),
+  );
 
-  const listHandler: Handler<GetArgs<CommandArgs, "/list/">["argv"]> = (
-    argv,
-  ) => {
+  const commandUpload = command(
+    "upload <address> <files..>",
+    "upload files",
+    _ =>
+      _
+        .positional("address", { type: "string", demandOption: true })
+        .positional("files", { type: "string", array: true }),
+  );
+
+  const cmd = composeCommands(
+    _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
+    commandList,
+    commandDownload,
+    commandUpload,
+  );
+
+  const listHandler: HandlerFor<typeof commandList> = (argv) => {
   };
 
-  const downloadHandler: Handler<GetArgs<CommandArgs, "/download/">["argv"]> = (
+  const downloadHandler: HandlerFor<typeof commandDownload> = (
     argv,
   ) => {};
 
-  const uploadHandler: Handler<GetArgs<CommandArgs, "/upload/">["argv"]> = (
+  const uploadHandler: HandlerFor<typeof commandUpload> = (
     argv,
   ) => {};
 
-  // createCommandHandler
-  /*
-  const handler = createCommandHandler(
+  const handler2: HandlerFor<typeof cmd> = createHandlerFor(
     cmd,
     {
-      "list": (argv) => {},
-      "download": (argv) => {},
-      "upload": (argv) => {},
-    }
-  )
-  */
-  const handler = createHandler(
-    {
-      "list": listHandler,
-      "download": downloadHandler,
-      "upload": uploadHandler,
+      download: ({ address, debug, files }) => {},
+      list: listHandler,
+      upload: uploadHandler,
     },
   );
 
-  handler({
-    command: "list",
-    argv: { address: "localhost", path: "/", debug: true },
+  // const a: (a: number) => void = (a: never) => {};
+  // const b: (a: never) => void = (a: number) => {};
+
+  const handler: HandlerFor<typeof cmd> = createHandler({
+    "list": listHandler,
+    "download": downloadHandler,
+    "upload": uploadHandler,
   });
 
   return {
@@ -139,11 +134,13 @@ async function main() {
   const { command: clientCommand, handler: clientHandler } = client();
   const { command: serverCommand, handler: serverHandler } = server();
 
+  const commandClient = addSubcommands(
+    command("client", "client management"),
+    clientCommand,
+  );
+
   const cmd = composeCommands(
-    addSubcommands(
-      command("client", "client management"),
-      clientCommand,
-    ),
+    commandClient,
     addSubcommands(
       command("server", "server management"),
       serverCommand,
@@ -161,45 +158,13 @@ async function main() {
     { "client": clientHandler, "server": serverHandler },
   );
 
-  handler({
-    command: "server",
-    subcommand: "start",
-    argv: {
-      // address: "localhost",
-      // path: "/",
-      items: [],
-      debug: true,
-    },
-    // command: "client",
-    // subcommand: "start",
-  });
-
-  const { yargs, result } = buildAndParse(cmd);
+  const { yargs, result } = buildAndParse(commandClient);
 
   if (Either.isLeft(result)) {
     fail(yargs, result);
   }
 
   handler(result.right);
-
-  // if (result.right.command === "client") {
-  //   result.right.subcommand;
-  //   // clientHandler(result.right);
-  // }
-  // else if (result.right.command === "server") {
-  //   serverHandler({
-  //     command: "start",
-  //   });
-  // }
-
-  // if (result.right.command === "get") {
-  //   console.log(result.right.argv.items);
-  //   console.log(result.right.argv.debug);
-  // }
-  // else if (result.right.command === "create") {
-  // }
-  // else if (result.right.command === "list") {
-  // }
 }
 
 main();

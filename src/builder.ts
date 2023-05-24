@@ -6,7 +6,7 @@ import {
   Command,
   CommandWithSubcommands,
   ComposedCommands,
-  GetCommandName,
+  GetCommandNameFromDesc,
 } from "./types";
 import { isObjectWithOwnProperty } from "./util";
 // import debug from 'debug'
@@ -19,18 +19,18 @@ import { isObjectWithOwnProperty } from "./util";
  * @returns A typed command object.
  */
 // dprint-ignore
-export const command = <const TCommandDesc extends readonly string[] | string, TArgv>(
+export const command = <const TCommandDesc extends readonly string[] | string, TArgv extends {}>(
   // XXX the line above requires typescript ^5.0
-  commandDesc: TCommandDesc,
+  commandDesc: TCommandDesc, 
   description: string,
   // XXX try to avoid using `as` here
   builder: Builder<TArgv> = (yargs) => yargs as y.Argv<TArgv>,
-): BasicCommand<GetCommandName<TCommandDesc>, TArgv> => {
+): BasicCommand<GetCommandNameFromDesc<TCommandDesc>, TArgv> => {
   const _commandDesc: readonly string[] = typeof commandDesc === "string"
     ? [commandDesc]
     : commandDesc;
 
-  const commandName = getCommandName(_commandDesc[0]) as GetCommandName<TCommandDesc>;
+  const commandName = getCommandName(_commandDesc[0]) as GetCommandNameFromDesc<TCommandDesc>;
 
   return ({
     builder,
@@ -46,7 +46,7 @@ export const command = <const TCommandDesc extends readonly string[] | string, T
  * @param
  * @returns
  */
-export function composeCommands<TCommands extends Command[], TArgv>(
+export function composeCommands<TCommands extends Command[], TArgv extends {}>(
   builder: Builder<TArgv>,
   ...commands: TCommands
 ): ComposedCommands<TCommands, TArgv>;
@@ -55,7 +55,7 @@ export function composeCommands<TCommands extends Command[]>(
   ...commands: TCommands
 ): ComposedCommands<TCommands>;
 
-export function composeCommands<TCommands extends Command[], TArgv>(
+export function composeCommands<TCommands extends Command[], TArgv extends {}>(
   builder: Builder<TArgv> | TCommands,
   ...commands: TCommands
 ): ComposedCommands<TCommands, TArgv> {
@@ -79,7 +79,7 @@ export function composeCommands<TCommands extends Command[], TArgv>(
 
 export function addSubcommands<
   TCommandName extends string,
-  TArgv,
+  TArgv extends {},
   const TCommands extends readonly Command[],
 >(
   command: BasicCommand<TCommandName, TArgv>,
@@ -88,9 +88,9 @@ export function addSubcommands<
 
 export function addSubcommands<
   TCommandName extends string,
-  TArgv,
+  TArgv extends {},
   TCommands extends Command[],
-  TComposedArgv,
+  TComposedArgv extends {},
 >(
   command: BasicCommand<TCommandName, TArgv>,
   subcommands: ComposedCommands<TCommands, TComposedArgv>,
@@ -98,9 +98,9 @@ export function addSubcommands<
 
 export function addSubcommands<
   TCommandName extends string,
-  TArgv,
+  TArgv extends {},
   TCommands extends Command[],
-  TComposedArgv,
+  TComposedArgv extends {},
 >(
   command: BasicCommand<TCommandName, TArgv>,
   subcommands: ComposedCommands<TCommands, TComposedArgv> | TCommands,

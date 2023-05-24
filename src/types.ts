@@ -7,9 +7,10 @@ export type GetCommandNameString<TCommandDesc extends string> =
   TCommandDesc extends `${infer TCommandName} ${string}` ? TCommandName
     : TCommandDesc;
 
-export type GetCommandName<TCommandDesc extends readonly string[] | string> =
-  TCommandDesc extends string ? GetCommandNameString<TCommandDesc>
-    : GetCommandNameString<TCommandDesc[0]>;
+export type GetCommandNameFromDesc<
+  TCommandDesc extends readonly string[] | string,
+> = TCommandDesc extends string ? GetCommandNameString<TCommandDesc>
+  : GetCommandNameString<TCommandDesc[0]>;
 
 export type GetSubcommands<T> = T extends { subcommand: infer C } ? C : never;
 export type GetSubcommand<T, C extends GetSubcommands<T>> = T extends
@@ -17,7 +18,7 @@ export type GetSubcommand<T, C extends GetSubcommands<T>> = T extends
 
 export type BasicCommand<
   TCommandName extends string = string,
-  TArgv = {},
+  TArgv extends {} = {},
 > = {
   commandName: TCommandName;
   commandDesc: readonly string[];
@@ -28,9 +29,9 @@ export type BasicCommand<
 
 export type CommandWithSubcommands<
   TCommandName extends string = string,
-  TArgv = {},
+  TArgv extends {} = {},
   TCommands extends readonly Command[] = readonly Command[],
-  TComposedArgv = {},
+  TComposedArgv extends {} = {},
 > = {
   command: BasicCommand<TCommandName, TArgv>;
   subcommands: ComposedCommands<TCommands, TComposedArgv>;
@@ -39,7 +40,7 @@ export type CommandWithSubcommands<
 
 export type ComposedCommands<
   TCommands extends readonly Command[] = readonly Command[],
-  TArgv = {},
+  TArgv extends {} = {},
 > = {
   commands: TCommands;
   builder?: Builder<TArgv>;
