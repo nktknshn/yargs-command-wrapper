@@ -300,8 +300,8 @@ describe("create handler", () => {
 
     const res = buildAndParse(c, []);
 
-    console.log(
-      res.result,
-    );
+    // console.log(
+    //   res.result,
+    // );
   });
 });
