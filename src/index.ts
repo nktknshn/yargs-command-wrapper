@@ -18,10 +18,10 @@ export {
 export type { GetCommandReturnType } from "./types";
 
 export {
-  composeHandlers,
   GetArgv,
   handlerFor,
   HandlerFunctionFor as HandlerFor,
+  subsHandlers as subsHandlers,
 } from "./handler";
 
 export { createHandlerFor } from "./create-handler-for";

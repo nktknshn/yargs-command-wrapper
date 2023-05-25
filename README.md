@@ -17,6 +17,10 @@ import {
 } from "../src";
 
 const config = comp(
+  _ =>
+    _.options({
+      file: { alias: "f", type: "string", default: "config.json" },
+    }),
   comm(
     ["get [key]", "g"],
     "get config value",
@@ -46,7 +50,7 @@ const server = comp(
 );
 
 const cliCommand = comp(
-  _ => _.option("debug", { type: "boolean", default: false }),
+  _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
   server,
   subs(comm(["config", "c"], "config management"), config),
 );
@@ -78,21 +82,21 @@ else if (result.right.command === "config") {
   }
 }
 
-// or using createHandlerFor:
+// or by using createHandlerFor:
 const handler = createHandlerFor(cliCommand, {
-  config: createHandlerFor(cliCommand.commands[1], {
-    get: (args) => {
-      console.log(`getting config key ${args.key}`);
+  config: {
+    get: ({ key, file }) => {
+      console.log(`getting config ${file} key ${key}`);
     },
-    set: (args) => {
-      console.log(`setting config key ${args.key} to ${args.value}`);
+    set: ({ key, value, file }) => {
+      console.log(`setting config ${file} key ${key} to ${value}`);
     },
-  }),
-  start: (args) => {
-    console.log(`starting server on port ${args.port}`);
   },
-  stop: (args) => {
-    console.log(`stopping server ${args.force ? "forcefully" : ""}`);
+  start: ({ port }) => {
+    console.log(`starting server on port ${port}`);
+  },
+  stop: ({ force }) => {
+    console.log(`stopping server ${force ? "forcefully" : ""}`);
   },
 });
 

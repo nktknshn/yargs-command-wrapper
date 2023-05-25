@@ -2,10 +2,10 @@ import {
   buildAndParse,
   comm,
   compose,
-  composeHandlers,
   Either,
   failClient,
   subs,
+  subsHandlers,
 } from "../../src";
 
 import * as client from "./client";
@@ -17,7 +17,7 @@ const cmd = compose(
   subs(comm("server", "server management"), server.cmd),
 );
 
-const handler = composeHandlers({
+const handler = subsHandlers({
   "client": client.handler,
   "server": server.handler,
 });

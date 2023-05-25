@@ -2,11 +2,11 @@ import * as y from "yargs";
 import { CommandArgs, HandlerFunction } from "./handler";
 import { Cast, ToList, TupleKeys } from "./util";
 
-export interface NonEmptyArray<A> extends ReadonlyArray<A> {
+export interface NonEmptyTuple<A> extends ReadonlyArray<A> {
   0: A;
 }
 
-export type CommandsTuple = NonEmptyArray<Command>;
+export type CommandsTuple = NonEmptyTuple<Command>;
 
 export type Builder<TArgv> = (parent: y.Argv<{}>) => y.Argv<TArgv>;
 

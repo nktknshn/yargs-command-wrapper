@@ -1,11 +1,11 @@
 import {
   comm,
-  composeHandlers,
   createHandlerFor,
   GetArgv,
   subs,
+  subsHandlers,
 } from "../../../src";
-import { popCommand } from "../../../src/handler";
+import { CommandArgs, HandlerFunction, popCommand } from "../../../src/handler";
 import { Address } from "../common";
 import { commandDownload, commandList, commandUpload } from "./args";
 import * as config from "./config";
@@ -32,19 +32,22 @@ const uploadHandler = async (argv: GetArgv<typeof commandUpload>) => {
   );
 };
 
-export const handler = composeHandlers({
+export const handler = subsHandlers({
   "list": listHandler,
   "download": downloadHandler,
   "upload": uploadHandler,
   "config": config.handler,
 });
 
+const clientHandler = subsHandlers({
+  "list": listHandler,
+  "download": downloadHandler,
+  "upload": uploadHandler,
+});
+
 const configHandler = createHandlerFor(
   subs(comm("config", "config management"), config.cmd),
   (args) => {
-    const a = popCommand(args);
-    type B = typeof a["argv"];
-    a.command;
-    config.handler(a);
+    config.handler(popCommand(args));
   },
 );
