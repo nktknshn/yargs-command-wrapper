@@ -6,7 +6,7 @@ import {
   HandlerFunctionFor,
   HandlersRecord,
   HandlerType,
-  shiftCommand,
+  popCommand,
 } from "./handler";
 import {
   BasicCommand,
@@ -167,36 +167,6 @@ export const createHandlerFor = <
   return _createHandlerFor(command, recordOrFunction) as any;
 };
 
-/**
- * @description Traverses commands tree and returns command with given name
- */
-const findByName = (
-  commands: readonly Command[],
-  name: string,
-): BasicCommand | CommandWithSubcommands | undefined => {
-  for (const command of commands) {
-    if (command.type === "command") {
-      if (command.commandName === name) {
-        return command;
-      }
-    }
-    else if (command.type === "composed") {
-      const found = findByName(command.commands, name);
-
-      if (found) {
-        return found;
-      }
-    }
-    else {
-      if (command.command.commandName === name) {
-        return command;
-      }
-    }
-  }
-
-  return undefined;
-};
-
 export const _createHandlerFor = (
   command: Command,
   recordOrFunction: InputRecordHandler | HandlerFunction,
@@ -229,6 +199,7 @@ export const _createHandlerFor = (
         if (typeof recordOrFunction === "function") {
           return recordOrFunction(args);
         }
+
         const namedCommand = findByName(command.commands, cmd);
 
         if (namedCommand === undefined) {
@@ -252,14 +223,16 @@ export const _createHandlerFor = (
       };
     }
     else {
+      // command.type === "commandWithSubcommands"
       // CommandArgs
       return (args: any) => {
-        args = shiftCommand(args);
-        const cmd = args["command"];
-
         if (typeof recordOrFunction === "function") {
+          // we don't remove shift command for a function handler
           return recordOrFunction(args);
         }
+
+        args = popCommand(args);
+        const cmd = args["command"];
 
         const handler = recordOrFunction[cmd];
 
@@ -289,4 +262,34 @@ export const _createHandlerFor = (
 
     throw new Error("not implemented");
   }
+};
+
+/**
+ * @description Traverses commands tree and returns command with given name
+ */
+const findByName = (
+  commands: readonly Command[],
+  name: string,
+): BasicCommand | CommandWithSubcommands | undefined => {
+  for (const command of commands) {
+    if (command.type === "command") {
+      if (command.commandName === name) {
+        return command;
+      }
+    }
+    else if (command.type === "composed") {
+      const found = findByName(command.commands, name);
+
+      if (found) {
+        return found;
+      }
+    }
+    else {
+      if (command.command.commandName === name) {
+        return command;
+      }
+    }
+  }
+
+  return undefined;
 };

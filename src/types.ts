@@ -93,7 +93,7 @@ export type GetSubcommandsReturnType<
   TArgv,
   TGlobalArgv = {},
 > = {
-  [P in TupleKeys<TCommands>]: AddCommand<
+  [P in TupleKeys<TCommands>]: PushCommand<
     GetCommandReturnType<Cast<TCommands[P], Command>, TGlobalArgv>,
     TCommandName,
     TArgv
@@ -122,7 +122,7 @@ export type GetCommandReturnType<TCommand extends Command, TGlobalArgv = {}> =
     : never;
 
 /** shifts presenting commands with sub prefix */
-export type AddCommand<T, C extends string, TArgv> = ToList<T> extends infer TS
+export type PushCommand<T, C extends string, TArgv> = ToList<T> extends infer TS
   ? {
     [P in TupleKeys<TS>]:
       & Record<"command", C>

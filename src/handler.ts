@@ -1,10 +1,10 @@
 import {
-  AddCommand,
   BasicCommand,
   Command,
   CommandWithSubcommands,
   ComposedCommands,
   GetCommandReturnType,
+  PushCommand,
 } from "./types";
 import {
   Cast,
@@ -63,7 +63,7 @@ export type HandlerFunction = BasicHandler<any> | ComposedHandler<any>;
  */
 type GetHandlersRecordReturnType<T extends HandlersRecord> = {
   [K in Extract<keyof T, string>]: T[K] extends ComposedHandler<infer TArgs>
-    ? AddCommand<TArgs, Cast<K, string>, {}>
+    ? PushCommand<TArgs, Cast<K, string>, {}>
     : T[K] extends BasicHandler<infer TArgv> ? { "command": K; argv: TArgv }
     : never;
 }[Extract<keyof T, string>];
@@ -111,7 +111,7 @@ export const composeHandlers = <TRec extends HandlersRecord>(
   const handler = record[args.command];
 
   if (isObjectWithOwnProperty(args, "subcommand")) {
-    return handler(shiftCommand(args));
+    return handler(popCommand(args));
   }
   else {
     return handler(args.argv);
@@ -134,7 +134,7 @@ export const composeHandlers = <TRec extends HandlersRecord>(
 //   Extract<keyof T, `${string}command`>
 // > extends infer L ? ListHead<L> : never;
 
-type ShiftCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
+type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
     [P in TupleKeys<L>]:
       & Omit<L[P], "command">
       & {
@@ -160,13 +160,13 @@ type ShiftCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
 
 // type J = Length<Z>;
 
-export const shiftCommand = <
+export const popCommand = <
   T extends {
     command: string;
     subcommand: string;
     argv: unknown;
   },
->(args: T): ShiftCommand<T> => {
+>(args: T): PopCommand<T> => {
   const result: Record<string, unknown> = {
     argv: args.argv,
   };
@@ -182,7 +182,7 @@ export const shiftCommand = <
     }
   }
 
-  return result as ShiftCommand<T>;
+  return result as PopCommand<T>;
 };
 
 /**
@@ -209,7 +209,7 @@ export type HandlerFunctionFor<
       infer TArgv,
       infer TCommandArgv
     > ? ComposedHandler<
-        AddCommand<
+        PushCommand<
           GetCommandReturnType<
             ComposedCommands<TCommands, TArgv & TCommandArgv>
           >,

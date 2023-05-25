@@ -111,7 +111,7 @@ export const buildAndParseUnsafeR = <TCommand extends Command>(
   return result.right;
 };
 
-export const addCommand = (
+export const pushCommand = (
   args: Record<string, unknown>,
   command: string,
 ) => {
@@ -131,7 +131,7 @@ export const addCommand = (
   return result;
 };
 
-export const addSubcommand = (
+export const appendSubcommand = (
   args: Record<string, unknown>,
   subcommand: string,
 ) => {
@@ -202,7 +202,7 @@ export const parse = <TCommand extends Command>(
 
       [cmd, currentCommand] = alias.right;
 
-      result = addSubcommand(result, cmd);
+      result = appendSubcommand(result, cmd);
       // const prefix = replicate(idx, `sub`).join("");
 
       // result[`${prefix}command`] = cmd;

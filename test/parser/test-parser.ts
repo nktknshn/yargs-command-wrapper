@@ -9,7 +9,7 @@ import {
   Either as E,
   subs,
 } from "../../src";
-import { addCommand } from "../../src/parser";
+import { pushCommand } from "../../src/parser";
 
 const demandCommand = <T>(y: yargs.Argv<T>) => yargs.demandCommand(1);
 
@@ -90,20 +90,20 @@ describe("parser commands", () => {
 });
 
 describe("parser helper", () => {
-  test("addCommand", () => {
+  test("pushCommand", () => {
     let x = {
       argv: { a: 1 },
     };
 
-    const x2 = addCommand(x, "command3");
+    const x2 = pushCommand(x, "command3");
 
     expect(x2).toStrictEqual({
       command: "command3",
       argv: { a: 1 },
     });
 
-    const x3 = addCommand(x2, "command2");
-    const x4 = addCommand(x3, "command1");
+    const x3 = pushCommand(x2, "command2");
+    const x4 = pushCommand(x3, "command1");
 
     expect(x4).toStrictEqual({
       command: "command1",

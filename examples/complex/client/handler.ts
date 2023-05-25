@@ -5,7 +5,7 @@ import {
   GetArgv,
   subs,
 } from "../../../src";
-import { shiftCommand } from "../../../src/handler";
+import { popCommand } from "../../../src/handler";
 import { Address } from "../common";
 import { commandDownload, commandList, commandUpload } from "./args";
 import * as config from "./config";
@@ -42,7 +42,7 @@ export const handler = composeHandlers({
 const configHandler = createHandlerFor(
   subs(comm("config", "config management"), config.cmd),
   (args) => {
-    const a = shiftCommand(args);
+    const a = popCommand(args);
     type B = typeof a["argv"];
     a.command;
     config.handler(a);

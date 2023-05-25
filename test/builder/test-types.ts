@@ -9,12 +9,12 @@ import {
   HandlerType,
 } from "../../src/handler";
 import {
-  AddCommand,
   BasicCommand,
   Command,
   ComposedCommands,
   GetCommandReturnType,
   GetComposedReturnType,
+  PushCommand,
 } from "../../src/types";
 
 describe("mapped types", () => {
@@ -60,7 +60,7 @@ describe("mapped types", () => {
     type B = InputRecordHandlerFor<Command>;
     type A = HandlerFunctionFor<Command>;
     type C = GetCommandReturnType<Command>;
-    type D = ComposedHandler<AddCommand<Command, string, {}>, HandlerType>;
+    type D = ComposedHandler<PushCommand<Command, string, {}>, HandlerType>;
 
     type E<T extends Command> = T extends ComposedCommands<infer C, infer D>
       ? ComposedHandler<GetCommandReturnType<ComposedCommands<C>>>

@@ -8,7 +8,7 @@ import {
   subs,
 } from "../../../src";
 import { InputRecordHandlerFor } from "../../../src/create-handler-for";
-import { HandlerFunctionFor } from "../../../src/handler";
+import { HandlerFunctionFor, popCommand } from "../../../src/handler";
 import { opt } from "../../types/addOption";
 
 describe("create handler", () => {
@@ -260,28 +260,37 @@ describe("create handler", () => {
     expect(fn3.mock.calls.length).toBe(1);
   });
 
-  test("create handler for subcommand", async () => {
+  test("create handler for a single subcommand", async () => {
     const config = comp(
       comm("get", "get", opt("a")),
       comm("set", "set", opt("b")),
     );
 
-    const s = subs(comm("config", "config"), config);
+    const [fn1, fn2] = [jest.fn(), jest.fn()];
 
-    type Z = InputRecordHandlerFor<typeof s>;
+    const configHandler = handlerFor(config, ({ argv, command }) => {
+      switch (command) {
+        case "get":
+          fn1(argv.a);
+          break;
+        case "set":
+          fn2(argv.b);
+          break;
+      }
+    });
 
     const handler = createHandlerFor(
-      s,
+      subs(comm("config", "config"), config),
       args => {
-        args.command;
+        configHandler(popCommand(args));
       },
     );
 
-    handler({
-      command: "config",
-      subcommand: "get",
-      argv: { a: "123" },
-    });
+    handler({ command: "config", subcommand: "get", argv: { a: "123" } });
+    expect(fn1.mock.calls.length).toBe(1);
+
+    handler({ command: "config", subcommand: "set", argv: { b: "123" } });
+    expect(fn2.mock.calls.length).toBe(1);
   });
 
   test("empty composed", () => {

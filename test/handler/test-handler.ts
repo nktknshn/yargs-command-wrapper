@@ -1,14 +1,14 @@
 import { expectTypeOf } from "expect-type";
 import { composeHandlers } from "../../src";
-import { shiftCommand } from "../../src/handler";
+import { popCommand } from "../../src/handler";
 
 describe("handler", () => {
   test("handler helper", () => {
-    expect(shiftCommand({ command: "a", subcommand: "b", argv: { a: 1 } }))
+    expect(popCommand({ command: "a", subcommand: "b", argv: { a: 1 } }))
       .toStrictEqual({ command: "b", argv: { a: 1 } });
 
     expect(
-      shiftCommand({
+      popCommand({
         command: "a",
         subcommand: "b",
         subsubcommand: "c",
