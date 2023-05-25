@@ -18,8 +18,9 @@ export type GetArgs<TArgs, TPath extends string> = TArgs extends unknown
   ? TArgs extends PathToObject<TPath> ? TArgs : never
   : never;
 
-type CommandArgs = {
+export type CommandArgs = {
   "command": string;
+  // subcommand: string;
   "argv": unknown;
 };
 
@@ -33,7 +34,7 @@ export type BasicHandler<TArgv, TType extends HandlerType = "sync"> =
     : ((argv: TArgv) => Promise<void>);
 
 export type GetArgv<TCommand extends Command> = Parameters<
-  HandlerFor<TCommand>
+  HandlerFunctionFor<TCommand>
 >[0];
 
 /**
@@ -45,7 +46,7 @@ export type ComposedHandler<
 > = TType extends "sync" ? ((args: TArgs) => void)
   : ((args: TArgs) => Promise<void>);
 
-export type Handler = BasicHandler<any> | ComposedHandler<any>;
+export type HandlerFunction = BasicHandler<any> | ComposedHandler<any>;
 
 type HandlersUnion<T extends {}> = {
   [K in Extract<keyof T, string>]: T[K] extends ComposedHandler<infer TArgs>
@@ -55,7 +56,7 @@ type HandlersUnion<T extends {}> = {
 }[Extract<keyof T, string>];
 
 type TypeError<TMessage extends string> = TMessage;
-export type HandlersStruct = Record<string, Handler>;
+export type HandlersStruct = Record<string, HandlerFunction>;
 
 type IsHandlersRecord<T extends HandlersStruct> = T extends
   Record<string, BasicHandler<any> | ComposedHandler<any>> ? {}
@@ -63,15 +64,15 @@ type IsHandlersRecord<T extends HandlersStruct> = T extends
 
 type GetLastHandlersType<T extends HandlersStruct> =
   T[Cast<Last<(keyof T)>, keyof T>] extends infer A
-    ? GetHandlerType<Cast<A, Handler>>
+    ? GetHandlerType<Cast<A, HandlerFunction>>
     : never;
 
-export type GetStructHandlersType<T extends HandlersStruct> = GetHandlerType<
+export type GetHandlersStructType<T extends HandlersStruct> = GetHandlerType<
   T[keyof T]
 >;
 
-export type GetHandlerType<T extends Handler> = ReturnType<T> extends infer A
-  ? A extends Promise<any> ? "async"
+export type GetHandlerType<T extends HandlerFunction> = ReturnType<T> extends
+  infer A ? A extends Promise<any> ? "async"
   : "sync"
   : never;
 
@@ -83,7 +84,7 @@ type IsSameHandlersType<T extends HandlersStruct> =
 
 export const composeHandlers = <TRec extends HandlersStruct>(
   record: TRec & IsHandlersRecord<TRec> & IsSameHandlersType<TRec>,
-): ComposedHandler<HandlersUnion<TRec>, GetStructHandlersType<TRec>> =>
+): ComposedHandler<HandlersUnion<TRec>, GetHandlersStructType<TRec>> =>
 (args) => {
   const handler = record[args.command];
 
@@ -123,7 +124,7 @@ export const shiftCommand = <
 /**
  * Returns function that will handle arguments returned after parsing by `TCommand`
  */
-export type HandlerFor<
+export type HandlerFunctionFor<
   TCommand extends Command | readonly Command[],
   TType extends HandlerType = "sync",
   TGlobalArgv extends {} = {},
@@ -161,7 +162,7 @@ export type HandlerFor<
 
 export const handlerFor = <
   TCommand extends Command,
-  H extends HandlerFor<TCommand>,
+  H extends HandlerFunctionFor<TCommand>,
 >(cmd: TCommand, handler: H): H => {
   return handler;
 };

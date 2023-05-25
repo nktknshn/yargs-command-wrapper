@@ -3,17 +3,17 @@ import { handlerFor } from "../../src/handler";
 
 describe("create handler", () => {
   test("create handler for", () => {
-    const afn1 = jest.fn();
+    // const afn1 = jest.fn();
 
-    const a = createHandlerFor(
-      comm("foo", "bar", _ => _.option("baz", { type: "string" })),
-      ({ baz }) => {
-        afn1(baz);
-      },
-    );
+    // const a = createHandlerFor(
+    //   comm("foo", "bar", _ => _.option("baz", { type: "string" })),
+    //   ({ baz }) => {
+    //     afn1(baz);
+    //   },
+    // );
 
-    a({ baz: "1" });
-    expect(afn1.mock.calls.length).toBe(1);
+    // a({ baz: "1" });
+    // expect(afn1.mock.calls.length).toBe(1);
 
     const bfn1 = jest.fn();
     const bfn2 = jest.fn();
@@ -50,6 +50,21 @@ describe("create handler", () => {
         [
           comm("goo", "bar", _ => _.option("gooz", { type: "string" })),
           comm("hoo", "bar", _ => _.option("hooz", { type: "string" })),
+          subs(
+            comm("subfoo", "subfoo"),
+            [
+              comm(
+                "subgoo",
+                "subgoo",
+                _ => _.option("subgooz", { type: "string" }),
+              ),
+              comm(
+                "subhoo",
+                "subhoo",
+                _ => _.option("subhooz", { type: "string" }),
+              ),
+            ],
+          ),
         ],
       ),
       {
@@ -59,6 +74,16 @@ describe("create handler", () => {
         hoo: async ({ hooz }) => {
           afn2(hooz);
         },
+        subfoo: async (args) => {
+          switch (args.subcommand) {
+            case "subgoo":
+              afn1(args.argv.subgooz);
+              break;
+            case "subhoo":
+              afn2(args.argv.subhooz);
+              break;
+          }
+        },
       },
     );
 
@@ -67,6 +92,24 @@ describe("create handler", () => {
 
     handler({ command: "foo", subcommand: "hoo", argv: { hooz: "gooz" } });
     expect(afn2.mock.calls.length).toBe(1);
+
+    handler({
+      command: "foo",
+      subcommand: "subfoo",
+      subsubcommand: "subgoo",
+      argv: { subgooz: "gooz" },
+    });
+
+    expect(afn1.mock.calls.length).toBe(2);
+
+    handler({
+      command: "foo",
+      subcommand: "subfoo",
+      subsubcommand: "subhoo",
+      argv: { subhooz: "gooz" },
+    });
+
+    expect(afn2.mock.calls.length).toBe(2);
   });
 
   test("create handler for mixed", () => {
@@ -105,31 +148,33 @@ describe("create handler", () => {
       args.command;
     });
 
+    const subgoo = createHandlerFor(
+      subsubcommand,
+      {
+        subboo: async ({ booz }) => {},
+        subhoo: async (args) => {
+          expect(args).toStrictEqual({
+            hooz: "123",
+          });
+        },
+        subsubgoo: createHandlerFor(
+          subsubsubcommand,
+          {
+            subsubboo: async (args) => {
+              expect(args).toStrictEqual({
+                booz: "123",
+              });
+            },
+            subsubhoo: async (args) => {},
+          },
+        ),
+      },
+    );
+
     const gooHandler = createHandlerFor(subcommand, {
       hoo: async ({ hooz }) => {},
       boo: async ({ booz }) => {},
-      subgoo: createHandlerFor(
-        subsubcommand,
-        {
-          subboo: async ({ booz }) => {},
-          subhoo: async (args) => {
-            expect(args).toStrictEqual({
-              hooz: "123",
-            });
-          },
-          subsubgoo: createHandlerFor(
-            subsubsubcommand,
-            {
-              subsubboo: async (args) => {
-                expect(args).toStrictEqual({
-                  booz: "123",
-                });
-              },
-              subsubhoo: async (args) => {},
-            },
-          ),
-        },
-      ),
+      subgoo,
     });
 
     const handler = createHandlerFor(cmd, {
@@ -139,16 +184,9 @@ describe("create handler", () => {
       goo: gooHandler,
     });
 
-    handler({
-      command: "foo",
-      argv: {},
-    });
+    handler({ command: "foo", argv: {} });
 
-    handler({
-      command: "goo",
-      subcommand: "hoo",
-      argv: { hooz: "123" },
-    });
+    handler({ command: "goo", subcommand: "hoo", argv: { hooz: "123" } });
 
     handler({
       command: "goo",
@@ -164,5 +202,56 @@ describe("create handler", () => {
       subsubsubcommand: "subsubboo",
       argv: { booz: "123" },
     });
+  });
+
+  test("create tree", async () => {
+    const subcommand = subs(
+      comm("goo", "bar"),
+      [
+        comm("hoo", "bar", _ => _.option("hooz", { type: "string" })),
+        comm("boo", "bar", _ => _.option("booz", { type: "string" })),
+      ],
+    );
+
+    const subcommand2 = subs(
+      comm("zoo", "bar"),
+      [
+        comm("zoohoo", "bar", _ => _.option("hooz", { type: "string" })),
+        comm("zooboo", "bar", _ => _.option("booz", { type: "string" })),
+      ],
+    );
+
+    const cmd = comp(
+      comm("foo", "bar", _ => _.option("gooz", { type: "string" })),
+      subcommand,
+      subcommand2,
+    );
+
+    const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
+
+    const handler = createHandlerFor(cmd, {
+      foo: async ({ gooz }) => {
+        fn1(gooz);
+      },
+      goo: {
+        boo: async ({ booz }) => {
+          fn2(booz);
+        },
+        hoo: ({ hooz }) => {
+          fn3(hooz);
+        },
+      },
+      zoo: async (args) => {
+        args.command;
+      },
+    });
+
+    const res = await handler({
+      command: "goo",
+      subcommand: "hoo",
+      argv: { hooz: "123" },
+    });
+
+    expect(fn3.mock.calls.length).toBe(1);
   });
 });

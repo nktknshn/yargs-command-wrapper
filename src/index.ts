@@ -17,6 +17,10 @@ export {
 } from "./parser";
 export type { GetCommandReturnType } from "./types";
 
-export { composeHandlers, GetArgv, HandlerFor } from "./handler";
+export {
+  composeHandlers,
+  GetArgv,
+  HandlerFunctionFor as HandlerFor,
+} from "./handler";
 
 export { createHandlerFor } from "./create-handler-for";

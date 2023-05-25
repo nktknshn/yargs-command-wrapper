@@ -3,7 +3,7 @@ import y from "yargs";
 import { Either } from ".";
 import * as E from "./either";
 import { ErrorType } from "./error";
-import { HandlerFor, HandlerType } from "./handler";
+import { HandlerFunctionFor, HandlerType } from "./handler";
 import { buildAndParse } from "./parser";
 import { Command } from "./types";
 import { isObjectWithOwnProperty } from "./util";
@@ -30,7 +30,7 @@ export function failClient(
 
 export const createMain = <
   TCommand extends Command,
-  THandler extends HandlerFor<TCommand, HandlerType>,
+  THandler extends HandlerFunctionFor<TCommand, HandlerType>,
 >(
   cmd: TCommand,
   handler: THandler,
