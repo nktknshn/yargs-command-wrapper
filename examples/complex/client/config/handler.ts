@@ -1,4 +1,4 @@
-import { createHandlerFor } from "../../../../src/create-handler-for";
+import { createHandlerFor } from "../../../../src";
 import { cmd } from "./args";
 
 /**
