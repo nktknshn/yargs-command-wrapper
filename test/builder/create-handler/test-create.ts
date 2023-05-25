@@ -1,5 +1,15 @@
-import { comm, comp, createHandlerFor, subs } from "../../src";
-import { handlerFor } from "../../src/handler";
+import {
+  buildAndParse,
+  comm,
+  comp,
+  compose,
+  createHandlerFor,
+  handlerFor,
+  subs,
+} from "../../../src";
+import { InputRecordHandlerFor } from "../../../src/create-handler-for";
+import { HandlerFunctionFor } from "../../../src/handler";
+import { opt } from "../../types/addOption";
 
 describe("create handler", () => {
   test("create handler for", () => {
@@ -34,39 +44,40 @@ describe("create handler", () => {
     );
 
     b({ command: "goo", argv: { gooz: "gooz" } });
-    expect(bfn1.mock.calls.length).toBe(1);
+    expect(bfn2.mock.calls.length).toBe(1);
 
     b({ command: "foo", argv: { baz: "baz" } });
-    expect(bfn2.mock.calls.length).toBe(1);
+    expect(bfn1.mock.calls.length).toBe(1);
   });
 
   test("create handler for with subcommands", () => {
     const afn1 = jest.fn();
     const afn2 = jest.fn();
+    const command = subs(
+      comm("foo", "bar"),
+      [
+        comm("goo", "bar", _ => _.option("gooz", { type: "string" })),
+        comm("hoo", "bar", _ => _.option("hooz", { type: "string" })),
+        subs(
+          comm("subfoo", "subfoo"),
+          [
+            comm(
+              "subgoo",
+              "subgoo",
+              _ => _.option("subgooz", { type: "string" }),
+            ),
+            comm(
+              "subhoo",
+              "subhoo",
+              _ => _.option("subhooz", { type: "string" }),
+            ),
+          ],
+        ),
+      ],
+    );
 
     const handler = createHandlerFor(
-      subs(
-        comm("foo", "bar"),
-        [
-          comm("goo", "bar", _ => _.option("gooz", { type: "string" })),
-          comm("hoo", "bar", _ => _.option("hooz", { type: "string" })),
-          subs(
-            comm("subfoo", "subfoo"),
-            [
-              comm(
-                "subgoo",
-                "subgoo",
-                _ => _.option("subgooz", { type: "string" }),
-              ),
-              comm(
-                "subhoo",
-                "subhoo",
-                _ => _.option("subhooz", { type: "string" }),
-              ),
-            ],
-          ),
-        ],
-      ),
+      command,
       {
         goo: async ({ gooz }) => {
           afn1(gooz);
@@ -139,15 +150,9 @@ describe("create handler", () => {
       ],
     );
 
-    const cmd = comp(
-      comm("foo", "bar"),
-      subcommand,
-    );
+    const cmd = comp(comm("foo", "bar"), subcommand);
 
-    const h2 = handlerFor(subcommand, args => {
-      args.command;
-    });
-
+    const fn1 = jest.fn();
     const subgoo = createHandlerFor(
       subsubcommand,
       {
@@ -253,5 +258,41 @@ describe("create handler", () => {
     });
 
     expect(fn3.mock.calls.length).toBe(1);
+  });
+
+  test("create handler for subcommand", async () => {
+    const config = comp(
+      comm("get", "get", opt("a")),
+      comm("set", "set", opt("b")),
+    );
+
+    const s = subs(comm("config", "config"), config);
+
+    type Z = InputRecordHandlerFor<typeof s>;
+
+    const handler = createHandlerFor(
+      s,
+      args => {
+        args.command;
+      },
+    );
+
+    handler({
+      command: "config",
+      subcommand: "get",
+      argv: { a: "123" },
+    });
+  });
+
+  test("empty composed", () => {
+    const c = compose(
+      comm("foo", "bar"),
+    );
+
+    const res = buildAndParse(c, []);
+
+    console.log(
+      res.result,
+    );
   });
 });

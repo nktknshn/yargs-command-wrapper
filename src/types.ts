@@ -1,5 +1,12 @@
 import * as y from "yargs";
+import { CommandArgs, HandlerFunction } from "./handler";
 import { Cast, ToList, TupleKeys } from "./util";
+
+export interface NonEmptyArray<A> extends ReadonlyArray<A> {
+  0: A;
+}
+
+export type CommandsTuple = NonEmptyArray<Command>;
 
 export type Builder<TArgv> = (parent: y.Argv<{}>) => y.Argv<TArgv>;
 
@@ -29,8 +36,8 @@ export type BasicCommand<
 
 export type CommandWithSubcommands<
   TCommandName extends string = string,
-  TArgv extends {} = {},
   TCommands extends readonly Command[] = readonly Command[],
+  TArgv extends {} = {},
   TComposedArgv extends {} = {},
 > = {
   command: BasicCommand<TCommandName, TArgv>;
@@ -50,7 +57,7 @@ export type ComposedCommands<
 export type Command =
   | BasicCommand<string, {}>
   | ComposedCommands<readonly Command[], {}>
-  | CommandWithSubcommands<string, {}, readonly Command[]>;
+  | CommandWithSubcommands<string, readonly Command[]>;
 
 type GetSingleReturnType<
   T extends BasicCommand<string, {}> = BasicCommand<string, {}>,
@@ -59,16 +66,26 @@ type GetSingleReturnType<
   ? { command: C; argv: R & TGlobalArgv }
   : never;
 
-type GetComposedReturnType<
+type FallbackNever<T, U> = [T] extends [never] ? U : T;
+
+/**
+ * @description Get the parsing result of a composed command.
+ */
+export type GetComposedReturnType<
   T extends ComposedCommands = ComposedCommands,
   TGlobalArgv = {},
-> = T extends ComposedCommands<infer CS, infer TGlobalArgvComposed> ? {
-    [P in TupleKeys<CS>]: GetCommandReturnType<
-      Cast<CS[P], Command>,
-      TGlobalArgv & TGlobalArgvComposed
-    >;
-  }[TupleKeys<CS>]
-  : never;
+> = FallbackNever<
+  T extends ComposedCommands<infer CS, infer TGlobalArgvComposed> ? {
+      [P in TupleKeys<CS>]: GetCommandReturnType<
+        Cast<CS[P], Command>,
+        TGlobalArgv & TGlobalArgvComposed
+      >;
+    }[TupleKeys<CS>]
+    : never,
+  // Note: It is supposed to return never when the commands list is empty. But
+  // api forbids creating empty commands list. So we fallback to `CommandArgs` here because the composed command will resolve to `CommandArgs` eventually anyway.
+  CommandArgs
+>;
 
 export type GetSubcommandsReturnType<
   TCommands extends readonly Command[],
@@ -88,11 +105,14 @@ export type GetWithSubcommandsReturnType<
   TGlobalArgv = {},
 > = T extends CommandWithSubcommands<
   infer TCommandName,
-  infer TCommandArgv,
-  infer TCommands
+  infer TCommands,
+  infer TCommandArgv
 > ? GetSubcommandsReturnType<TCommands, TCommandName, TCommandArgv, TGlobalArgv>
   : never;
 
+/**
+ * @description Gets the return type of a parsed arguments
+ */
 export type GetCommandReturnType<TCommand extends Command, TGlobalArgv = {}> =
   TCommand extends BasicCommand ? GetSingleReturnType<TCommand, TGlobalArgv>
     : TCommand extends ComposedCommands

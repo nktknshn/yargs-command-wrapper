@@ -1,24 +1,24 @@
 import { expectTypeOf } from "expect-type";
 import { comm, comp, subs } from "../../src";
-import { addOption } from "./addOption";
+import { opt } from "./addOption";
 import { buildAndParseUnsafe } from "./mocked";
 
 describe("builder types", () => {
   test("subcommands", () => {
     const cmd = comp(
-      addOption("a"),
+      opt("a"),
       subs(
-        comm("command1", "desc", addOption("c1argv")),
+        comm("command1", "desc", opt("c1argv")),
         [
-          comm("c1sc1", "desc", addOption("c1sc1argv")),
-          comm("c1sc2", "desc", addOption("c1sc2argv")),
+          comm("c1sc1", "desc", opt("c1sc1argv")),
+          comm("c1sc2", "desc", opt("c1sc2argv")),
         ],
       ),
       subs(
-        comm("command2", "desc", addOption("c2argv")),
+        comm("command2", "desc", opt("c2argv")),
         [
-          comm("c2sc1", "desc", addOption("c2sc1argv")),
-          comm("c2sc2", "desc", addOption("c2sc2argv")),
+          comm("c2sc1", "desc", opt("c2sc1argv")),
+          comm("c2sc2", "desc", opt("c2sc2argv")),
         ],
       ),
     );
@@ -49,26 +49,26 @@ describe("builder types", () => {
 
   test("subcommands different levels of nest", () => {
     const cmd = comp(
-      addOption("a"),
+      opt("a"),
       subs(
-        comm("command1", "desc", addOption("c1argv")),
+        comm("command1", "desc", opt("c1argv")),
         [
-          comm("c1sc1", "desc", addOption("c1sc1argv")),
-          comm("c1sc2", "desc", addOption("c1sc2argv")),
+          comm("c1sc1", "desc", opt("c1sc1argv")),
+          comm("c1sc2", "desc", opt("c1sc2argv")),
         ],
       ),
       subs(
-        comm("command2", "desc", addOption("c2argv")),
+        comm("command2", "desc", opt("c2argv")),
         [
           subs(
-            comm("c2sc1", "desc", addOption("c2sc1argv")),
+            comm("c2sc1", "desc", opt("c2sc1argv")),
             comp(
-              addOption("c2sc1argv2"),
-              comm("c2sc1sc1", "desc", addOption("c2sc1sc1argv")),
-              comm("c2sc1sc2", "desc", addOption("c2sc1sc2argv")),
+              opt("c2sc1argv2"),
+              comm("c2sc1sc1", "desc", opt("c2sc1sc1argv")),
+              comm("c2sc1sc2", "desc", opt("c2sc1sc2argv")),
             ),
           ),
-          comm("c2sc2", "desc", addOption("c2sc2argv")),
+          comm("c2sc2", "desc", opt("c2sc2argv")),
         ],
       ),
     );

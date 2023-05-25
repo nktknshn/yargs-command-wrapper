@@ -42,7 +42,7 @@ describe("parser commands", () => {
 
     assert(E.isLeft(result));
 
-    console.log(result);
+    // console.log(result);
   });
 });
 

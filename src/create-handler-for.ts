@@ -1,11 +1,10 @@
+import { UnionToIntersection } from "tsafe";
 import {
-  BasicHandler,
   CommandArgs,
-  GetHandlersStructType,
   GetHandlerType,
   HandlerFunction,
   HandlerFunctionFor,
-  HandlersStruct,
+  HandlersRecord,
   HandlerType,
   shiftCommand,
 } from "./handler";
@@ -23,13 +22,16 @@ import {
   TupleKeys,
 } from "./util";
 
+/**
+ * @description Gets a union of all the composed commands names
+ */
 type GetComposedCommandsNames<T extends ComposedCommands> = T extends
   ComposedCommands<infer TCommands>
   ? GetCommandName<Cast<ToUnion<TCommands>, Command>>
   : never;
 
 /**
- * Gets the name of a command. For composed commands it returns never
+ * @description Gets the name of a command. For a composed command it returns `never`
  */
 export type GetCommandName<TCommand extends Command> = TCommand extends
   BasicCommand<infer TName, infer TArgv> ? TName
@@ -39,24 +41,24 @@ export type GetCommandName<TCommand extends Command> = TCommand extends
   : never;
 
 /**
- * Gets if the input structure sync or async
+ * @description Gets if the input structure sync or async
  */
-export type GetInputStructHandlerType<
-  T extends InputStructHandlerFor<Command>,
+export type GetInputRecordHandlerType<
+  T extends InputRecordHandlerFor<Command>,
 > =
   // if the handler is a function
   T extends HandlerFunction ? GetHandlerType<T>
     // otherwise it's a structure
-    : T extends InputStructHandler ? {
+    : T extends InputRecordHandler ? {
         [K in keyof T]: T[K] extends HandlerFunction ? GetHandlerType<T[K]>
-          : GetInputStructHandlerType<T[K]>;
+          : GetInputRecordHandlerType<T[K]>;
       }[keyof T]
     : never;
 
 /**
- * Flattens a composed commands tree into a list of commands that are not composed
+ * @description Flattens a composed commands tree into a list of commands that are not composed
  */
-type ComposeCommandsFlatten<TCommand extends Command> = ComposedCommands<
+export type ComposeCommandsFlatten<TCommand extends Command> = ComposedCommands<
   Cast<ToList<_ComposeCommandsFlatten<TCommand>>, readonly Command[]>,
   _ComposeCommandsFlattenArgv<TCommand>
 >;
@@ -70,21 +72,23 @@ type _ComposeCommandsFlatten<TCommand extends Command> = TCommand extends
   : never;
 
 /**
- * Gets composed commands common Argv
+ * @description Gets composed commands common Argv
  */
 type _ComposeCommandsFlattenArgv<TCommand extends Command> = TCommand extends
   ComposedCommands<infer TCommands, infer TArgv> ? 
     & TArgv
-    & (ToUnion<TCommands> extends infer C
-      ? C extends ComposedCommands ? _ComposeCommandsFlattenArgv<C>
-      : {}
-      : never)
+    & UnionToIntersection<
+      (ToUnion<TCommands> extends infer C
+        ? C extends ComposedCommands ? _ComposeCommandsFlattenArgv<C>
+        : {}
+        : never)
+    >
   : never;
 
 /**
- * For a composed commands the input structure is a map of the commands and their either handling functions or another input structures
+ * @description For a composed commands the input structure is a map of the commands and their either handling functions or another input structures
  */
-export type ComposedCommandsInputStruct<
+export type ComposedCommandsInputRecord<
   TCommand extends ComposedCommands,
   TGlobalArgv extends {},
 > = ComposeCommandsFlatten<TCommand> extends ComposedCommands<
@@ -103,16 +107,16 @@ export type ComposedCommandsInputStruct<
         HandlerType,
         TArgv & TGlobalArgv
       >
-      // the value is a structure
-      | InputStructHandlerFor<Cast<TCommands[P], Command>, TArgv & TGlobalArgv>;
+      // the value is a record
+      | InputRecordHandlerFor<Cast<TCommands[P], Command>, TArgv & TGlobalArgv>;
   }
   : never;
 
 /**
- * This defines a type of structure that can be used to create a handler for a
+ * @description This defines a type of structure that can be used to create a handler for a
  * command of type `TCommand`.
  */
-export type InputStructHandlerFor<
+export type InputRecordHandlerFor<
   TCommand extends Command | readonly Command[],
   // `TGlobalArgv` is object to intersect with `TArgv` of `TCommand`
   TGlobalArgv extends {} = {},
@@ -125,43 +129,46 @@ export type InputStructHandlerFor<
   TCommand extends ComposedCommands<
     infer TCommands,
     infer TArgv
-  > ? ComposedCommandsInputStruct<TCommand, TGlobalArgv & TArgv>
+  > ? 
+      | HandlerFunctionFor<TCommand, HandlerType, TGlobalArgv>
+      | ComposedCommandsInputRecord<TCommand, TGlobalArgv & TArgv>
     // for commands with subcommands the input structure is same as for the composed. Note: `TName` is not added to args
     : TCommand extends CommandWithSubcommands<
       infer TName,
-      infer TArgv,
       infer TCommands,
+      infer TArgv,
       infer TCommandArgv
-    > ? ComposedCommandsInputStruct<
-        ComposedCommands<TCommands, TArgv & TCommandArgv & TGlobalArgv>,
-        TGlobalArgv
-      >
-    : TCommand extends readonly Command[] ? ComposedCommandsInputStruct<
-        ComposedCommands<TCommand, TGlobalArgv>,
-        TGlobalArgv
-      >
+    > ? 
+        | HandlerFunctionFor<TCommand, HandlerType, TGlobalArgv>
+        | ComposedCommandsInputRecord<
+          ComposedCommands<TCommands, TArgv & TCommandArgv & TGlobalArgv>,
+          TGlobalArgv
+        >
+    // : TCommand extends readonly Command[] ? ComposedCommandsInputRecord<
+    //     ComposedCommands<TCommand, TGlobalArgv>,
+    //     TGlobalArgv
+    //   >
     : never;
 
-type InputStructHandler = // | HandlerFunction
-  {
-    [key: string]: HandlerFunction | HandlersStruct | InputStructHandler;
-  };
+type InputRecordHandler = {
+  [key: string]: HandlerFunction | HandlersRecord | InputRecordHandler;
+};
 
 /**
- * Returns function that will handle arguments returned after parsing by `TCommand`
+ * @description Returns function that will handle arguments returned after parsing by `TCommand`
  */
 export const createHandlerFor = <
-  TCommand extends Command | readonly Command[],
-  TInput extends InputStructHandlerFor<TCommand>,
+  TCommand extends Command,
+  TInput extends InputRecordHandlerFor<TCommand>,
 >(
   command: TCommand,
   recordOrFunction: TInput,
-): HandlerFunctionFor<TCommand, GetInputStructHandlerType<TInput>> => {
+): HandlerFunctionFor<TCommand, GetInputRecordHandlerType<TInput>> => {
   return _createHandlerFor(command, recordOrFunction) as any;
 };
 
 /**
- * Traverses commands tree and returns command with given name
+ * @description Traverses commands tree and returns command with given name
  */
 const findByName = (
   commands: readonly Command[],
@@ -191,14 +198,18 @@ const findByName = (
 };
 
 export const _createHandlerFor = (
-  command: Command | readonly Command[],
-  recordOrFunction: InputStructHandler,
+  command: Command,
+  recordOrFunction: InputRecordHandler | HandlerFunction,
 ): HandlerFunction => {
   // console.log("createHandlerFor", command, recordOrFunction);
 
   if (isObjectWithOwnProperties(command, "type")) {
     if (command.type === "command") {
       return (args: any) => {
+        if (typeof recordOrFunction === "function") {
+          return recordOrFunction(args);
+        }
+
         const handler = recordOrFunction[command.commandName];
 
         if (typeof handler !== "function") {
@@ -215,6 +226,9 @@ export const _createHandlerFor = (
       return (args: CommandArgs) => {
         const cmd = args["command"];
 
+        if (typeof recordOrFunction === "function") {
+          return recordOrFunction(args);
+        }
         const namedCommand = findByName(command.commands, cmd);
 
         if (namedCommand === undefined) {
@@ -242,6 +256,11 @@ export const _createHandlerFor = (
       return (args: any) => {
         args = shiftCommand(args);
         const cmd = args["command"];
+
+        if (typeof recordOrFunction === "function") {
+          return recordOrFunction(args);
+        }
+
         const handler = recordOrFunction[cmd];
 
         const namedCommand = findByName(command.subcommands.commands, cmd);

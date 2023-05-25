@@ -9,6 +9,8 @@ export type ToUnion<L> = L extends readonly [infer A, ...infer B]
   ? A | ToUnion<B>
   : never;
 
+export type ListHead<L> = L extends readonly [infer A, ...infer _] ? A : never;
+
 export type Last<U extends any> = IntersectOf<
   U extends unknown // Distribute U
     ? (x: U) => void
@@ -24,6 +26,8 @@ export type IntersectOf<U extends any> =
 export type Cast<A1 extends unknown, A2 extends unknown> = A1 extends A2 ? A1
   : A2;
 
+export type TupleToUnion<T extends ReadonlyArray<unknown>> = T[number];
+
 export const replicate = <T>(n: number, x: T): T[] => {
   const result: T[] = [];
 
@@ -33,8 +37,6 @@ export const replicate = <T>(n: number, x: T): T[] => {
 
   return result;
 };
-
-export type TupleToUnion<T extends ReadonlyArray<unknown>> = T[number];
 
 export type ObjectType = {};
 

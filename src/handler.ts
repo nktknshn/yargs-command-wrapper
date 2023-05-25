@@ -6,21 +6,28 @@ import {
   ComposedCommands,
   GetCommandReturnType,
 } from "./types";
-import { Cast, isObjectWithOwnProperty, Last } from "./util";
+import {
+  Cast,
+  isObjectWithOwnProperty,
+  Last,
+  ListHead,
+  ToList,
+  ToUnion,
+  TupleKeys,
+} from "./util";
 
-type PathToObject<TPath extends string, TPrefix extends string = ""> =
-  TPath extends `/${infer TName}/${infer TRest}` ? 
+/* type PathToObject<TPath extends string, TPrefix extends string = ""> =
+  TPath extends `/${infer TName}/${infer TRest}` ?
       & Record<`${TPrefix}command`, TName>
       & PathToObject<`/${TRest}`, `sub${TPrefix}`>
     : {};
 
 export type GetArgs<TArgs, TPath extends string> = TArgs extends unknown
   ? TArgs extends PathToObject<TPath> ? TArgs : never
-  : never;
+  : never; */
 
 export type CommandArgs = {
   "command": string;
-  // subcommand: string;
   "argv": unknown;
 };
 
@@ -33,6 +40,9 @@ export type BasicHandler<TArgv, TType extends HandlerType = "sync"> =
   TType extends "sync" ? ((argv: TArgv) => void)
     : ((argv: TArgv) => Promise<void>);
 
+/**
+ * Gets command
+ */
 export type GetArgv<TCommand extends Command> = Parameters<
   HandlerFunctionFor<TCommand>
 >[0];
@@ -48,7 +58,10 @@ export type ComposedHandler<
 
 export type HandlerFunction = BasicHandler<any> | ComposedHandler<any>;
 
-type HandlersUnion<T extends {}> = {
+/**
+ * Gets the type that will be returned by a handlers defined by the input `HandlersRecord`
+ */
+type GetHandlersRecordReturnType<T extends HandlersRecord> = {
   [K in Extract<keyof T, string>]: T[K] extends ComposedHandler<infer TArgs>
     ? AddCommand<TArgs, Cast<K, string>, {}>
     : T[K] extends BasicHandler<infer TArgv> ? { "command": K; argv: TArgv }
@@ -56,18 +69,19 @@ type HandlersUnion<T extends {}> = {
 }[Extract<keyof T, string>];
 
 type TypeError<TMessage extends string> = TMessage;
-export type HandlersStruct = Record<string, HandlerFunction>;
 
-type IsHandlersRecord<T extends HandlersStruct> = T extends
+export type HandlersRecord = Record<string, HandlerFunction>;
+
+type IsHandlersRecord<T extends HandlersRecord> = T extends
   Record<string, BasicHandler<any> | ComposedHandler<any>> ? {}
   : TypeError<"Invalid input object">;
 
-type GetLastHandlersType<T extends HandlersStruct> =
+type GetLastHandlersType<T extends HandlersRecord> =
   T[Cast<Last<(keyof T)>, keyof T>] extends infer A
     ? GetHandlerType<Cast<A, HandlerFunction>>
     : never;
 
-export type GetHandlersStructType<T extends HandlersStruct> = GetHandlerType<
+export type GetHandlersRecordType<T extends HandlersRecord> = GetHandlerType<
   T[keyof T]
 >;
 
@@ -76,15 +90,23 @@ export type GetHandlerType<T extends HandlerFunction> = ReturnType<T> extends
   : "sync"
   : never;
 
-type IsSameHandlersType<T extends HandlersStruct> =
+type IsSameHandlersType<T extends HandlersRecord> =
   GetLastHandlersType<T> extends infer A
     ? GetHandlerType<T[keyof T]> extends A ? {}
     : TypeError<"Handlers must be all sync or all async">
     : never;
 
-export const composeHandlers = <TRec extends HandlersStruct>(
+/**
+ * @description Composes handlers into a single handler
+ * @param record the handlers record. Keys are command names and values are their handler functions
+ * @returns a handler that will handle the command
+ */
+export const composeHandlers = <TRec extends HandlersRecord>(
   record: TRec & IsHandlersRecord<TRec> & IsSameHandlersType<TRec>,
-): ComposedHandler<HandlersUnion<TRec>, GetHandlersStructType<TRec>> =>
+): ComposedHandler<
+  GetHandlersRecordReturnType<TRec>,
+  GetHandlersRecordType<TRec>
+> =>
 (args) => {
   const handler = record[args.command];
 
@@ -96,13 +118,55 @@ export const composeHandlers = <TRec extends HandlersStruct>(
   }
 };
 
+// type Length<S extends string> = ToList<_Length<S>>["length"];
+
+// type _Length<S extends string> = S extends `${infer H}${infer T}`
+//   ? H | _Length<T>
+//   : never;
+
+// type Longest<T extends string> = ToList<T> extends infer L
+//   ? Length<Cast<ListHead<L>, string>> extends F ?
+//   : never;
+
+// type H = Longest<"123" | "12345" | "12" | "1234">;
+
+// type LongestS<T extends CommandArgs> = ToList<
+//   Extract<keyof T, `${string}command`>
+// > extends infer L ? ListHead<L> : never;
+
+type ShiftCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
+    [P in TupleKeys<L>]:
+      & Omit<L[P], "command">
+      & {
+        argv: Cast<L[P], CommandArgs>["argv"];
+      }
+      & {
+        [K in keyof L[P] as K extends `sub${infer U}` ? U : never]: L[P][K];
+      };
+  }[TupleKeys<L>]
+  : never;
+
+// type ZZ = ShiftCommand<
+//   | { command: "cmd1"; subcommand: "sub1"; argv: { a: number } }
+//   | { command: "cmd1"; subcommand: "sub2"; argv: { b: number } }
+// >;
+
+// type Z = Longest<{
+//   command: "a";
+//   subcommand: "b";
+//   subsubcommand: "b";
+//   argv: {};
+// }>;
+
+// type J = Length<Z>;
+
 export const shiftCommand = <
   T extends {
     command: string;
     subcommand: string;
     argv: unknown;
   },
->(args: T) => {
+>(args: T): ShiftCommand<T> => {
   const result: Record<string, unknown> = {
     argv: args.argv,
   };
@@ -118,21 +182,21 @@ export const shiftCommand = <
     }
   }
 
-  return result;
+  return result as ShiftCommand<T>;
 };
 
 /**
- * Returns function that will handle arguments returned after parsing by `TCommand`
+ * Returns type of the function that will handle arguments returned after parsing by `TCommand`
  */
 export type HandlerFunctionFor<
-  TCommand extends Command | readonly Command[],
+  TCommand extends Command,
   TType extends HandlerType = "sync",
   TGlobalArgv extends {} = {},
 > =
-  // this is just a function taking TArgv and returning void for BasicCommand
+  // or `BasicCommand` this is just a function takes `TArgv` and returns `void`
   TCommand extends BasicCommand<infer TName, infer TArgv>
     ? BasicHandler<TArgv & TGlobalArgv, TType>
-    // this is a function taking { command; argv } for ComposedCommands
+    // For ComposedCommands this is a function taking `{ command; argv }`
     : TCommand extends ComposedCommands<infer TCommands, infer TArgv>
       ? ComposedHandler<
         GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
@@ -141,8 +205,8 @@ export type HandlerFunctionFor<
     // this is a function taking { command: TName, subcommand; argv } for CommandWithSubcommands
     : TCommand extends CommandWithSubcommands<
       infer TName,
-      infer TArgv,
       infer TCommands,
+      infer TArgv,
       infer TCommandArgv
     > ? ComposedHandler<
         AddCommand<
@@ -154,12 +218,18 @@ export type HandlerFunctionFor<
         >,
         TType
       >
-    : TCommand extends readonly Command[] ? ComposedHandler<
-        GetCommandReturnType<ComposedCommands<TCommand, TGlobalArgv>>,
-        TType
-      >
+    // : TCommand extends readonly Command[] ? ComposedHandler<
+    //     GetCommandReturnType<ComposedCommands<TCommand, TGlobalArgv>>,
+    //     TType
+    //   >
     : never;
 
+/**
+ * @description Helps to type a handler function for a command
+ * @param cmd Command to handle
+ * @param handler Handler function
+ * @returns Handler function
+ */
 export const handlerFor = <
   TCommand extends Command,
   H extends HandlerFunctionFor<TCommand>,

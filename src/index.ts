@@ -20,6 +20,7 @@ export type { GetCommandReturnType } from "./types";
 export {
   composeHandlers,
   GetArgv,
+  handlerFor,
   HandlerFunctionFor as HandlerFor,
 } from "./handler";
 

@@ -1,9 +1,10 @@
 import y from "yargs";
-import { getCommandName } from "./common";
+import { getCommandName, showCommand } from "./common";
 import {
   BasicCommand,
   Builder,
   Command,
+  CommandsTuple,
   CommandWithSubcommands,
   ComposedCommands,
   GetCommandNameFromDesc,
@@ -46,16 +47,25 @@ export const command = <const TCommandDesc extends readonly string[] | string, T
  * @param
  * @returns
  */
-export function composeCommands<TCommands extends Command[], TArgv extends {}>(
+export function composeCommands<
+  TCommands extends CommandsTuple,
+  TArgv extends {},
+>(
   builder: Builder<TArgv>,
   ...commands: TCommands
 ): ComposedCommands<TCommands, TArgv>;
 
-export function composeCommands<TCommands extends Command[]>(
+export function composeCommands<
+  TCommands extends CommandsTuple,
+  TArgv extends {} = {},
+>(
   ...commands: TCommands
-): ComposedCommands<TCommands>;
+): ComposedCommands<TCommands, TArgv>;
 
-export function composeCommands<TCommands extends Command[], TArgv extends {}>(
+export function composeCommands<
+  TCommands extends CommandsTuple,
+  TArgv extends {},
+>(
   builder: Builder<TArgv> | TCommands,
   ...commands: TCommands
 ): ComposedCommands<TCommands, TArgv> {
@@ -63,9 +73,11 @@ export function composeCommands<TCommands extends Command[], TArgv extends {}>(
 
   // logger.debug(`builder: ${typeof builder}`);
   // logger.debug(`commands: ${commands.map(showCommand).join(", ")}`);
+  // if (builder === undefined) {
+  // }
 
   if (typeof builder !== "function") {
-    commands = [builder, ...commands] as TCommands;
+    commands = [builder, ...commands] as unknown as TCommands;
     _builder = undefined;
   }
   else {
@@ -84,7 +96,7 @@ export function subs<
 >(
   command: BasicCommand<TCommandName, TArgv>,
   subcommands: TCommands,
-): CommandWithSubcommands<TCommandName, TArgv, TCommands, {}>;
+): CommandWithSubcommands<TCommandName, TCommands, TArgv, {}>;
 
 export function subs<
   TCommandName extends string,
@@ -94,29 +106,30 @@ export function subs<
 >(
   command: BasicCommand<TCommandName, TArgv>,
   subcommands: ComposedCommands<TCommands, TComposedArgv>,
-): CommandWithSubcommands<TCommandName, TArgv & TComposedArgv, TCommands>;
+): CommandWithSubcommands<TCommandName, TCommands, TArgv & TComposedArgv>;
 
 export function subs<
   TCommandName extends string,
   TArgv extends {},
-  TCommands extends Command[],
+  TCommands extends CommandsTuple,
   TComposedArgv extends {},
 >(
   command: BasicCommand<TCommandName, TArgv>,
   subcommands: ComposedCommands<TCommands, TComposedArgv> | TCommands,
-): CommandWithSubcommands<TCommandName, TArgv, TCommands, TComposedArgv> {
+): CommandWithSubcommands<TCommandName, TCommands, TArgv, TComposedArgv> {
   if (
     isObjectWithOwnProperty(subcommands, "type")
     && subcommands.type === "composed"
   ) {
-    return { command, subcommands: subcommands, type: "with-subcommands" };
+    return { command, subcommands, type: "with-subcommands" };
   }
+  const s = subcommands as TCommands;
+
+  const composedCommand = composeCommands<TCommands, TComposedArgv>(...s);
 
   return {
     command,
-    subcommands: composeCommands(
-      ...subcommands,
-    ) as ComposedCommands<TCommands, TComposedArgv>,
+    subcommands: composedCommand,
     type: "with-subcommands",
   };
 }
@@ -125,7 +138,7 @@ export const buildYargs = <TCommand extends Command>(
   command: TCommand,
 ) =>
 (yargsObject: y.Argv): y.Argv => {
-  // logger.debug(`command: ${showCommand(command)}`);
+  console.log(`command: ${showCommand(command)}`);
 
   if (command.type === "command") {
     // logger.debug(`command: ${command.commandName} '${command.commandDesc}'`);

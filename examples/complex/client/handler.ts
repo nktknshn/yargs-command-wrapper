@@ -1,4 +1,11 @@
-import { composeHandlers, GetArgv } from "../../../src";
+import {
+  comm,
+  composeHandlers,
+  createHandlerFor,
+  GetArgv,
+  subs,
+} from "../../../src";
+import { shiftCommand } from "../../../src/handler";
 import { Address } from "../common";
 import { commandDownload, commandList, commandUpload } from "./args";
 import * as config from "./config";
@@ -31,3 +38,13 @@ export const handler = composeHandlers({
   "upload": uploadHandler,
   "config": config.handler,
 });
+
+const configHandler = createHandlerFor(
+  subs(comm("config", "config management"), config.cmd),
+  (args) => {
+    const a = shiftCommand(args);
+    type B = typeof a["argv"];
+    a.command;
+    config.handler(a);
+  },
+);

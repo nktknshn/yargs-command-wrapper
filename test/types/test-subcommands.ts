@@ -1,6 +1,6 @@
 import { expectTypeOf } from "expect-type";
 import { comm, comp, subs } from "../../src";
-import { addOption } from "./addOption";
+import { opt } from "./addOption";
 import { buildAndParseUnsafe } from "./mocked";
 
 describe("builder types", () => {
@@ -17,10 +17,10 @@ describe("builder types", () => {
 
     expectTypeOf(buildAndParseUnsafe(
       subs(
-        comm("command1", "desc", addOption("a")),
+        comm("command1", "desc", opt("a")),
         [
-          comm("sc1", "desc", addOption("b")),
-          comm("sc2", "desc", addOption("c")),
+          comm("sc1", "desc", opt("b")),
+          comm("sc2", "desc", opt("c")),
         ],
       ),
     )).toEqualTypeOf<
@@ -39,11 +39,11 @@ describe("builder types", () => {
     // test mixed options from composed and parenting commands
     expectTypeOf(buildAndParseUnsafe(
       subs(
-        comm("command1", "desc", addOption("a")),
+        comm("command1", "desc", opt("a")),
         comp(
-          addOption("d"),
-          comm("sc1", "desc", addOption("b")),
-          comm("sc2", "desc", addOption("c")),
+          opt("d"),
+          comm("sc1", "desc", opt("b")),
+          comm("sc2", "desc", opt("c")),
         ),
       ),
     )).toEqualTypeOf<
