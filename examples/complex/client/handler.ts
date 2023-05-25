@@ -25,7 +25,7 @@ const uploadHandler = async (argv: GetArgv<typeof commandUpload>) => {
   );
 };
 
-export const handler = composeHandlers({
+export const handler = subsHandlers({
   "list": listHandler,
   "download": downloadHandler,
   "upload": uploadHandler,

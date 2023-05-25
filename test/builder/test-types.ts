@@ -4,9 +4,9 @@ import {
   InputRecordHandlerFor,
 } from "../../src/create-handler-for";
 import {
-  ComposedHandler,
   HandlerFunctionFor,
   HandlerType,
+  ParentHandler,
 } from "../../src/handler";
 import {
   BasicCommand,
@@ -60,10 +60,10 @@ describe("mapped types", () => {
     type B = InputRecordHandlerFor<Command>;
     type A = HandlerFunctionFor<Command>;
     type C = GetCommandReturnType<Command>;
-    type D = ComposedHandler<PushCommand<Command, string, {}>, HandlerType>;
+    type D = ParentHandler<PushCommand<Command, string, {}>, HandlerType>;
 
     type E<T extends Command> = T extends ComposedCommands<infer C, infer D>
-      ? ComposedHandler<GetCommandReturnType<ComposedCommands<C>>>
+      ? ParentHandler<GetCommandReturnType<ComposedCommands<C>>>
       : never;
 
     type EE = E<Command>;

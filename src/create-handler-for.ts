@@ -25,7 +25,7 @@ import {
 /**
  * @description Gets a union of all the composed commands names
  */
-type GetComposedCommandsNames<T extends ComposedCommands> = T extends
+export type GetComposedCommandsNames<T extends ComposedCommands> = T extends
   ComposedCommands<infer TCommands>
   ? GetCommandName<Cast<ToUnion<TCommands>, Command>>
   : never;

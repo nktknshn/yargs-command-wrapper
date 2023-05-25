@@ -50,19 +50,19 @@ export type GetArgv<TCommand extends Command> = Parameters<
 /**
  * handler for a composed command. It receives { command; argv }
  */
-export type ComposedHandler<
+export type ParentHandler<
   TArgs extends CommandArgs,
   TType extends HandlerType = "sync",
 > = TType extends "sync" ? ((args: TArgs) => void)
   : ((args: TArgs) => Promise<void>);
 
-export type HandlerFunction = BasicHandler<any> | ComposedHandler<any>;
+export type HandlerFunction = BasicHandler<any> | ParentHandler<any>;
 
 /**
  * Gets the type that will be returned by a handlers defined by the input `HandlersRecord`
  */
 type GetHandlersRecordReturnType<T extends HandlersRecord> = {
-  [K in Extract<keyof T, string>]: T[K] extends ComposedHandler<infer TArgs>
+  [K in Extract<keyof T, string>]: T[K] extends ParentHandler<infer TArgs>
     ? PushCommand<TArgs, Cast<K, string>, {}>
     : T[K] extends BasicHandler<infer TArgv> ? { "command": K; argv: TArgv }
     : never;
@@ -73,7 +73,7 @@ type TypeError<TMessage extends string> = TMessage;
 export type HandlersRecord = Record<string, HandlerFunction>;
 
 type IsHandlersRecord<T extends HandlersRecord> = T extends
-  Record<string, BasicHandler<any> | ComposedHandler<any>> ? {}
+  Record<string, BasicHandler<any> | ParentHandler<any>> ? {}
   : TypeError<"Invalid input object">;
 
 type GetLastHandlersType<T extends HandlersRecord> =
@@ -97,13 +97,13 @@ type IsSameHandlersType<T extends HandlersRecord> =
     : never;
 
 /**
- * @description Composes handlers into a single handler
+ * @description Creates a function handler for
  * @param record the handlers record. Keys are command names and values are their handler functions
  * @returns a handler that will handle the command
  */
-export const composeHandlers = <TRec extends HandlersRecord>(
+export const subsHandlers = <TRec extends HandlersRecord>(
   record: TRec & IsHandlersRecord<TRec> & IsSameHandlersType<TRec>,
-): ComposedHandler<
+): ParentHandler<
   GetHandlersRecordReturnType<TRec>,
   GetHandlersRecordType<TRec>
 > =>
@@ -198,7 +198,7 @@ export type HandlerFunctionFor<
     ? BasicHandler<TArgv & TGlobalArgv, TType>
     // For ComposedCommands this is a function taking `{ command; argv }`
     : TCommand extends ComposedCommands<infer TCommands, infer TArgv>
-      ? ComposedHandler<
+      ? ParentHandler<
         GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
         TType
       >
@@ -208,7 +208,7 @@ export type HandlerFunctionFor<
       infer TCommands,
       infer TArgv,
       infer TCommandArgv
-    > ? ComposedHandler<
+    > ? ParentHandler<
         PushCommand<
           GetCommandReturnType<
             ComposedCommands<TCommands, TArgv & TCommandArgv>

@@ -138,7 +138,7 @@ export const buildYargs = <TCommand extends Command>(
   command: TCommand,
 ) =>
 (yargsObject: y.Argv): y.Argv => {
-  console.log(`command: ${showCommand(command)}`);
+  // console.log(`command: ${showCommand(command)}`);
 
   if (command.type === "command") {
     // logger.debug(`command: ${command.commandName} '${command.commandDesc}'`);
