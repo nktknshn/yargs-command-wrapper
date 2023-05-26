@@ -6,10 +6,12 @@ import {
   buildAndParseUnsafeR,
   comm,
   comp,
+  createHandlerFor,
   Either as E,
   subs,
 } from "../../src";
 import { pushCommand } from "../../src/parser";
+import { opt } from "../types/addOption";
 
 const demandCommand = <T>(y: yargs.Argv<T>) => yargs.demandCommand(1);
 

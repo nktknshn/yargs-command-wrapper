@@ -8,6 +8,7 @@ import {
 } from "./types";
 import {
   Cast,
+  hasOwnProperty,
   isObjectWithOwnProperty,
   Last,
   ListHead,
@@ -16,39 +17,34 @@ import {
   TupleKeys,
 } from "./util";
 
-/* type PathToObject<TPath extends string, TPrefix extends string = ""> =
-  TPath extends `/${infer TName}/${infer TRest}` ?
-      & Record<`${TPrefix}command`, TName>
-      & PathToObject<`/${TRest}`, `sub${TPrefix}`>
-    : {};
+export type CommandArgs<TArgv = unknown> =
+  | { "command": string; "argv": TArgv }
+  | NestedCommandArgs<TArgv>;
 
-export type GetArgs<TArgs, TPath extends string> = TArgs extends unknown
-  ? TArgs extends PathToObject<TPath> ? TArgs : never
-  : never; */
-
-export type CommandArgs = {
+export type NestedCommandArgs<TArgv = unknown> = {
+  "subcommand": string;
   "command": string;
-  "argv": unknown;
+  "argv": TArgv;
 };
 
 export type HandlerType = "sync" | "async";
 
 /**
- * handler for a basic command. It's just a function that receives Argv
+ * @description handler for a basic command. It's just a function that receives Argv
  */
 export type BasicHandler<TArgv, TType extends HandlerType = "sync"> =
   TType extends "sync" ? ((argv: TArgv) => void)
     : ((argv: TArgv) => Promise<void>);
 
 /**
- * Gets command
+ * @description Gets command's handler args type
  */
 export type GetArgv<TCommand extends Command> = Parameters<
   HandlerFunctionFor<TCommand>
->[0];
+>[0]["argv"];
 
 /**
- * handler for a composed command. It receives { command; argv }
+ * @description handler for a composed command. It receives { command; argv }
  */
 export type ParentHandler<
   TArgs extends CommandArgs,
@@ -118,22 +114,6 @@ export const subsHandlers = <TRec extends HandlersRecord>(
   }
 };
 
-// type Length<S extends string> = ToList<_Length<S>>["length"];
-
-// type _Length<S extends string> = S extends `${infer H}${infer T}`
-//   ? H | _Length<T>
-//   : never;
-
-// type Longest<T extends string> = ToList<T> extends infer L
-//   ? Length<Cast<ListHead<L>, string>> extends F ?
-//   : never;
-
-// type H = Longest<"123" | "12345" | "12" | "1234">;
-
-// type LongestS<T extends CommandArgs> = ToList<
-//   Extract<keyof T, `${string}command`>
-// > extends infer L ? ListHead<L> : never;
-
 type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
     [P in TupleKeys<L>]:
       & Omit<L[P], "command">
@@ -146,27 +126,24 @@ type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
   }[TupleKeys<L>]
   : never;
 
-// type ZZ = ShiftCommand<
-//   | { command: "cmd1"; subcommand: "sub1"; argv: { a: number } }
-//   | { command: "cmd1"; subcommand: "sub2"; argv: { b: number } }
-// >;
+export function popCommand<
+  T extends NestedCommandArgs<TArgv>,
+  TArgv extends {},
+>(args: T): PopCommand<T>;
 
-// type Z = Longest<{
-//   command: "a";
-//   subcommand: "b";
-//   subsubcommand: "b";
-//   argv: {};
-// }>;
+export function popCommand<
+  T extends { command: string; argv: TArgv },
+  TArgv extends {},
+>(args: T): TArgv;
 
-// type J = Length<Z>;
+export function popCommand<
+  T extends CommandArgs<TArgv>,
+  TArgv,
+>(args: T): PopCommand<T> | TArgv {
+  if (!("subcommand" in args as unknown)) {
+    return args.argv;
+  }
 
-export const popCommand = <
-  T extends {
-    command: string;
-    subcommand: string;
-    argv: unknown;
-  },
->(args: T): PopCommand<T> => {
   const result: Record<string, unknown> = {
     argv: args.argv,
   };
@@ -183,7 +160,7 @@ export const popCommand = <
   }
 
   return result as PopCommand<T>;
-};
+}
 
 /**
  * Returns type of the function that will handle arguments returned after parsing by `TCommand`
@@ -195,7 +172,8 @@ export type HandlerFunctionFor<
 > =
   // or `BasicCommand` this is just a function takes `TArgv` and returns `void`
   TCommand extends BasicCommand<infer TName, infer TArgv>
-    ? BasicHandler<TArgv & TGlobalArgv, TType>
+    //
+    ? BasicHandler<{ command: TName; argv: TArgv & TGlobalArgv }, TType>
     // For ComposedCommands this is a function taking `{ command; argv }`
     : TCommand extends ComposedCommands<infer TCommands, infer TArgv>
       ? ParentHandler<

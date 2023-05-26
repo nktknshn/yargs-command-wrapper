@@ -66,7 +66,7 @@ type GetSingleReturnType<
   ? { command: C; argv: R & TGlobalArgv }
   : never;
 
-type FallbackNever<T, U> = [T] extends [never] ? U : T;
+export type FallbackNever<T, U> = [T] extends [never] ? U : T;
 
 /**
  * @description Get the parsing result of a composed command.
@@ -92,13 +92,16 @@ export type GetSubcommandsReturnType<
   TCommandName extends string,
   TArgv,
   TGlobalArgv = {},
-> = {
-  [P in TupleKeys<TCommands>]: PushCommand<
-    GetCommandReturnType<Cast<TCommands[P], Command>, TGlobalArgv>,
-    TCommandName,
-    TArgv
-  >;
-}[TupleKeys<TCommands>];
+> = FallbackNever<
+  {
+    [P in TupleKeys<TCommands>]: PushCommand<
+      GetCommandReturnType<Cast<TCommands[P], Command>, TGlobalArgv>,
+      TCommandName,
+      TArgv
+    >;
+  }[TupleKeys<TCommands>],
+  CommandArgs
+>;
 
 export type GetWithSubcommandsReturnType<
   T extends CommandWithSubcommands,

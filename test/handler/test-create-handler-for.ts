@@ -6,25 +6,28 @@ import {
   createHandlerFor,
   handlerFor,
   subs,
-} from "../../../src";
-import { InputRecordHandlerFor } from "../../../src/create-handler-for";
-import { HandlerFunctionFor, popCommand } from "../../../src/handler";
-import { opt } from "../../types/addOption";
+} from "../../src";
+import { InputRecordHandlerFor } from "../../src/create-handler-for";
+import { HandlerFunctionFor, popCommand } from "../../src/handler";
+import { opt } from "../types/addOption";
 
 describe("create handler", () => {
-  test("create handler for", () => {
-    // const afn1 = jest.fn();
+  test("create handler for basic command", () => {
+    const afn1 = jest.fn();
 
-    // const a = createHandlerFor(
-    //   comm("foo", "bar", _ => _.option("baz", { type: "string" })),
-    //   ({ baz }) => {
-    //     afn1(baz);
-    //   },
-    // );
+    const a = createHandlerFor(
+      comm("foo", "bar", opt("baz")),
+      ({ argv }) => {
+        afn1(argv.baz);
+      },
+    );
 
-    // a({ baz: "1" });
-    // expect(afn1.mock.calls.length).toBe(1);
+    a({ command: "foo", argv: { baz: "baz" } });
 
+    expect(afn1).toBeCalledWith({ command: "foo", argv: { baz: "baz" } });
+  });
+
+  test("create handler for composed commands", () => {
     const bfn1 = jest.fn();
     const bfn2 = jest.fn();
 
@@ -34,20 +37,24 @@ describe("create handler", () => {
         comm("goo", "bar", _ => _.option("gooz", { type: "string" })),
       ),
       {
-        "foo": async ({ baz }) => {
-          bfn1(baz);
+        "foo": async (args) => {
+          args.command;
+          args.argv.baz;
+          bfn1(args);
         },
-        "goo": async ({ gooz }) => {
-          bfn2(gooz);
+        "goo": async (args) => {
+          bfn2(args);
         },
       },
     );
 
     b({ command: "goo", argv: { gooz: "gooz" } });
-    expect(bfn2.mock.calls.length).toBe(1);
+
+    expect(bfn2).toBeCalledWith({ command: "goo", argv: { gooz: "gooz" } });
 
     b({ command: "foo", argv: { baz: "baz" } });
-    expect(bfn1.mock.calls.length).toBe(1);
+
+    expect(bfn1).toBeCalledWith({ command: "foo", argv: { baz: "baz" } });
   });
 
   test("create handler for with subcommands", () => {
@@ -79,10 +86,10 @@ describe("create handler", () => {
     const handler = createHandlerFor(
       command,
       {
-        goo: async ({ gooz }) => {
+        goo: async ({ argv: { gooz } }) => {
           afn1(gooz);
         },
-        hoo: async ({ hooz }) => {
+        hoo: async ({ argv: { hooz } }) => {
           afn2(hooz);
         },
         subfoo: async (args) => {
@@ -156,7 +163,7 @@ describe("create handler", () => {
     const subgoo = createHandlerFor(
       subsubcommand,
       {
-        subboo: async ({ booz }) => {},
+        subboo: async ({ argv }) => {},
         subhoo: async (args) => {
           expect(args).toStrictEqual({
             hooz: "123",
@@ -177,8 +184,8 @@ describe("create handler", () => {
     );
 
     const gooHandler = createHandlerFor(subcommand, {
-      hoo: async ({ hooz }) => {},
-      boo: async ({ booz }) => {},
+      hoo: async ({ argv: { hooz } }) => {},
+      boo: async ({ argv: { booz } }) => {},
       subgoo,
     });
 
@@ -239,7 +246,7 @@ describe("create handler", () => {
         fn1(gooz);
       },
       goo: {
-        boo: async ({ booz }) => {
+        boo: async (args) => {
           fn2(booz);
         },
         hoo: ({ hooz }) => {

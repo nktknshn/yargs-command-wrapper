@@ -1,6 +1,15 @@
+import assert from "assert";
 import { expectTypeOf } from "expect-type";
-import { subsHandlers } from "../../src";
-import { popCommand } from "../../src/handler";
+import { handler } from "../../examples/complex/client";
+import {
+  buildAndParse,
+  comm,
+  createHandlerFor,
+  Either as E,
+  subsHandlers,
+} from "../../src";
+import { handlerFor, popCommand } from "../../src/handler";
+import { opt } from "../types/addOption";
 
 describe("handler", () => {
   test("handler helper", () => {
@@ -18,7 +27,28 @@ describe("handler", () => {
       .toStrictEqual({ command: "b", subcommand: "c", argv: { a: 1 } });
   });
 
-  test("test basic", () => {
+  test("parse basic command", () => {
+    const command = comm("command1", "desc", opt("a"));
+
+    const { result } = buildAndParse(command, ["command1", "-a", "123"]);
+
+    assert.strict(E.isRight(result));
+
+    // const handler1 = handlerFor(command, (args) => {
+    // });
+
+    const fn = jest.fn();
+
+    const handler2 = createHandlerFor(command, (args) => {
+      fn(args);
+    });
+
+    handler2(result.right);
+
+    expect(fn).toBeCalledWith({ a: "123" });
+  });
+
+  test("test basic sub", () => {
     const [statusfn, startfn, stopfn] = [jest.fn(), jest.fn(), jest.fn()];
 
     const handler = subsHandlers({

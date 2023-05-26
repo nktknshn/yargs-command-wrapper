@@ -1,6 +1,7 @@
-import { comm, comp, subs } from "../../../src";
+import { comm, comp, createHandlerFor, subs } from "../../../src";
 import { parseAddress } from "../common";
 import * as config from "./config";
+import { handler } from "./handler";
 
 export const commandList = comm(
   "list <address> [path]",
@@ -49,3 +50,5 @@ export const cmd = comp(
   commandUpload,
   subs(comm("config", "config management"), config.cmd),
 );
+
+createHandlerFor(cmd, handler);

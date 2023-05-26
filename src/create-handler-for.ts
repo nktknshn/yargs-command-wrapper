@@ -1,11 +1,13 @@
 import { UnionToIntersection } from "tsafe";
 import {
+  BasicHandler,
   CommandArgs,
   GetHandlerType,
   HandlerFunction,
   HandlerFunctionFor,
   HandlersRecord,
   HandlerType,
+  ParentHandler,
   popCommand,
 } from "./handler";
 import {
@@ -13,6 +15,8 @@ import {
   Command,
   CommandWithSubcommands,
   ComposedCommands,
+  GetCommandReturnType,
+  PushCommand,
 } from "./types";
 import {
   Cast,
@@ -85,6 +89,34 @@ type _ComposeCommandsFlattenArgv<TCommand extends Command> = TCommand extends
     >
   : never;
 
+export type InputHandlerFunctionFor<
+  TCommand extends Command,
+  TGlobalArgv extends {} = {},
+  THandlerType extends HandlerType = "sync",
+> = TCommand extends BasicCommand<infer TName, infer TArgv>
+  ? BasicHandler<TArgv & TGlobalArgv>
+  : TCommand extends ComposedCommands<infer TCommands, infer TArgv>
+    ? ParentHandler<
+      GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
+      THandlerType
+    >
+  : TCommand extends CommandWithSubcommands<
+    infer TName,
+    infer TCommands,
+    infer TArgv,
+    infer TComposedArgv
+  > ? ParentHandler<
+      PushCommand<
+        GetCommandReturnType<
+          ComposedCommands<TCommands, TArgv & TComposedArgv>
+        >,
+        TName,
+        TGlobalArgv
+      >,
+      THandlerType
+    >
+  : never;
+
 /**
  * @description For a composed commands the input structure is a map of the commands and their either handling functions or another input structures
  */
@@ -102,10 +134,10 @@ export type ComposedCommandsInputRecord<
       >
     ]:
       // the value is a function
-      | HandlerFunctionFor<
+      | InputHandlerFunctionFor<
         Cast<TCommands[P], Command>,
-        HandlerType,
-        TArgv & TGlobalArgv
+        TArgv & TGlobalArgv,
+        HandlerType
       >
       // the value is a record
       | InputRecordHandlerFor<Cast<TCommands[P], Command>, TArgv & TGlobalArgv>;
@@ -122,16 +154,17 @@ export type InputRecordHandlerFor<
   TGlobalArgv extends {} = {},
 > =
   // for basic commands the handler is just a function taking the command's argv
-  // TCommand extends BasicCommand<infer TName, infer TArgv>
-  //   ? BasicHandler<TArgv & TGlobalArgv, HandlerType>
-  //   // for composed commands,
-  //   :
-  TCommand extends ComposedCommands<
-    infer TCommands,
-    infer TArgv
-  > ? 
-      | HandlerFunctionFor<TCommand, HandlerType, TGlobalArgv>
-      | ComposedCommandsInputRecord<TCommand, TGlobalArgv & TArgv>
+  TCommand extends BasicCommand<infer TName, infer TCommandArgv>
+    //
+    // ? BasicHandler<{ command: TName; argv: TArgv & TGlobalArgv }, HandlerType>
+    ? BasicHandler<TCommandArgv & TGlobalArgv, HandlerType>
+    // for composed commands,
+    : TCommand extends ComposedCommands<
+      infer TCommands,
+      infer TArgv
+    > ? 
+        | InputHandlerFunctionFor<TCommand, TGlobalArgv, HandlerType>
+        | ComposedCommandsInputRecord<TCommand, TGlobalArgv & TArgv>
     // for commands with subcommands the input structure is same as for the composed. Note: `TName` is not added to args
     : TCommand extends CommandWithSubcommands<
       infer TName,
@@ -139,7 +172,7 @@ export type InputRecordHandlerFor<
       infer TArgv,
       infer TCommandArgv
     > ? 
-        | HandlerFunctionFor<TCommand, HandlerType, TGlobalArgv>
+        | InputHandlerFunctionFor<TCommand, TGlobalArgv, HandlerType>
         | ComposedCommandsInputRecord<
           ComposedCommands<TCommands, TArgv & TCommandArgv & TGlobalArgv>,
           TGlobalArgv
@@ -188,31 +221,34 @@ export const _createHandlerFor = (
           );
         }
 
-        return handler(args.argv);
+        return handler(args);
       };
     }
     else if (command.type === "composed") {
       // recordOrFunction is a record where command is key and handler is value
       return (args: CommandArgs) => {
-        const cmd = args["command"];
+        const commandName = args["command"];
 
         if (typeof recordOrFunction === "function") {
           return recordOrFunction(args);
         }
 
-        const namedCommand = findByName(command.commands, cmd);
+        const namedCommand = findByNameInComposed(
+          command.commands,
+          commandName,
+        );
 
         if (namedCommand === undefined) {
-          throw new Error(`Command ${cmd} not found`);
+          throw new Error(`Command ${commandName} not found`);
         }
 
-        const handler = recordOrFunction[cmd];
+        const handler = recordOrFunction[commandName];
 
         // handler may be a function or a record of subcommands
 
         if (typeof handler === "function") {
           if (namedCommand.type === "command") {
-            return handler(args.argv);
+            return handler(args);
           }
 
           return handler(args);
@@ -236,7 +272,10 @@ export const _createHandlerFor = (
 
         const handler = recordOrFunction[cmd];
 
-        const namedCommand = findByName(command.subcommands.commands, cmd);
+        const namedCommand = findByNameInComposed(
+          command.subcommands.commands,
+          cmd,
+        );
 
         if (namedCommand === undefined) {
           throw new Error(`Command ${cmd} not found`);
@@ -265,9 +304,9 @@ export const _createHandlerFor = (
 };
 
 /**
- * @description Traverses commands tree and returns command with given name
+ * @description Traverses composed commands tree and returns command with given name
  */
-const findByName = (
+export const findByNameInComposed = (
   commands: readonly Command[],
   name: string,
 ): BasicCommand | CommandWithSubcommands | undefined => {
@@ -278,7 +317,7 @@ const findByName = (
       }
     }
     else if (command.type === "composed") {
-      const found = findByName(command.commands, name);
+      const found = findByNameInComposed(command.commands, name);
 
       if (found) {
         return found;
