@@ -1,39 +1,34 @@
-import { comm, comp, subs } from "../../src";
-import { GetArgv, HandlerFunctionFor, popCommand } from "../../src/handler";
-import { NonEmptyTuple } from "../../src/types";
-import { hasOwnProperty } from "../../src/util";
+import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
 import { opt } from "../types/addOption";
-import {
-  ComposableHandlerFor,
-  composeHandlers,
-  handlerFor,
-} from "./handlerFor";
+import { composeHandlers, handlerFor } from "./handlerFor";
 
-describe("composing handlers", () => {
-  const command = comm("com1", "description", opt("a"));
+const command = comm("com1", "description", opt("a"));
 
-  const com2 = comm("com2", "description", opt("c"));
-  const com3 = comm("com3", "description", opt("d"));
+const com2 = comm("com2", "description", opt("c"));
+const com3 = comm("com3", "description", opt("d"));
 
-  const command2 = comp(com2, com3);
+const command2 = comp(com2, com3);
 
-  const sub1 = comm("sub1", "sub1", opt("sub1argv"));
-  const sub2 = comm("sub2", "sub2", opt("sub2argv"));
+const sub1 = comm("sub1", "sub1", opt("sub1argv"));
+const sub2 = comm("sub2", "sub2", opt("sub2argv"));
 
-  const com4 = comm("com4", "com4", opt("com4argv"));
-  const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
-  const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));
+const com4 = comm("com4", "com4", opt("com4argv"));
+const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
+const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));
 
-  const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [subsub1, subsub2]);
+const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [subsub1, subsub2]);
 
-  /**
-   * @description com4: sub1 sub2 sub3
-   */
-  const command3 = subs(
-    com4,
-    [sub1, sub2, sub3],
-  );
+/**
+ * @description com4: sub1 sub2 sub3
+ */
+const command3 = subs(
+  com4,
+  [sub1, sub2, sub3],
+);
 
+const composedCommand = comp(command, command2, command3);
+
+describe("handlerFor", () => {
   test("basic", () => {
     const fn = jest.fn();
 
@@ -219,9 +214,68 @@ describe("composing handlers", () => {
     });
   });
 
-  test("compose", () => {
-    const composedCommand = comp(command, command2, command3);
+  test("nested structure handler 2", () => {
+    const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
+    const handler = handlerFor(composedCommand, {
+      "com1": (args) => {},
+      "com2": (args) => {},
+      "com3": (args) => {
+        fn1(args);
+      },
+      "com4": {
+        "sub1": (args) => {},
+        "sub2": (args) => {
+          fn2(args);
+        },
+        "sub3": {
+          "subsub1": (args) => {},
+          "subsub2": (args) => {
+            fn3(args);
+          },
+        },
+      },
+    });
+
+    handler.handle(
+      { command: "com3", argv: { d: "123" } },
+    );
+
+    expect(fn1).toBeCalledWith({ d: "123" });
+
+    handler.handle(
+      {
+        command: "com4",
+        subcommand: "sub2",
+        argv: { com4argv: "123", sub2argv: "123" },
+      },
+    );
+
+    expect(fn2).toBeCalledWith({ com4argv: "123", sub2argv: "123" });
+
+    handler.handle(
+      {
+        command: "com4",
+        subcommand: "sub3",
+        subsubcommand: "subsub2",
+        argv: {
+          com4argv: "123",
+          sub3argv: "123",
+          subsub2argv: "123",
+        },
+      },
+    );
+
+    expect(fn3).toBeCalledWith({
+      com4argv: "123",
+      sub3argv: "123",
+      subsub2argv: "123",
+    });
+  });
+});
+
+describe("compose handlers", () => {
+  test("cocompose", () => {
     const [hfn1, hfn2, hfn3, hfn4] = [
       jest.fn(),
       jest.fn(),
@@ -237,15 +291,17 @@ describe("composing handlers", () => {
     });
 
     handler1.handle({ command: "com1", argv: { a: "123" } });
+    expect(hfn1).toBeCalledWith({ a: "123" });
 
     const handler2 = handlerFor(command2, (args) => {
       args.command;
       switch (args.command) {
         case "com2":
           hfn2(args);
+          args.argv.c;
           break;
         case "com3":
-          args.argv;
+          args.argv.d;
           args.command;
           hfn3(args);
           break;
@@ -267,12 +323,6 @@ describe("composing handlers", () => {
 
     composedHandler.handle({ command: "com1", argv: { a: "123" } });
 
-    expect(hfn1.mock.calls.length).toBe(1);
-    expect(hfn1).toBeCalledWith({
-      command: "com1",
-      argv: { a: "123" },
-    });
-
     composedHandler.handle({ command: "com2", argv: { c: "123" } });
     expect(hfn2).toBeCalledWith({
       command: "com2",
@@ -292,5 +342,14 @@ describe("composing handlers", () => {
       com4argv: "123",
       sub1argv: "456",
     });
+
+    const { result } = buildAndParseUnsafe(composedCommand, [
+      "com1",
+      "com2",
+      "com3",
+      "com4",
+    ]);
+
+    composedHandler.handle(result);
   });
 });

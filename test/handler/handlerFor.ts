@@ -137,6 +137,7 @@ type InputRecordHandlerFor<
  */
 type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposedHandlerComposable<ComposeNames<THandlers>, ComposeArgv<THandlers>>;
+
 export function composeHandlers<THandlers extends readonly ComposableHandler[]>(
   ...handlers: THandlers
 ): ComposedHandlers<THandlers> {
@@ -215,7 +216,9 @@ export function handlerFor<
 ): ComposableHandler {
   if (typeof functionOrRecord === "function") {
     if (command.type === "command") {
-      return _createHandler(functionOrRecord, [command.commandName]);
+      return _createHandler((args: any) => {
+        return functionOrRecord(args.argv);
+      }, [command.commandName]);
     }
     else if (command.type === "composed") {
       return _createHandler(functionOrRecord, composedCommandNames(command));
@@ -252,7 +255,7 @@ export function handlerFor<
         }
         else if (isComposableHandler(handler)) {
           if (namedCommand.type === "command") {
-            return handler.handle(args.argv);
+            return handler.handle(args);
           }
           else {
             return handler.handle(args);
@@ -275,6 +278,7 @@ export function handlerFor<
         const commandName = args.command;
 
         if (command.command.commandName !== commandName) {
+          console.error(args, command);
           throw new Error(`Unmatched command name ${commandName}`);
         }
 
@@ -286,6 +290,15 @@ export function handlerFor<
 
         const handler = functionOrRecord[_args.command];
 
+        const namedCommand = findByNameInComposed(
+          command.subcommands.commands,
+          _args.command,
+        );
+
+        if (namedCommand === undefined) {
+          throw new Error(`No command ${commandName} among subcommands`);
+        }
+
         if (typeof handler === "function") {
           return handler(_args.argv);
         }
@@ -293,7 +306,12 @@ export function handlerFor<
           return handler.handle(_args);
         }
         else {
-          return handlerFor(command, handler).handle(_args);
+          if (namedCommand.type === "with-subcommands") {
+            return handlerFor(namedCommand, handler).handle(_args);
+          }
+          else {
+            throw new Error(`Invalid handler for ${namedCommand.type}`);
+          }
         }
       };
 
