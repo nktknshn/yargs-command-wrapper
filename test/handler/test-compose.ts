@@ -1,6 +1,7 @@
 import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
+import { composeHandlers } from "../../src/handler/compose";
+import { createHandlerFor } from "../../src/handler/handler-for";
 import { opt } from "../types/addOption";
-import { composeHandlers, handlerFor } from "./handlerFor";
 
 const command = comm("com1", "description", opt("a"));
 
@@ -12,7 +13,6 @@ const command2 = comp(com2, com3);
 const sub1 = comm("sub1", "sub1", opt("sub1argv"));
 const sub2 = comm("sub2", "sub2", opt("sub2argv"));
 
-const com4 = comm("com4", "com4", opt("com4argv"));
 const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
 const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));
 
@@ -22,7 +22,7 @@ const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [subsub1, subsub2]);
  * @description com4: sub1 sub2 sub3
  */
 const command3 = subs(
-  com4,
+  comm("com4", "com4", opt("com4argv")),
   [sub1, sub2, sub3],
 );
 
@@ -32,7 +32,7 @@ describe("handlerFor", () => {
   test("basic", () => {
     const fn = jest.fn();
 
-    const handler = handlerFor(command, (args) => {
+    const handler = createHandlerFor(command, (args) => {
       fn(args);
       args.a;
     });
@@ -45,7 +45,7 @@ describe("handlerFor", () => {
   test("composed function", () => {
     const [fn1, fn2] = [jest.fn(), jest.fn()];
 
-    const handler1 = handlerFor(command2, (args) => {
+    const handler1 = createHandlerFor(command2, (args) => {
       if (args.command === "com2") {
         fn1(args);
         args.argv.c;
@@ -66,7 +66,7 @@ describe("handlerFor", () => {
   test("composed structure", () => {
     const [fn1, fn2] = [jest.fn(), jest.fn()];
 
-    const handler1 = handlerFor(command2, {
+    const handler1 = createHandlerFor(command2, {
       "com2": (args) => {
         args.c;
         fn1(args);
@@ -87,14 +87,14 @@ describe("handlerFor", () => {
   test("composed structure mixed handlers", () => {
     const [hcom2, hcom3] = [jest.fn(), jest.fn()];
 
-    const com2Handler = handlerFor(com2, (args) => {
+    const com2Handler = createHandlerFor(com2, (args) => {
       hcom2(args);
     });
-    const com3Handler = handlerFor(com3, (args) => {
+    const com3Handler = createHandlerFor(com3, (args) => {
       hcom3(args);
     });
 
-    const handler1 = handlerFor(command2, {
+    const handler1 = createHandlerFor(command2, {
       "com2": com2Handler,
       "com3": com3Handler,
     });
@@ -109,7 +109,7 @@ describe("handlerFor", () => {
   test("composed structure 2", () => {
     const [fn1, fn2, fn3] = [jest.fn(), jest.fn(), jest.fn()];
 
-    const handler1 = handlerFor(
+    const handler1 = createHandlerFor(
       comp(command, command2),
       {
         "com1": (args) => {
@@ -136,7 +136,7 @@ describe("handlerFor", () => {
   test("nested function handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const handler1 = handlerFor(command3, (args) => {
+    const handler1 = createHandlerFor(command3, (args) => {
       fn1(args);
       args.command;
       args.subcommand;
@@ -162,7 +162,7 @@ describe("handlerFor", () => {
   test("nested structure handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const sub3handler = handlerFor(sub3, {
+    const sub3handler = createHandlerFor(sub3, {
       "subsub1": (args) => {
         fn1(args);
         args.sub3argv;
@@ -175,7 +175,7 @@ describe("handlerFor", () => {
       },
     });
 
-    const handler1 = handlerFor(command3, {
+    const handler1 = createHandlerFor(command3, {
       "sub1": (args) => {},
       "sub2": (args) => {},
       "sub3": sub3handler,
@@ -198,7 +198,7 @@ describe("handlerFor", () => {
   test("nested record handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const handler1 = handlerFor(command3, {
+    const handler1 = createHandlerFor(command3, {
       "sub1": (args) => {
         args.com4argv;
         args.sub1argv;
@@ -217,7 +217,20 @@ describe("handlerFor", () => {
   test("nested structure handler 2", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const handler = handlerFor(composedCommand, {
+    const command34handler = createHandlerFor(command3, {
+      "sub1": (args) => {},
+      "sub2": (args) => {
+        fn2(args);
+      },
+      "sub3": {
+        "subsub1": (args) => {},
+        "subsub2": (args) => {
+          fn3(args);
+        },
+      },
+    });
+
+    const handler = createHandlerFor(composedCommand, {
       "com1": (args) => {},
       "com2": (args) => {},
       "com3": (args) => {
@@ -226,11 +239,16 @@ describe("handlerFor", () => {
       "com4": {
         "sub1": (args) => {},
         "sub2": (args) => {
+          args.com4argv;
+          args.sub2argv;
           fn2(args);
         },
         "sub3": {
           "subsub1": (args) => {},
           "subsub2": (args) => {
+            args.com4argv;
+            args.sub3argv;
+            args.subsub2argv;
             fn3(args);
           },
         },
@@ -283,7 +301,7 @@ describe("compose handlers", () => {
       jest.fn(),
     ];
 
-    const handler1 = handlerFor(command, (args) => {
+    const handler1 = createHandlerFor(command, (args) => {
       console.log(args);
       console.log(args.a);
 
@@ -293,7 +311,7 @@ describe("compose handlers", () => {
     handler1.handle({ command: "com1", argv: { a: "123" } });
     expect(hfn1).toBeCalledWith({ a: "123" });
 
-    const handler2 = handlerFor(command2, (args) => {
+    const handler2 = createHandlerFor(command2, (args) => {
       args.command;
       switch (args.command) {
         case "com2":
@@ -308,7 +326,7 @@ describe("compose handlers", () => {
       }
     });
 
-    const handler3 = handlerFor(command3, (args) => {
+    const handler3 = createHandlerFor(command3, (args) => {
       args.command;
       args.subcommand;
       hfn4(args.argv);
@@ -342,14 +360,5 @@ describe("compose handlers", () => {
       com4argv: "123",
       sub1argv: "456",
     });
-
-    const { result } = buildAndParseUnsafe(composedCommand, [
-      "com1",
-      "com2",
-      "com3",
-      "com4",
-    ]);
-
-    composedHandler.handle(result);
   });
 });

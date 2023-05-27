@@ -1,7 +1,6 @@
-import { comm, comp, createHandlerFor, subs } from "../../../src";
+import { comm, comp, subs } from "../../../src";
 import { parseAddress } from "../common";
 import * as config from "./config";
-import { handler } from "./handler";
 
 export const commandList = comm(
   "list <address> [path]",
@@ -43,12 +42,17 @@ export const commandUpload = comm(
       .option("destination", { alias: "D", type: "string", default: "/" }),
 );
 
-export const cmd = comp(
+export const clientCmd = comp(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
   commandList,
   commandDownload,
   commandUpload,
-  subs(comm("config", "config management"), config.cmd),
+  // subs(comm("config", "config management"), config.cmd),
 );
 
-createHandlerFor(cmd, handler);
+// createHandlerFor(cmd, handler);
+
+export const cmd = comp(
+  clientCmd,
+  subs(comm("config", "config management"), config.cmd),
+);

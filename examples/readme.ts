@@ -2,9 +2,9 @@ import {
   buildAndParse,
   comm,
   comp,
-  createHandlerFor,
   Either,
   failClient,
+  handlerFor2,
   subs,
 } from "../src";
 
@@ -75,7 +75,7 @@ else if (result.right.command === "config") {
 }
 
 // or by using createHandlerFor:
-const handler = createHandlerFor(cliCommand, {
+const handler = handlerFor2(cliCommand, {
   config: {
     get: ({ key, file }) => {
       console.log(`getting config ${file} key ${key}`);
@@ -92,4 +92,4 @@ const handler = createHandlerFor(cliCommand, {
   },
 });
 
-handler(result.right);
+handler.handle(result.right);

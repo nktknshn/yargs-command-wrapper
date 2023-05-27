@@ -2,9 +2,9 @@ import {
   buildAndParse,
   comm,
   comp,
-  createHandlerFor,
   Either,
   failClient,
+  handlerFor2,
   subs,
 } from "../src";
 
@@ -98,7 +98,7 @@ if (result.right.command === "client") {
   const clientCommand = cmd.commands[1];
   const configCommand = clientCommand.subcommands.commands[3];
 
-  const configHandler = createHandlerFor(
+  const configHandler = handlerFor2(
     configCommand,
     {
       "get": async ({ key }) => {
@@ -117,7 +117,7 @@ if (result.right.command === "client") {
   //     argv: { key: "foo", value: "bar" },
   //   });
 
-  const clientHandler = createHandlerFor(
+  const clientHandler = handlerFor2(
     clientCommand,
     {
       "list": async ({ address, path }) => {
@@ -141,7 +141,7 @@ if (result.right.command === "client") {
   // });
 
   // handle parsed arguments
-  clientHandler(result.right);
+  clientHandler.handle(result.right);
 }
 
 // or handle parsed arguments manually

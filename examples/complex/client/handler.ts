@@ -1,4 +1,9 @@
-import { GetArgv, subsHandlers } from "../../../src";
+import {
+  composeHandlers,
+  GetArgv,
+  handlerFor2,
+  subsHandlers,
+} from "../../../src";
 import { Address } from "../common";
 import { commandUpload } from "./args";
 import * as config from "./config";

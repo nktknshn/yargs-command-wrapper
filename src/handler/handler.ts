@@ -5,17 +5,14 @@ import {
   ComposedCommands,
   GetCommandReturnType,
   PushCommand,
-} from "./types";
+} from "../types";
 import {
   Cast,
-  hasOwnProperty,
   isObjectWithOwnProperty,
   Last,
-  ListHead,
   ToList,
-  ToUnion,
   TupleKeys,
-} from "./util";
+} from "../util";
 
 export type CommandArgs<TArgv = unknown> =
   | { "command": string; "argv": TArgv }

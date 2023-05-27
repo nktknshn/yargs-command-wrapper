@@ -1,13 +1,11 @@
 import { expectTypeOf } from "expect-type";
+
+import { HandlerFunctionFor, HandlerType } from "../../src/handler";
+import { ParentHandler } from "../../src/handler/handler";
 import {
   ComposeCommandsFlatten,
   InputRecordHandlerFor,
-} from "../../src/create-handler-for";
-import {
-  HandlerFunctionFor,
-  HandlerType,
-  ParentHandler,
-} from "../../src/handler";
+} from "../../src/handler/types";
 import {
   BasicCommand,
   Command,
