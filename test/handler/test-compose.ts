@@ -1,3 +1,4 @@
+import { expectTypeOf } from "expect-type";
 import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
 import { composeHandlers } from "../../src/handler/compose";
 import { createHandlerFor } from "../../src/handler/handler-for";
@@ -15,6 +16,8 @@ const sub2 = comm("sub2", "sub2", opt("sub2argv"));
 
 const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
 const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));
+
+const s1s2comp = comp(subsub1, subsub2);
 
 const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [subsub1, subsub2]);
 
@@ -133,16 +136,43 @@ describe("handlerFor", () => {
     expect(fn3).toBeCalledWith({ d: "123" });
   });
 
+  test("subs basic", () => {
+    createHandlerFor(sub3, {
+      "subsub1": (args) => {
+        args.sub3argv;
+        args.subsub1argv;
+      },
+      "subsub2": (args) => {
+        args.sub3argv;
+        args.subsub2argv;
+      },
+    });
+
+    createHandlerFor(sub3, (args) => {
+      expectTypeOf(args.command).toEqualTypeOf<"subsub1" | "subsub2">();
+    });
+  });
+
+  test("subs composed handler", () => {
+    sub3;
+
+    const s1s2compHandler = createHandlerFor(
+      s1s2comp,
+      async (args) => {},
+    );
+
+    createHandlerFor(sub3, s1s2compHandler);
+  });
+
   test("nested function handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
     const handler1 = createHandlerFor(command3, (args) => {
       fn1(args);
       args.command;
-      args.subcommand;
 
-      if (args.subcommand === "sub3") {
-        args.subsubcommand;
+      if (args.command === "sub3") {
+        args.subcommand;
       }
     });
 
@@ -209,7 +239,6 @@ describe("handlerFor", () => {
       },
       "sub3": (args) => {
         args.command;
-        args.subcommand;
       },
     });
   });
@@ -290,6 +319,9 @@ describe("handlerFor", () => {
       subsub2argv: "123",
     });
   });
+
+  test("nested record handler 2", () => {
+  });
 });
 
 describe("compose handlers", () => {
@@ -328,7 +360,8 @@ describe("compose handlers", () => {
 
     const handler3 = createHandlerFor(command3, (args) => {
       args.command;
-      args.subcommand;
+      expectTypeOf(args.command).toEqualTypeOf<"sub1" | "sub2" | "sub3">();
+      // args.subcommand;
       hfn4(args.argv);
     });
 

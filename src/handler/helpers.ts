@@ -4,6 +4,8 @@ import {
   CommandWithSubcommands,
   ComposedCommands,
 } from "../types";
+import { Cast, ToList, TupleKeys } from "../util";
+import { CommandArgs, NestedCommandArgs } from "./types-handler";
 
 /**
  * @description Traverses composed commands tree and returns command with given name
@@ -54,4 +56,52 @@ export function composedCommandNames<TCommand extends ComposedCommands>(
   }
 
   return result;
+}
+
+export type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
+    [P in TupleKeys<L>]:
+      & Omit<L[P], "command">
+      & {
+        argv: Cast<L[P], CommandArgs>["argv"];
+      }
+      & {
+        [K in keyof L[P] as K extends `sub${infer U}` ? U : never]: L[P][K];
+      };
+  }[TupleKeys<L>]
+  : never;
+
+export function popCommand<
+  T extends NestedCommandArgs<TArgv>,
+  TArgv extends {},
+>(args: T): PopCommand<T>;
+
+export function popCommand<
+  T extends { command: string; argv: TArgv },
+  TArgv extends {},
+>(args: T): TArgv;
+
+export function popCommand<
+  T extends CommandArgs<TArgv>,
+  TArgv extends {},
+>(args: T): PopCommand<T> | TArgv {
+  if (!("subcommand" in args as unknown)) {
+    return args.argv;
+  }
+
+  const result: Record<string, unknown> = {
+    argv: args.argv,
+  };
+
+  for (const key in args) {
+    if (key === "command") {
+      continue;
+    }
+    else if (/(sub)+command/.test(key)) {
+      const value = args[key];
+      const k = key.replace(/^sub/, "");
+      result[k] = value;
+    }
+  }
+
+  return result as PopCommand<T>;
 }

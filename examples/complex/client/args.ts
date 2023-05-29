@@ -52,7 +52,4 @@ export const clientCmd = comp(
 
 // createHandlerFor(cmd, handler);
 
-export const cmd = comp(
-  clientCmd,
-  subs(comm("config", "config management"), config.cmd),
-);
+export const cmd = clientCmd;

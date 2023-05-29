@@ -1,7 +1,7 @@
-import { handlerFor } from "../../../src/handler";
+import { createHandlerFor } from "../../../src/handler";
 import { cmd } from "./args";
 
-export const handler = handlerFor(cmd, async (args) => {
+export const handler = createHandlerFor(cmd, async (args) => {
   if (args.argv.debug) {
     console.log("debug mode");
   }

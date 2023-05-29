@@ -1,14 +1,9 @@
 import assert from "assert";
 import { expectTypeOf } from "expect-type";
 import { handler } from "../../examples/complex/client";
-import {
-  buildAndParse,
-  comm,
-  createHandlerFor,
-  Either as E,
-  subsHandlers,
-} from "../../src";
-import { handlerFor, popCommand } from "../../src/handler";
+import { buildAndParse, comm, Either as E, subsHandlers } from "../../src";
+import { createHandlerFor } from "../../src/handler";
+import { popCommand } from "../../src/handler/helpers";
 import { opt } from "../types/addOption";
 
 describe("handler", () => {
@@ -43,7 +38,7 @@ describe("handler", () => {
       fn(args);
     });
 
-    handler2(result.right);
+    handler2.handle(result.right);
 
     expect(fn).toBeCalledWith({ a: "123" });
   });

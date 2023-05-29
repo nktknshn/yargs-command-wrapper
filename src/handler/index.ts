@@ -1,12 +1,13 @@
+export { GetArgv } from "./types-helpers";
+
 export { subsHandlers } from "./handler";
 
 export { composeHandlers } from "./compose";
 export {
   CommandArgs,
-  GetArgv,
   HandlerFunction,
   HandlerFunctionFor,
   HandlerType,
-} from "./handler";
+} from "./types-handler";
 
-export { createHandlerFor as handlerFor2 } from "./handler-for";
+export { createHandlerFor } from "./handler-for";

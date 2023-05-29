@@ -1,19 +1,3 @@
-import { findByNameInComposed } from "./helpers";
-import {
-  ComposableHandler,
-  ComposableHandlerFor,
-  InputHandlerFunctionFor,
-  InputRecordHandler,
-  InputRecordHandlerFor,
-} from "./types";
-
-import {
-  CommandArgs,
-  HandlerFunction,
-  NestedCommandArgs,
-  popCommand,
-} from "./handler";
-
 import {
   BasicCommand,
   Command,
@@ -21,7 +5,23 @@ import {
   ComposedCommands,
 } from "../types";
 import { isObjectWithOwnProperty } from "../util";
+import { findByNameInComposed, popCommand } from "./helpers";
 import { composedCommandNames } from "./helpers";
+import {
+  CommandWithSubcommandsHandlerFor,
+  ComposableHandlerFor,
+} from "./types-compose";
+import {
+  CommandArgs,
+  HandlerFunction,
+  NestedCommandArgs,
+} from "./types-handler";
+import {
+  ComposableHandler,
+  InputHandlerFunctionFor,
+  InputRecordHandler,
+  InputRecordHandlerFor,
+} from "./types-handler-for";
 
 export function createHandlerFor<
   TCommand extends BasicCommand,
@@ -34,14 +34,20 @@ export function createHandlerFor<
   TCommand extends ComposedCommands,
 >(
   command: TCommand,
-  handler: InputHandlerFunctionFor<TCommand> | InputRecordHandlerFor<TCommand>,
+  handler:
+    | InputHandlerFunctionFor<TCommand>
+    | InputRecordHandlerFor<TCommand>,
 ): ComposableHandlerFor<TCommand>;
 
 export function createHandlerFor<
   TCommand extends CommandWithSubcommands,
 >(
   command: TCommand,
-  handler: InputHandlerFunctionFor<TCommand> | InputRecordHandlerFor<TCommand>,
+  handler:
+    | InputHandlerFunctionFor<TCommand>
+    // same as InputHandlerFunctionFor<TCommand> but ComposableHandler
+    | CommandWithSubcommandsHandlerFor<TCommand>
+    | InputRecordHandlerFor<TCommand>,
 ): ComposableHandlerFor<TCommand>;
 
 export function createHandlerFor<
@@ -49,121 +55,186 @@ export function createHandlerFor<
 >(
   command: TCommand,
   functionOrRecord:
-    // either a function or a record
     | InputHandlerFunctionFor<TCommand>
-    | InputRecordHandler,
+    | ComposableHandler
+    | InputRecordHandlerFor<TCommand>,
 ): ComposableHandler {
-  if (typeof functionOrRecord === "function") {
-    if (command.type === "command") {
-      return _createHandler((args: any) => {
-        return functionOrRecord(args.argv);
-      }, [command.commandName]);
-    }
-    else if (command.type === "composed") {
-      return _createHandler(functionOrRecord, composedCommandNames(command));
+  if (command.type === "command") {
+    if (isFunctionHandler(functionOrRecord)) {
+      return _createHandlerForCommand(command, functionOrRecord as any);
     }
     else {
-      return _createHandler(functionOrRecord, [command.command.commandName]);
+      throw new Error("BasicCommand handler must be a function");
     }
   }
-  else {
-    if (command.type === "composed") {
-      //
-      const handlerFunction = (args: CommandArgs): void => {
-        const commandName = args.command;
-        if (!(args.command in functionOrRecord)) {
-          throw new Error(`No handler found for command ${commandName}`);
-        }
-
-        const handler = functionOrRecord[commandName];
-
-        const namedCommand = findByNameInComposed(
-          command.commands,
-          commandName,
-        );
-
-        if (namedCommand === undefined) {
-          throw new Error(`No command ${commandName} among composed`);
-        }
-
-        if (typeof handler === "function") {
-          if (namedCommand.type === "command") {
-            return handler(args.argv);
-          }
-          return handler(args);
-        }
-        else if (isComposableHandler(handler)) {
-          if (namedCommand.type === "command") {
-            return handler.handle(args);
-          }
-          else {
-            return handler.handle(args);
-          }
-        }
-        else {
-          if (namedCommand.type === "with-subcommands") {
-            return createHandlerFor(namedCommand, handler).handle(args);
-          }
-          else {
-            throw new Error(`No handler found for command ${commandName}`);
-          }
-        }
-      };
-
-      return _createHandler(handlerFunction, composedCommandNames(command));
-    }
-    else if (command.type === "with-subcommands") {
-      const handlerFunction = (args: NestedCommandArgs<{}>): void => {
-        const commandName = args.command;
-
-        if (command.command.commandName !== commandName) {
-          console.error(args, command);
-          throw new Error(`Unmatched command name ${commandName}`);
-        }
-
-        const _args = popCommand(args);
-
-        if (!(_args.command in functionOrRecord)) {
-          throw new Error(`No handler found for command ${commandName}`);
-        }
-
-        const handler = functionOrRecord[_args.command];
-
-        const namedCommand = findByNameInComposed(
-          command.subcommands.commands,
-          _args.command,
-        );
-
-        if (namedCommand === undefined) {
-          throw new Error(`No command ${commandName} among subcommands`);
-        }
-
-        if (typeof handler === "function") {
-          return handler(_args.argv);
-        }
-        else if (isComposableHandler(handler)) {
-          return handler.handle(_args);
-        }
-        else {
-          if (namedCommand.type === "with-subcommands") {
-            return createHandlerFor(namedCommand, handler).handle(_args);
-          }
-          else {
-            throw new Error(`Invalid handler for ${namedCommand.type}`);
-          }
-        }
-      };
-
-      return _createHandler(handlerFunction, [command.command.commandName]);
-    }
-    else {
-      throw new Error(`Invalid handler for ${command.commandName}`);
-    }
+  else if (command.type === "with-subcommands") {
+    return _createHandlerForSubcommands(command, functionOrRecord);
   }
+  else if (command.type === "composed") {
+    return _createHandlerForComposed(command, functionOrRecord);
+  }
+
+  return command;
 }
 
-export const _createHandler = (
-  handler: InputHandlerFunctionFor<Command>,
+/**
+ * @description Create a handler for a basic command.
+ */
+const _createHandlerForCommand = (
+  command: BasicCommand,
+  functionOrRecord: InputHandlerFunctionFor<BasicCommand>,
+): ComposableHandler => {
+  return _createHandler((args: any) => {
+    return functionOrRecord(args.argv);
+  }, [command.commandName]);
+};
+
+const _createHandlerForComposed = (
+  command: ComposedCommands,
+  functionOrRecord:
+    // either a function or a record
+    | InputHandlerFunctionFor<ComposedCommands>
+    | InputRecordHandler
+    | ComposableHandler,
+): ComposableHandler => {
+  if (isFunctionHandler(functionOrRecord)) {
+    return _createHandler(functionOrRecord, composedCommandNames(command));
+  }
+  // ComposableHandler
+  else if (isComposableHandler(functionOrRecord)) {
+    const handlerFunction = (argv: CommandArgs): void => {
+      functionOrRecord.handle(argv);
+    };
+    return _createHandler(handlerFunction, composedCommandNames(command));
+  }
+  else if (isRecordHandler(functionOrRecord)) {
+    const handlerFunction = (args: CommandArgs): void => {
+      const commandName = args.command;
+
+      if (!(args.command in functionOrRecord)) {
+        throw new Error(`No handler found for command ${commandName}`);
+      }
+
+      const handler = functionOrRecord[commandName];
+
+      const commandToHandle = findByNameInComposed(
+        command.commands,
+        commandName,
+      );
+
+      if (commandToHandle === undefined) {
+        throw new Error(`No command ${commandName} among composed.`);
+      }
+
+      if (typeof handler === "function") {
+        if (commandToHandle.type === "command") {
+          return handler(args.argv);
+        }
+        return handler(args);
+      }
+      else if (isComposableHandler(handler)) {
+        return handler.handle(args);
+      }
+      // handler is a record
+      else {
+        if (commandToHandle.type === "with-subcommands") {
+          return createHandlerFor(commandToHandle, handler).handle(args);
+        }
+        else {
+          throw new Error(
+            `Invalid pair of command and handler: handler is record, command is ${commandToHandle.type}`,
+          );
+        }
+      }
+    };
+
+    return _createHandler(handlerFunction, composedCommandNames(command));
+  }
+
+  return functionOrRecord;
+};
+
+const _createHandlerForSubcommands = (
+  command: CommandWithSubcommands,
+  functionOrRecord:
+    // either a function or a record
+    | InputHandlerFunctionFor<CommandWithSubcommands>
+    | InputRecordHandler
+    | ComposableHandler,
+): ComposableHandler => {
+  // InputHandlerFunctionFor
+  if (isFunctionHandler(functionOrRecord)) {
+    return _createHandler(functionOrRecord, [command.command.commandName]);
+  }
+  // ComposableHandler
+  else if (isComposableHandler(functionOrRecord)) {
+    const _handlerFunction = (args: NestedCommandArgs<{}>): void => {
+      return functionOrRecord.handle(popCommand(args));
+    };
+
+    return _createHandler<CommandWithSubcommands>(_handlerFunction, [
+      command.command.commandName,
+    ]);
+  }
+  // InputRecordHandler
+  else if (isRecordHandler(functionOrRecord)) {
+    const _handlerFunction = (args: NestedCommandArgs<{}>): void => {
+      const commandName = args.command;
+
+      if (command.command.commandName !== commandName) {
+        console.error(args, command);
+        throw new Error(`Unmatched command name ${commandName}`);
+      }
+
+      const _args = popCommand(args);
+
+      if (!(_args.command in functionOrRecord)) {
+        throw new Error(`No handler found for command ${commandName}`);
+      }
+
+      const handler = functionOrRecord[_args.command];
+      const namedCommand = findByNameInComposed(
+        command.subcommands.commands,
+        _args.command,
+      );
+
+      if (namedCommand === undefined) {
+        throw new Error(`No command ${commandName} among subcommands`);
+      }
+
+      if (typeof handler === "function") {
+        return handler(_args.argv);
+      }
+      else if (isComposableHandler(handler)) {
+        return handler.handle(_args);
+      }
+      else {
+        if (namedCommand.type === "with-subcommands") {
+          return createHandlerFor(namedCommand, handler).handle(_args);
+        }
+        else {
+          throw new Error(`Invalid handler for ${namedCommand.type}`);
+        }
+      }
+    };
+
+    return _createHandler<CommandWithSubcommands>(_handlerFunction, [
+      command.command.commandName,
+    ]);
+  }
+
+  return functionOrRecord;
+};
+
+type CreateHandlerForFunc<TCommand extends Command> = TCommand extends
+  BasicCommand ? ((args: {}) => void)
+  : TCommand extends ComposedCommands ? ((args: CommandArgs) => void)
+  : TCommand extends CommandWithSubcommands
+    ? ((args: NestedCommandArgs<{}>) => void)
+  : never;
+
+export const _createHandler = <TCommand extends Command>(
+  handler: CreateHandlerForFunc<TCommand>,
   supports: string[],
 ): ComposableHandler => {
   const _handler = (args: any): void => {
@@ -177,8 +248,29 @@ export const _createHandler = (
   };
 };
 
+const isFunctionHandler = (
+  handler:
+    | InputHandlerFunctionFor<Command>
+    | InputRecordHandler
+    | ComposableHandler,
+): handler is InputHandlerFunctionFor<Command> => {
+  return typeof handler === "function";
+};
+
+const isRecordHandler = (
+  handler:
+    | InputHandlerFunctionFor<Command>
+    | InputRecordHandler
+    | ComposableHandler,
+): handler is InputRecordHandler => {
+  return typeof handler === "object";
+};
+
 const isComposableHandler = (
-  handler: HandlerFunction | InputRecordHandler | ComposableHandler,
+  handler:
+    | InputHandlerFunctionFor<Command>
+    | InputRecordHandler
+    | ComposableHandler,
 ): handler is ComposableHandler => {
   return isObjectWithOwnProperty(handler, "handle");
 };

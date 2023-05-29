@@ -1,11 +1,10 @@
-import { CommandArgs } from "./handler";
 import { _createHandler } from "./handler-for";
+import { ComposeArgv, ComposeNames } from "./types-compose";
+import { CommandArgs } from "./types-handler";
 import {
   ComposableHandler,
-  ComposeArgv,
   ComposedHandlerComposable,
-  ComposeNames,
-} from "./types";
+} from "./types-handler-for";
 
 /**
  * @description Composes handlers
