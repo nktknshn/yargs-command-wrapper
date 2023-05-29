@@ -1,4 +1,10 @@
-import { GetArgv, subsHandlers } from "../../../src";
+import {
+  composeHandlers,
+  createHandlerFor,
+  GetArgv,
+  subsHandlers,
+} from "../../../src";
+import { createHandlerFor } from "../../../src/handler";
 import { Address } from "../common";
 import { commandUpload } from "./args";
 import * as config from "./config";
@@ -29,5 +35,4 @@ export const handler = subsHandlers({
   "list": listHandler,
   "download": downloadHandler,
   "upload": uploadHandler,
-  "config": config.handler,
 });

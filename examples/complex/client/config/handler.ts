@@ -9,10 +9,10 @@ const handler: (
 ) => Promise<void>;
 */
 export const handler = createHandlerFor(cmd, {
-  "get": async (argv) => {
-    console.log(`get client config ${argv.key ?? "all"}`);
+  "get": async ({ key }) => {
+    console.log(`get client config ${key ?? "all"}`);
   },
-  "set": async (argv) => {
-    console.log(`set client config ${argv.key} ${argv.value}`);
+  "set": async ({ key, value }) => {
+    console.log(`set client config ${key} ${value}`);
   },
 });

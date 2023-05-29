@@ -2,7 +2,6 @@ import assert from "assert";
 import yargs from "yargs";
 import {
   buildAndParse,
-  buildAndParseUnsafe,
   buildAndParseUnsafeR,
   comm,
   comp,

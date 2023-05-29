@@ -141,7 +141,7 @@ if (result.right.command === "client") {
   // });
 
   // handle parsed arguments
-  clientHandler(result.right);
+  clientHandler.handle(result.right);
 }
 
 // or handle parsed arguments manually

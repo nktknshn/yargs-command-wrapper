@@ -134,7 +134,7 @@ export const pushCommand = (
 export const appendSubcommand = (
   args: Record<string, unknown>,
   subcommand: string,
-) => {
+): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
 
   let longest = "command" in args ? "command" : "";
@@ -164,23 +164,21 @@ export const parse = <TCommand extends Command>(
   command: TCommand,
   yargsObject: y.Argv,
   arg?: string | readonly string[],
+  stripArgv = true,
 ): E.Either<ErrorType, GetCommandReturnType<TCommand>> => {
   try {
     const argv = arg !== undefined
       ? yargsObject.parseSync(arg)
       : yargsObject.parseSync();
 
-    // console.log(
-    //   `argv: ${JSON.stringify(argv, null, 2)}`,
-    // );
-
-    let result: Record<string, unknown> = {
-      argv,
-    };
+    let result: Record<string, unknown> = {};
 
     let currentCommand: Command | undefined = command;
 
-    const withIndex = argv._.map(String).map((x, idx) => [idx, x] as const);
+    const parsedCommands = argv._;
+    const withIndex = parsedCommands.map(String).map((x, idx) =>
+      [idx, x] as const
+    );
 
     for (let [idx, cmd] of withIndex) {
       if (currentCommand === undefined) {
@@ -211,6 +209,16 @@ export const parse = <TCommand extends Command>(
     // result["argv"] = argv;
 
     // console.log(`result: ${JSON.stringify(result, null, 2)}`);
+    // delete result["argv"]["$0"];
+    // delete result["argv"]["_"];
+
+    let _argv: Partial<typeof argv> = { ...argv };
+    if (stripArgv) {
+      delete _argv["_"];
+      delete _argv["$0"];
+    }
+    result["argv"] = _argv;
+
     return E.of(result as GetCommandReturnType<TCommand>);
   } catch (e) {
     return E.left({ error: "yargs error", message: String(e) });

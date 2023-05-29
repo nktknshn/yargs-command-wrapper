@@ -1,4 +1,4 @@
-import { handlerFor } from "../../../src/handler";
+import { handlerFor } from "../../../src/handler/handler";
 import { cmd } from "./args";
 
 export const handler = handlerFor(cmd, async (args) => {
