@@ -5,50 +5,49 @@ import {
   ComposedCommands,
 } from "../types";
 import { isObjectWithOwnProperty } from "../util";
-import { findByNameInComposed, popCommand } from "./helpers";
-import { composedCommandNames } from "./helpers";
 import {
-  CommandWithSubcommandsHandlerFor,
-  ComposableHandlerFor,
-} from "./types-compose";
+  composedCommandNames,
+  findByNameInComposed,
+  popCommand,
+} from "./helpers";
+import { ComposableHandler, ComposableHandlerFor } from "./types-compose";
+import { CommandArgs, NestedCommandArgs } from "./types-handler";
 import {
-  CommandArgs,
-  HandlerFunction,
-  NestedCommandArgs,
-} from "./types-handler";
-import {
-  ComposableHandler,
+  GetSyncType,
   InputHandlerFunctionFor,
   InputRecordHandler,
   InputRecordHandlerFor,
+  InputSubcommandsHandlerFor,
 } from "./types-handler-for";
 
 export function createHandlerFor<
   TCommand extends BasicCommand,
+  H extends InputHandlerFunctionFor<TCommand>,
 >(
   command: TCommand,
-  handler: InputHandlerFunctionFor<TCommand>,
-): ComposableHandlerFor<TCommand>;
+  handler: H,
+): ComposableHandlerFor<TCommand, GetSyncType<H>>;
 
 export function createHandlerFor<
   TCommand extends ComposedCommands,
->(
-  command: TCommand,
-  handler:
+  H extends
     | InputHandlerFunctionFor<TCommand>
     | InputRecordHandlerFor<TCommand>,
-): ComposableHandlerFor<TCommand>;
+>(
+  command: TCommand,
+  handler: H,
+): ComposableHandlerFor<TCommand, GetSyncType<H>>;
 
 export function createHandlerFor<
   TCommand extends CommandWithSubcommands,
+  H extends
+    | InputHandlerFunctionFor<TCommand>
+    | InputSubcommandsHandlerFor<TCommand>
+    | InputRecordHandlerFor<TCommand>,
 >(
   command: TCommand,
-  handler:
-    | InputHandlerFunctionFor<TCommand>
-    // same as InputHandlerFunctionFor<TCommand> but ComposableHandler
-    | CommandWithSubcommandsHandlerFor<TCommand>
-    | InputRecordHandlerFor<TCommand>,
-): ComposableHandlerFor<TCommand>;
+  handler: H,
+): ComposableHandlerFor<TCommand, GetSyncType<H>>;
 
 export function createHandlerFor<
   TCommand extends Command,
@@ -108,7 +107,7 @@ const _createHandlerForComposed = (
     return _createHandler(handlerFunction, composedCommandNames(command));
   }
   else if (isRecordHandler(functionOrRecord)) {
-    const handlerFunction = (args: CommandArgs): void => {
+    const handlerFunction = (args: CommandArgs): void | Promise<void> => {
       const commandName = args.command;
 
       if (!(args.command in functionOrRecord)) {
@@ -168,7 +167,9 @@ const _createHandlerForSubcommands = (
   }
   // ComposableHandler
   else if (isComposableHandler(functionOrRecord)) {
-    const _handlerFunction = (args: NestedCommandArgs<{}>): void => {
+    const _handlerFunction = (
+      args: NestedCommandArgs<{}>,
+    ): void | Promise<void> => {
       return functionOrRecord.handle(popCommand(args));
     };
 
@@ -178,7 +179,9 @@ const _createHandlerForSubcommands = (
   }
   // InputRecordHandler
   else if (isRecordHandler(functionOrRecord)) {
-    const _handlerFunction = (args: NestedCommandArgs<{}>): void => {
+    const _handlerFunction = (
+      args: NestedCommandArgs<{}>,
+    ): void | Promise<void> => {
       const commandName = args.command;
 
       if (command.command.commandName !== commandName) {

@@ -7,7 +7,7 @@ export {
   CommandArgs,
   HandlerFunction,
   HandlerFunctionFor,
-  HandlerType,
+  HandlerSyncType as HandlerType,
 } from "./types-handler";
 
-export { createHandlerFor } from "./handler-for";
+export { createHandlerFor } from "./create-handler-for";

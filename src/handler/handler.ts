@@ -4,7 +4,7 @@ import {
   GetHandlersRecordReturnType,
   GetHandlersRecordType,
   HandlerFunctionFor,
-  HandlerFunctionForCompose,
+  HandlerFunctionForComposed,
   HandlersRecord,
   IsHandlersRecord,
   IsSameHandlersType,
@@ -19,7 +19,7 @@ import { popCommand } from "./helpers";
  */
 export const subsHandlers = <TRec extends HandlersRecord>(
   record: TRec & IsHandlersRecord<TRec> & IsSameHandlersType<TRec>,
-): HandlerFunctionForCompose<
+): HandlerFunctionForComposed<
   GetHandlersRecordReturnType<TRec>,
   GetHandlersRecordType<TRec>
 > =>

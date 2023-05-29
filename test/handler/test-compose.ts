@@ -1,15 +1,15 @@
 import { expectTypeOf } from "expect-type";
 import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
 import { composeHandlers } from "../../src/handler/compose";
-import { createHandlerFor } from "../../src/handler/handler-for";
+import { createHandlerFor } from "../../src/handler/create-handler-for";
 import { opt } from "../types/addOption";
 
-const command = comm("com1", "description", opt("a"));
-
+const com1 = comm("com1", "description", opt("a"));
 const com2 = comm("com2", "description", opt("c"));
 const com3 = comm("com3", "description", opt("d"));
 
-const command2 = comp(com2, com3);
+const com1com2 = comp(com1, com2);
+const com2com3 = comp(com2, com3);
 
 const sub1 = comm("sub1", "sub1", opt("sub1argv"));
 const sub2 = comm("sub2", "sub2", opt("sub2argv"));
@@ -29,13 +29,13 @@ const command3 = subs(
   [sub1, sub2, sub3],
 );
 
-const composedCommand = comp(command, command2, command3);
+const composedCommand = comp(com1, com2com3, command3);
 
 describe("handlerFor", () => {
   test("basic", () => {
     const fn = jest.fn();
 
-    const handler = createHandlerFor(command, (args) => {
+    const handler = createHandlerFor(com1, (args) => {
       fn(args);
       args.a;
     });
@@ -48,7 +48,7 @@ describe("handlerFor", () => {
   test("composed function", () => {
     const [fn1, fn2] = [jest.fn(), jest.fn()];
 
-    const handler1 = createHandlerFor(command2, (args) => {
+    const handler1 = createHandlerFor(com2com3, (args) => {
       if (args.command === "com2") {
         fn1(args);
         args.argv.c;
@@ -69,7 +69,7 @@ describe("handlerFor", () => {
   test("composed structure", () => {
     const [fn1, fn2] = [jest.fn(), jest.fn()];
 
-    const handler1 = createHandlerFor(command2, {
+    const handler1 = createHandlerFor(com2com3, {
       "com2": (args) => {
         args.c;
         fn1(args);
@@ -97,7 +97,7 @@ describe("handlerFor", () => {
       hcom3(args);
     });
 
-    const handler1 = createHandlerFor(command2, {
+    const handler1 = createHandlerFor(com2com3, {
       "com2": com2Handler,
       "com3": com3Handler,
     });
@@ -113,7 +113,7 @@ describe("handlerFor", () => {
     const [fn1, fn2, fn3] = [jest.fn(), jest.fn(), jest.fn()];
 
     const handler1 = createHandlerFor(
-      comp(command, command2),
+      comp(com1, com2com3),
       {
         "com1": (args) => {
           fn1(args);
@@ -161,7 +161,7 @@ describe("handlerFor", () => {
       async (args) => {},
     );
 
-    createHandlerFor(sub3, s1s2compHandler);
+    const a = createHandlerFor(sub3, s1s2compHandler);
   });
 
   test("nested function handler", () => {
@@ -322,9 +322,72 @@ describe("handlerFor", () => {
 
   test("nested record handler 2", () => {
   });
+
+  test("syncness", () => {
+    const handlerAsync = createHandlerFor(com1, async args => {});
+    expectTypeOf(handlerAsync.handle).returns.toEqualTypeOf<Promise<void>>();
+    const handlerSync = createHandlerFor(com1, args => {});
+    expectTypeOf(handlerSync.handle).returns.toEqualTypeOf<void>();
+
+    const handlerSync2 = createHandlerFor(com1com2, {
+      "com1": args => {},
+      "com2": args => {},
+    });
+
+    expectTypeOf(handlerSync2.handle).returns.toEqualTypeOf<void>();
+
+    const handlerAsync2 = createHandlerFor(com1com2, {
+      "com1": async args => {},
+      "com2": async args => {},
+    });
+
+    expectTypeOf(handlerAsync2.handle).returns.toEqualTypeOf<Promise<void>>();
+
+    const handlerMixed2 = createHandlerFor(com1com2, {
+      "com1": async args => {},
+      "com2": args => {},
+    });
+
+    expectTypeOf(handlerMixed2.handle).returns.toEqualTypeOf<
+      Promise<void> | void
+    >();
+
+    const handlerSync3 = createHandlerFor(sub3, () => {});
+    const handlerAsync3 = createHandlerFor(sub3, async () => {});
+
+    expectTypeOf(handlerSync3.handle).returns.toEqualTypeOf<void>();
+    expectTypeOf(handlerAsync3.handle).returns.toEqualTypeOf<Promise<void>>();
+
+    const nested1 = subs(com3, com1com2);
+
+    const handler3 = createHandlerFor(nested1, handlerSync2);
+    const handler3a = createHandlerFor(nested1, handlerAsync2);
+    const handler3m = createHandlerFor(nested1, handlerMixed2);
+
+    expectTypeOf(handler3.handle).returns.toEqualTypeOf<void>();
+    expectTypeOf(handler3a.handle).returns.toEqualTypeOf<Promise<void>>();
+    expectTypeOf(handler3m.handle).returns.toEqualTypeOf<
+      Promise<void> | void
+    >();
+  });
 });
 
 describe("compose handlers", () => {
+  test("basic", () => {
+    const com1 = comm("com1", "description");
+    const com2 = comm("com2", "description");
+    const com1com2 = comp(com1, com2);
+
+    const com1handler = createHandlerFor(com1, (args) => {});
+    const com2handler = createHandlerFor(com2, (args) => {});
+
+    const com1com2handler = composeHandlers(com1handler, com2handler);
+
+    const { result } = buildAndParseUnsafe(com1com2, ["com1"]);
+
+    com1com2handler.handle(result);
+  });
+
   test("cocompose", () => {
     const [hfn1, hfn2, hfn3, hfn4] = [
       jest.fn(),
@@ -333,9 +396,8 @@ describe("compose handlers", () => {
       jest.fn(),
     ];
 
-    const handler1 = createHandlerFor(command, (args) => {
-      console.log(args);
-      console.log(args.a);
+    const handler1 = createHandlerFor(com1, (args) => {
+      args.a;
 
       hfn1(args);
     });
@@ -343,7 +405,7 @@ describe("compose handlers", () => {
     handler1.handle({ command: "com1", argv: { a: "123" } });
     expect(hfn1).toBeCalledWith({ a: "123" });
 
-    const handler2 = createHandlerFor(command2, (args) => {
+    const handler2 = createHandlerFor(com2com3, (args) => {
       args.command;
       switch (args.command) {
         case "com2":

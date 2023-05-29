@@ -1,4 +1,4 @@
-export { composeHandlers, createHandlerFor as handlerFor2 } from "./handler";
+export { composeHandlers, createHandlerFor } from "./handler";
 
 export {
   command as comm,

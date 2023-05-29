@@ -1,4 +1,4 @@
-import { handlerFor2 } from "../../../../src";
+import { createHandlerFor } from "../../../../src";
 import { cmd } from "./args";
 
 /**
@@ -8,7 +8,7 @@ const handler: (
     | { command: "set"; argv: { value: string; key: string } },
 ) => Promise<void>;
 */
-export const handler = handlerFor2(cmd, {
+export const handler = createHandlerFor(cmd, {
   "get": async ({ key }) => {
     console.log(`get client config ${key ?? "all"}`);
   },

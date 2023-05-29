@@ -1,18 +1,40 @@
-import { _createHandler } from "./handler-for";
-import { ComposeArgv, ComposeNames } from "./types-compose";
-import { CommandArgs } from "./types-handler";
+import { _createHandler } from "./create-handler-for";
 import {
   ComposableHandler,
+  ComposeArgv,
   ComposedHandlerComposable,
-} from "./types-handler-for";
+  ComposeNames,
+  ComposeSyncTypes,
+} from "./types-compose";
+import { CommandArgs } from "./types-handler";
 
 /**
  * @description Composes handlers
  */
-
 export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
-  ComposedHandlerComposable<ComposeNames<THandlers>, ComposeArgv<THandlers>>;
+  ComposedHandlerComposable<
+    ComposeNames<THandlers>,
+    ComposeArgv<THandlers>,
+    ComposeSyncTypes<THandlers>
+  >;
 
+/**
+ * @description Composes handlers created by `createHandlerFor`
+ * @example
+ * ```ts
+ *  const com1 = comm("com1", "description");
+    const com2 = comm("com2", "description");
+    const com1com2 = comp(com1, com2);
+
+    const com1handler = createHandlerFor(com1, (args) => {});
+    const com2handler = createHandlerFor(com2, (args) => {});
+    const com1com2handler = composeHandlers(com1handler, com2handler);
+
+    const { result } = buildAndParseUnsafe(com1com2, ["com1"]);
+
+    com1com2handler.handle(result);
+ * ```
+ */
 export function composeHandlers<THandlers extends readonly ComposableHandler[]>(
   ...handlers: THandlers
 ): ComposedHandlers<THandlers> {
@@ -22,7 +44,7 @@ export function composeHandlers<THandlers extends readonly ComposableHandler[]>(
     supports.push(...h.supports);
   }
 
-  let _handler = (args: CommandArgs): void => {
+  let _handler = (args: CommandArgs): void | Promise<void> => {
     for (const h of handlers) {
       if (h.supports.includes(args.command)) {
         return h.handle(args);

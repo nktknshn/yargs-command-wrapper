@@ -1,7 +1,7 @@
 import {
   composeHandlers,
+  createHandlerFor,
   GetArgv,
-  handlerFor2,
   subsHandlers,
 } from "../../../src";
 import { createHandlerFor } from "../../../src/handler";

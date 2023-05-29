@@ -29,9 +29,6 @@ describe("handler", () => {
 
     assert.strict(E.isRight(result));
 
-    // const handler1 = handlerFor(command, (args) => {
-    // });
-
     const fn = jest.fn();
 
     const handler2 = createHandlerFor(command, (args) => {

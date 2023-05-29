@@ -19,7 +19,7 @@ const cmd = compose(
 
 const handler = subsHandlers({
   "client": client.handler.handle,
-  "server": server.handler.handle,
+  "server": server.handler,
 });
 
 // handler can be used directly:

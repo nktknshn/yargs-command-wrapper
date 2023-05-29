@@ -1,7 +1,7 @@
 import { expectTypeOf } from "expect-type";
 
 import { HandlerFunctionFor, HandlerType } from "../../src/handler";
-import { HandlerFunctionForCompose } from "../../src/handler/types-handler";
+import { HandlerFunctionForComposed } from "../../src/handler/types-handler";
 import { InputRecordHandlerFor } from "../../src/handler/types-handler-for";
 import { ComposeCommandsFlatten } from "../../src/handler/types-helpers";
 import {
@@ -56,13 +56,13 @@ describe("mapped types", () => {
     type B = InputRecordHandlerFor<Command>;
     type A = HandlerFunctionFor<Command>;
     type C = GetCommandReturnType<Command>;
-    type D = HandlerFunctionForCompose<
+    type D = HandlerFunctionForComposed<
       PushCommand<Command, string, {}>,
       HandlerType
     >;
 
     type E<T extends Command> = T extends ComposedCommands<infer C, infer D>
-      ? HandlerFunctionForCompose<GetCommandReturnType<ComposedCommands<C>>>
+      ? HandlerFunctionForComposed<GetCommandReturnType<ComposedCommands<C>>>
       : never;
 
     type EE = E<Command>;
