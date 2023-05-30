@@ -4,7 +4,10 @@ import { Command } from "../command";
 import { CommandsTuple } from "../../types";
 import { BasicCommand } from "../basic/type";
 
-import { composeCommands } from "../composed/compose-commands";
+import {
+  composeCommands,
+  createHelperObject,
+} from "../composed/compose-commands";
 import { ComposedCommands } from "../composed/type";
 import { CommandWithSubcommands, HelperObjectWithSubcommands } from "./type";
 
@@ -47,16 +50,18 @@ export function subs<
     isObjectWithOwnProperty(subcommands, "type")
     && subcommands.type === "composed"
   ) {
-    return { command, subcommands, type: "with-subcommands", $: {} as any };
+    const helperObject = createHelperObject(subcommands.commands);
+    return { command, subcommands, type: "with-subcommands", $: helperObject };
   }
   const s = subcommands as TCommands;
 
   const composedCommand = composeCommands<TCommands, TComposedArgv>(...s);
+  const helperObject = createHelperObject(s);
 
   return {
     command,
     subcommands: composedCommand,
     type: "with-subcommands",
-    $: {} as any,
+    $: helperObject,
   };
 }

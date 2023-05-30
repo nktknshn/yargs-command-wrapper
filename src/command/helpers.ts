@@ -5,7 +5,7 @@ import { Command } from "./commands/command";
  * @param desc the command description
  * @returns the command name
  */
-export const getCommandName = (desc: string): string => {
+export const getCommandNameFromDesc = (desc: string): string => {
   return desc.includes(" ")
     ? desc.split(" ")[0]
     : desc;

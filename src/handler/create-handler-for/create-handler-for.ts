@@ -5,12 +5,12 @@ import {
   ComposedCommands,
 } from "../../command";
 
-import { isObjectWithOwnProperty } from "../../common/util";
 import {
   composedCommandNames,
   findByNameInComposed,
-  popCommand,
-} from "../helpers";
+} from "../../command/commands/composed/helpers";
+import { isObjectWithOwnProperty } from "../../common/util";
+import { popCommand } from "../helpers";
 
 import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
 import {
@@ -104,14 +104,20 @@ const _createHandlerForComposed = (
     | ComposableHandler,
 ): ComposableHandler => {
   if (isFunctionHandler(functionOrRecord)) {
-    return _createHandler(functionOrRecord, composedCommandNames(command));
+    return _createHandler(
+      functionOrRecord,
+      composedCommandNames(command.commands),
+    );
   }
   // ComposableHandler
   else if (isComposableHandler(functionOrRecord)) {
     const handlerFunction = (argv: CommandArgs): void => {
       functionOrRecord.handle(argv);
     };
-    return _createHandler(handlerFunction, composedCommandNames(command));
+    return _createHandler(
+      handlerFunction,
+      composedCommandNames(command.commands),
+    );
   }
   else if (isRecordHandler(functionOrRecord)) {
     const handlerFunction = (args: CommandArgs): void | Promise<void> => {
@@ -154,7 +160,10 @@ const _createHandlerForComposed = (
       }
     };
 
-    return _createHandler(handlerFunction, composedCommandNames(command));
+    return _createHandler(
+      handlerFunction,
+      composedCommandNames(command.commands),
+    );
   }
 
   return functionOrRecord;

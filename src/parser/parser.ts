@@ -2,7 +2,7 @@ import y from "yargs";
 import { buildYargs } from "../command/build-yargs";
 import { Command } from "../command/commands/command";
 import { GetCommandParseResult } from "../command/commands/type-parse-result";
-import { getCommandName } from "../command/helpers";
+import { getCommandNameFromDesc } from "../command/helpers";
 import { YargsCommandBuilder } from "../command/types";
 import * as E from "../common/either";
 import { ErrorType } from "../common/error";
@@ -21,7 +21,10 @@ export const findAlias = <TCommand extends Command>(
     for (const cmd of command.commandDesc) {
       // console.log(`cmd: ${cmd}, ${alias}`);
       if (cmd == alias) {
-        return E.of([getCommandName(command.commandDesc[0]), undefined]);
+        return E.of([
+          getCommandNameFromDesc(command.commandDesc[0]),
+          undefined,
+        ]);
       }
       else if (cmd.startsWith(`${alias} `)) {
         return E.of([alias, undefined]);

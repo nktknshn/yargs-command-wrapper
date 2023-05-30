@@ -1,5 +1,5 @@
 import y from "yargs";
-import { getCommandName } from "../../helpers";
+import { getCommandNameFromDesc } from "../../helpers";
 import { YargsCommandBuilder } from "../../types";
 import { BasicCommand } from "./type";
 import { GetCommandNameFromDesc } from "./type-command-name";
@@ -24,7 +24,7 @@ export const command = <const TCommandDesc extends readonly string[] | string, T
     ? [commandDesc]
     : commandDesc;
 
-  const commandName = getCommandName(_commandDesc[0]) as GetCommandNameFromDesc<TCommandDesc>;
+  const commandName = getCommandNameFromDesc(_commandDesc[0]) as GetCommandNameFromDesc<TCommandDesc>;
 
   return ({
     builder,
