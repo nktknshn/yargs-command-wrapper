@@ -3,6 +3,12 @@
 This wrapper allows to separate args parsing from their handling in a functional and
 a typesafe way.
 
+# Installation
+
+```bash
+npm install --save yargs-command-wrapper
+```
+
 # Usage
 
 ```typescript
