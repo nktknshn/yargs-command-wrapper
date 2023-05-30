@@ -4,9 +4,9 @@ export type BasicCommand<
   TCommandName extends string = string,
   TArgv extends {} = {},
 > = {
-  commandName: TCommandName;
-  commandDesc: readonly string[];
-  description: string;
-  builder: YargsCommandBuilder<TArgv>;
-  type: "command";
+  readonly commandName: TCommandName;
+  readonly commandDesc: readonly string[];
+  readonly description: string;
+  readonly builder: YargsCommandBuilder<TArgv>;
+  readonly type: "command";
 };

@@ -11,7 +11,6 @@ export * as Either from "./common/either";
 
 export { failClient } from "./main";
 export {
-  build,
   buildAndParse,
   buildAndParseUnsafe,
   buildAndParseUnsafeR,

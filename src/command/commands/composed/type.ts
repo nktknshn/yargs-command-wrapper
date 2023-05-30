@@ -6,16 +6,16 @@ export type ComposedCommands<
   TCommands extends readonly Command[] = readonly Command[],
   TArgv extends {} = {},
 > = {
-  commands: TCommands;
-  builder?: YargsCommandBuilder<TArgv>;
-  type: "composed";
+  readonly commands: TCommands;
+  readonly builder?: YargsCommandBuilder<TArgv>;
+  readonly type: "composed";
 };
 
 export type HelperObjectComposed<
   TCommands extends readonly Command[],
   TArgv extends {},
 > = {
-  commands: {
+  readonly commands: {
     [C in CommandsFlatten<TCommands> as GetCommandName<C>]: C;
   };
 };

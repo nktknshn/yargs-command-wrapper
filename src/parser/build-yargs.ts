@@ -1,5 +1,5 @@
 import y from "yargs";
-import { Command } from "./commands/command";
+import { Command } from "../command/commands/command";
 
 /**
  * @description Given a command, build the yargs object
@@ -13,8 +13,6 @@ export const buildYargs = <TCommand extends Command>(
   // console.log(`command: ${showCommand(command)}`);
 
   if (command.type === "command") {
-    // logger.debug(`command: ${command.commandName} '${command.commandDesc}'`);
-
     return yargsObject.command(
       command.commandDesc,
       command.description,
@@ -22,11 +20,6 @@ export const buildYargs = <TCommand extends Command>(
     );
   }
   else if (command.type === "composed") {
-    // logger.debug(
-    //   `composed: ${command.commands.length} commands: ${
-    //     command.commands.map(_ => _.type)
-    //   }. builder: ${command.builder}`,
-    // );
     yargsObject = yargsObject.demandCommand(1);
 
     return command.commands.reduce(
@@ -35,10 +28,6 @@ export const buildYargs = <TCommand extends Command>(
     );
   }
   else if (command.type === "with-subcommands") {
-    // logger.debug(
-    //   `with-subcommands: ${command.command.commandName} '${command.command.commandDesc}' ${command.subcommands.commands.length} subcommands`,
-    // );
-
     return yargsObject.command(
       command.command.commandDesc,
       command.command.description,
@@ -51,4 +40,19 @@ export const buildYargs = <TCommand extends Command>(
   else {
     return command;
   }
+};
+
+export const build = <TCommand extends Command>(command: TCommand) =>
+  buildYargs(command)(createYargs());
+
+const createYargs = () => {
+  return y().exitProcess(false)
+    .showHelpOnFail(false)
+    .fail((msg, err, yargs) => {
+      if (err) throw err;
+      if (msg) throw new Error(msg);
+    })
+    .demandCommand(1)
+    .strict()
+    .strictCommands();
 };

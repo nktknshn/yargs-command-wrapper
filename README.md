@@ -14,7 +14,7 @@ import {
   Either,
   failClient,
   subs,
-} from "../src";
+} from "yargs-command-wrapper";
 
 const config = comp(
   _ =>

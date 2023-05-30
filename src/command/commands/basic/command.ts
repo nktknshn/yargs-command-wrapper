@@ -1,6 +1,6 @@
 import y from "yargs";
-import { getCommandNameFromDesc } from "../../helpers";
 import { YargsCommandBuilder } from "../../types";
+import { getCommandNameFromDesc } from "./helpers";
 import { BasicCommand } from "./type";
 import { GetCommandNameFromDesc } from "./type-command-name";
 

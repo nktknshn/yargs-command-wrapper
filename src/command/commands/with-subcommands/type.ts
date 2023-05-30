@@ -8,9 +8,9 @@ export type CommandWithSubcommands<
   TArgv extends {} = {},
   TComposedArgv extends {} = {},
 > = {
-  command: BasicCommand<TCommandName, TArgv>;
-  subcommands: ComposedCommands<TCommands, TComposedArgv>;
-  type: "with-subcommands";
+  readonly command: BasicCommand<TCommandName, TArgv>;
+  readonly subcommands: ComposedCommands<TCommands, TComposedArgv>;
+  readonly type: "with-subcommands";
 };
 
 export type HelperObjectWithSubcommands<

@@ -1,74 +1,11 @@
 import y from "yargs";
-import { buildYargs } from "../command/build-yargs";
 import { Command } from "../command/commands/command";
 import { GetCommandParseResult } from "../command/commands/type-parse-result";
-import { getCommandNameFromDesc } from "../command/helpers";
 import { YargsCommandBuilder } from "../command/types";
 import * as E from "../common/either";
 import { ErrorType } from "../common/error";
-import { appendSubcommand } from "./helpers";
-
-/**
- * @description Given a command and an alias, if the alias is found in the command
- * @param command
- * @returns Either an error or a tuple of the full command name and the subcommands if any
- */
-export const findAlias = <TCommand extends Command>(
-  command: TCommand,
-  alias: string,
-): E.Either<ErrorType, [string, Command | undefined]> => {
-  if (command.type === "command") {
-    for (const cmd of command.commandDesc) {
-      // console.log(`cmd: ${cmd}, ${alias}`);
-      if (cmd == alias) {
-        return E.of([
-          getCommandNameFromDesc(command.commandDesc[0]),
-          undefined,
-        ]);
-      }
-      else if (cmd.startsWith(`${alias} `)) {
-        return E.of([alias, undefined]);
-      }
-    }
-  }
-  else if (command.type === "with-subcommands") {
-    if (command.command.commandDesc.includes(alias)) {
-      return E.of(
-        [command.command.commandDesc[0], command.subcommands],
-      );
-    }
-  }
-  else if (command.type === "composed") {
-    for (const cmd of command.commands) {
-      // console.log(`cmd: ${showCommand(cmd)}`);
-      const found = findAlias(cmd, alias);
-
-      if (E.isRight(found)) {
-        return found;
-      }
-    }
-  }
-
-  return E.left({
-    error: "command not found",
-    message: `Alias ${alias} was not found in any command ${command.type}`,
-  });
-};
-
-const createYargs = () => {
-  return y().exitProcess(false)
-    .showHelpOnFail(false)
-    .fail((msg, err, yargs) => {
-      if (err) throw err;
-      if (msg) throw new Error(msg);
-    })
-    .demandCommand(1)
-    .strict()
-    .strictCommands();
-};
-
-export const build = <TCommand extends Command>(command: TCommand) =>
-  buildYargs(command)(createYargs());
+import { build } from "./build-yargs";
+import { appendSubcommand, findAlias } from "./helpers";
 
 type BuildAndParseResult<TCommand extends Command> = {
   result: E.Either<ErrorType, GetCommandParseResult<TCommand>>;
@@ -125,7 +62,7 @@ export const parse = <TCommand extends Command>(
   try {
     const argv = arg !== undefined
       ? yargsObject.parseSync(arg)
-      : yargsObject.parseSync();
+      : yargsObject.parseSync(process.argv.slice(2));
 
     let result: Record<string, unknown> = {};
 

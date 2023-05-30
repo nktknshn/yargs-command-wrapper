@@ -4,10 +4,8 @@ import { Command } from "../command";
 import { CommandsTuple } from "../../types";
 import { BasicCommand } from "../basic/type";
 
-import {
-  composeCommands,
-  createHelperObject,
-} from "../composed/compose-commands";
+import { composeCommands } from "../composed/compose-commands";
+import { createHelperObject } from "../composed/helper-object";
 import { ComposedCommands } from "../composed/type";
 import { CommandWithSubcommands, HelperObjectWithSubcommands } from "./type";
 

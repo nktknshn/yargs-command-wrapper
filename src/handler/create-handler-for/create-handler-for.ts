@@ -13,11 +13,7 @@ import { isObjectWithOwnProperty } from "../../common/util";
 import { popCommand } from "../helpers";
 
 import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
-import {
-  CommandArgs,
-  HandlerSyncType,
-  NestedCommandArgs,
-} from "../types-handler";
+import { CommandArgs, NestedCommandArgs } from "../types-handler";
 import {
   GetReturnType,
   GetSyncType,
