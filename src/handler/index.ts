@@ -1,4 +1,4 @@
-export { GetArgv } from "./types-helpers";
+export { GetCommandArgv } from "./types-helpers";
 
 export { subsHandlers } from "./handler";
 
@@ -10,4 +10,4 @@ export {
   HandlerSyncType as HandlerType,
 } from "./types-handler";
 
-export { createHandlerFor } from "./create-handler-for";
+export { createHandlerFor } from "./create-handler-for/create-handler-for";

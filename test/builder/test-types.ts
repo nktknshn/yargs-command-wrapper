@@ -1,21 +1,22 @@
 import { expectTypeOf } from "expect-type";
 
-import { HandlerFunctionFor, HandlerType } from "../../src/handler";
-import { HandlerFunctionForComposed } from "../../src/handler/types-handler";
-import { InputRecordHandlerFor } from "../../src/handler/types-handler-for";
-import { ComposeCommandsFlatten } from "../../src/handler/types-helpers";
+import { BasicCommand, Command, ComposedCommands } from "../../src/command/";
 import {
-  BasicCommand,
-  Command,
-  ComposedCommands,
-  GetCommandReturnType,
-  GetComposedReturnType,
-  PushCommand,
-} from "../../src/types";
+  GetCommandParseResult,
+  GetComposedParseResult,
+} from "../../src/command/";
+import {
+  CommandsFlattenList,
+  ComposeCommandsFlatten,
+} from "../../src/command/commands/composed/type-helpers";
+import { PushCommand } from "../../src/command/commands/with-subcommands/type-push-command";
+import { HandlerFunctionFor, HandlerType } from "../../src/handler";
+import { InputHandlerRecordFor } from "../../src/handler/create-handler-for/types-handler-for";
+import { HandlerFunctionForComposed } from "../../src/handler/types-handler";
 
 describe("mapped types", () => {
   test("flatten composed", async () => {
-    type A = ComposedCommands<[
+    type L = [
       ComposedCommands<[
         ComposedCommands<[
           BasicCommand<"command1", { c1: number }>,
@@ -30,7 +31,11 @@ describe("mapped types", () => {
           ], { bb: number }>,
         ], { bb: number }>,
       ], { a: number }>,
-    ]>;
+    ];
+
+    type LF = CommandsFlattenList<L>;
+
+    type A = ComposedCommands<L>;
 
     type B = ComposeCommandsFlatten<A>;
     type Commands = B extends ComposedCommands<infer C, infer D> ? C : never;
@@ -53,20 +58,20 @@ describe("mapped types", () => {
   });
 
   test("InputRecordHandlerFor", () => {
-    type B = InputRecordHandlerFor<Command>;
+    type B = InputHandlerRecordFor<Command>;
     type A = HandlerFunctionFor<Command>;
-    type C = GetCommandReturnType<Command>;
+    type C = GetCommandParseResult<Command>;
     type D = HandlerFunctionForComposed<
       PushCommand<Command, string, {}>,
       HandlerType
     >;
 
     type E<T extends Command> = T extends ComposedCommands<infer C, infer D>
-      ? HandlerFunctionForComposed<GetCommandReturnType<ComposedCommands<C>>>
+      ? HandlerFunctionForComposed<GetCommandParseResult<ComposedCommands<C>>>
       : never;
 
     type EE = E<Command>;
 
-    type HH = GetComposedReturnType<ComposedCommands>;
+    type HH = GetComposedParseResult<ComposedCommands>;
   });
 });

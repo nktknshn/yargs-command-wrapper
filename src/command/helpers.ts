@@ -1,4 +1,4 @@
-import { Command } from "./types";
+import { Command } from "./commands/command";
 
 /**
  * @description parses a command description and returns the command name

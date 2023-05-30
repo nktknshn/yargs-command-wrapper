@@ -1,10 +1,12 @@
 import y from "yargs";
-import { buildYargs } from "./builder";
-import { getCommandName } from "./common";
-import * as E from "./either";
-import { ErrorType } from "./error";
-import { Builder, Command, GetCommandReturnType } from "./types";
-import { replicate } from "./util";
+import { buildYargs } from "../command/build-yargs";
+import { Command } from "../command/commands/command";
+import { GetCommandParseResult } from "../command/commands/type-parse-result";
+import { getCommandName } from "../command/helpers";
+import { YargsCommandBuilder } from "../command/types";
+import * as E from "../common/either";
+import { ErrorType } from "../common/error";
+import { appendSubcommand } from "./helpers";
 
 /**
  * @description Given a command and an alias, if the alias is found in the command
@@ -66,14 +68,14 @@ export const build = <TCommand extends Command>(command: TCommand) =>
   buildYargs(command)(createYargs());
 
 type BuildAndParseResult<TCommand extends Command> = {
-  result: E.Either<ErrorType, GetCommandReturnType<TCommand>>;
+  result: E.Either<ErrorType, GetCommandParseResult<TCommand>>;
   yargs: y.Argv;
 };
 
 export const buildAndParse = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-  builder?: Builder<{}>,
+  builder?: YargsCommandBuilder<{}>,
 ): BuildAndParseResult<TCommand> => {
   const yargsObject = build(command);
 
@@ -90,7 +92,7 @@ export const buildAndParse = <TCommand extends Command>(
 export const buildAndParseUnsafe = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-): { result: GetCommandReturnType<TCommand>; yargs: y.Argv } => {
+): { result: GetCommandParseResult<TCommand>; yargs: y.Argv } => {
   const { result, yargs } = buildAndParse(command, arg);
 
   if (E.isLeft(result)) {
@@ -102,7 +104,7 @@ export const buildAndParseUnsafe = <TCommand extends Command>(
 export const buildAndParseUnsafeR = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-): GetCommandReturnType<TCommand> => {
+): GetCommandParseResult<TCommand> => {
   const { result } = buildAndParse(command, arg);
 
   if (E.isLeft(result)) {
@@ -111,61 +113,12 @@ export const buildAndParseUnsafeR = <TCommand extends Command>(
   return result.right;
 };
 
-export const pushCommand = (
-  args: Record<string, unknown>,
-  command: string,
-) => {
-  const result: Record<string, unknown> = {};
-
-  for (const [key, value] of Object.entries(args)) {
-    if (key == "argv") {
-      result[key] = value;
-    }
-    else if (key.endsWith("command")) {
-      result[`sub${key}`] = value;
-    }
-  }
-
-  result["command"] = command;
-
-  return result;
-};
-
-export const appendSubcommand = (
-  args: Record<string, unknown>,
-  subcommand: string,
-): Record<string, unknown> => {
-  const result: Record<string, unknown> = {};
-
-  let longest = "command" in args ? "command" : "";
-
-  for (const [key, value] of Object.entries(args)) {
-    if (key == "argv") {
-      result[key] = value;
-    }
-    else if (key.endsWith("command")) {
-      if (key.length > longest.length) {
-        longest = key;
-      }
-      result[key] = value;
-    }
-  }
-
-  if (longest == "") {
-    result["command"] = subcommand;
-  }
-  else {
-    result[`sub${longest}`] = subcommand;
-  }
-
-  return result;
-};
 export const parse = <TCommand extends Command>(
   command: TCommand,
   yargsObject: y.Argv,
   arg?: string | readonly string[],
   stripArgv = true,
-): E.Either<ErrorType, GetCommandReturnType<TCommand>> => {
+): E.Either<ErrorType, GetCommandParseResult<TCommand>> => {
   try {
     const argv = arg !== undefined
       ? yargsObject.parseSync(arg)
@@ -206,12 +159,6 @@ export const parse = <TCommand extends Command>(
       // result[`${prefix}command`] = cmd;
     }
 
-    // result["argv"] = argv;
-
-    // console.log(`result: ${JSON.stringify(result, null, 2)}`);
-    // delete result["argv"]["$0"];
-    // delete result["argv"]["_"];
-
     let _argv: Partial<typeof argv> = { ...argv };
     if (stripArgv) {
       delete _argv["_"];
@@ -219,7 +166,7 @@ export const parse = <TCommand extends Command>(
     }
     result["argv"] = _argv;
 
-    return E.of(result as GetCommandReturnType<TCommand>);
+    return E.of(result as GetCommandParseResult<TCommand>);
   } catch (e) {
     return E.left({ error: "yargs error", message: String(e) });
   }

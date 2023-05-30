@@ -2,8 +2,8 @@
   "name": "yargs-command-wrapper",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "test": "./node_modules/.bin/jest"
   },

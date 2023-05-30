@@ -5,7 +5,7 @@ import * as config from "./config";
 import { handler as clientHandler } from "./handler";
 
 const configCommand = subs(
-  comm("config", "config managment"),
+  comm("config", "config management"),
   config.cmd,
 );
 

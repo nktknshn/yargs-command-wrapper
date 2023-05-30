@@ -100,5 +100,5 @@ const handler = createHandlerFor(cliCommand, {
   },
 });
 
-handler(result.right);
+handler.handle(result.right);
 ```

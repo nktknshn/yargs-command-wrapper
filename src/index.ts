@@ -1,24 +1,23 @@
+export { command, command as comm } from "./command/commands/basic/command";
+export {
+  composeCommands,
+  composeCommands as comp,
+} from "./command/commands/composed/compose-commands";
+export { subs } from "./command/commands/with-subcommands/subs";
+
 export { composeHandlers, createHandlerFor } from "./handler";
 
-export {
-  command as comm,
-  command as command,
-  composeCommands as comp,
-  composeCommands as compose,
-  subs,
-} from "./builder";
+export * as Either from "./common/either";
 
-export * as Either from "./either";
-
-export { failClient } from "./helpers";
+export { failClient } from "./main";
 export {
   build,
   buildAndParse,
   buildAndParseUnsafe,
   buildAndParseUnsafeR,
   parse,
-} from "./parser";
+} from "./parser/parser";
 
-export type { GetCommandReturnType } from "./types";
+export type { GetCommandParseResult } from "./command/commands/type-parse-result";
 
-export { GetArgv, HandlerFunctionFor, subsHandlers } from "./handler";
+export { GetCommandArgv, HandlerFunctionFor, subsHandlers } from "./handler";

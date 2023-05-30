@@ -3,21 +3,28 @@ import {
   Command,
   CommandWithSubcommands,
   ComposedCommands,
-} from "../types";
-import { isObjectWithOwnProperty } from "../util";
+} from "../../command";
+
+import { isObjectWithOwnProperty } from "../../common/util";
 import {
   composedCommandNames,
   findByNameInComposed,
   popCommand,
-} from "./helpers";
-import { ComposableHandler, ComposableHandlerFor } from "./types-compose";
-import { CommandArgs, NestedCommandArgs } from "./types-handler";
+} from "../helpers";
+
+import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
 import {
+  CommandArgs,
+  HandlerSyncType,
+  NestedCommandArgs,
+} from "../types-handler";
+import {
+  GetReturnType,
   GetSyncType,
+  InputHandlerForSubcommands,
   InputHandlerFunctionFor,
+  InputHandlerRecordFor,
   InputRecordHandler,
-  InputRecordHandlerFor,
-  InputSubcommandsHandlerFor,
 } from "./types-handler-for";
 
 export function createHandlerFor<
@@ -26,28 +33,28 @@ export function createHandlerFor<
 >(
   command: TCommand,
   handler: H,
-): ComposableHandlerFor<TCommand, GetSyncType<H>>;
+): ComposableHandlerFor<TCommand, GetSyncType<H>, {}, GetReturnType<H>>;
 
 export function createHandlerFor<
   TCommand extends ComposedCommands,
   H extends
     | InputHandlerFunctionFor<TCommand>
-    | InputRecordHandlerFor<TCommand>,
+    | InputHandlerRecordFor<TCommand>,
 >(
   command: TCommand,
   handler: H,
-): ComposableHandlerFor<TCommand, GetSyncType<H>>;
+): ComposableHandlerFor<TCommand, GetSyncType<H>, {}, GetReturnType<H>>;
 
 export function createHandlerFor<
   TCommand extends CommandWithSubcommands,
   H extends
     | InputHandlerFunctionFor<TCommand>
-    | InputSubcommandsHandlerFor<TCommand>
-    | InputRecordHandlerFor<TCommand>,
+    | InputHandlerForSubcommands<TCommand>
+    | InputHandlerRecordFor<TCommand>,
 >(
   command: TCommand,
   handler: H,
-): ComposableHandlerFor<TCommand, GetSyncType<H>>;
+): ComposableHandlerFor<TCommand, GetSyncType<H>, {}, GetReturnType<H>>;
 
 export function createHandlerFor<
   TCommand extends Command,
@@ -56,7 +63,7 @@ export function createHandlerFor<
   functionOrRecord:
     | InputHandlerFunctionFor<TCommand>
     | ComposableHandler
-    | InputRecordHandlerFor<TCommand>,
+    | InputHandlerRecordFor<TCommand>,
 ): ComposableHandler {
   if (command.type === "command") {
     if (isFunctionHandler(functionOrRecord)) {

@@ -1,4 +1,4 @@
-import { createMain } from "../../../src/helpers";
+import { createMain } from "../../../src/main";
 import { cmd } from "./args";
 import { handler } from "./handler";
 

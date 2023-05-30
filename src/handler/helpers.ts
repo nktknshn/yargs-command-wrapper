@@ -3,8 +3,8 @@ import {
   Command,
   CommandWithSubcommands,
   ComposedCommands,
-} from "../types";
-import { Cast, ToList, TupleKeys } from "../util";
+} from "../command/";
+import { Cast, ToList, TupleKeys } from "../common/types-util";
 import { CommandArgs, NestedCommandArgs } from "./types-handler";
 
 /**

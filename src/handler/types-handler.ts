@@ -3,17 +3,18 @@ import {
   Command,
   CommandWithSubcommands,
   ComposedCommands,
-  FallbackNever,
-  GetCommandReturnType,
-  PushCommand,
-} from "../types";
-import { Cast, Last } from "../util";
+} from "../command/";
+import { GetCommandParseResult } from "../command/";
+import { PushCommand } from "../command/commands/with-subcommands/type-push-command";
+import { Cast, Last } from "../common/types-util";
 
+/**
+ * @description CommandArgs is the type of the argument that is passed to the handler
+ */
 export type CommandArgs<TArgv extends {} = {}> = {
   "command": string;
   "argv": TArgv;
 };
-// | NestedCommandArgs<TArgv>;
 
 export type NestedCommandArgs<TArgv extends {} = {}> = {
   "subcommand": string;
@@ -29,8 +30,9 @@ export type HandlerSyncType = "sync" | "async";
 export type BaseHandlerFunction<
   TArgv extends {},
   TType extends HandlerSyncType = "sync",
-> = TType extends "sync" ? ((argv: TArgv) => void)
-  : ((argv: TArgv) => Promise<void>);
+  TReturn = void,
+> = TType extends "sync" ? ((argv: TArgv) => TReturn)
+  : ((argv: TArgv) => Promise<TReturn>);
 
 /**
  * @description handler for a composed command. It receives { command; argv }
@@ -38,7 +40,8 @@ export type BaseHandlerFunction<
 export type HandlerFunctionForComposed<
   TArgs extends CommandArgs,
   TType extends HandlerSyncType = "sync",
-> = BaseHandlerFunction<TArgs, TType>;
+  TReturn = void,
+> = BaseHandlerFunction<TArgs, TType, TReturn>;
 
 export type HandlerFunction =
   | BaseHandlerFunction<any>
@@ -58,7 +61,7 @@ type GetHandlerFunctionForComposed<
   TType extends HandlerSyncType = "sync",
 > = TCommand extends ComposedCommands<infer TCommands, infer TArgv>
   ? HandlerFunctionForComposed<
-    GetCommandReturnType<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
+    GetCommandParseResult<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
     TType
   >
   : never;
@@ -74,7 +77,7 @@ type HandlerFunctionForSubcommands<
   infer TCommandArgv
 > ? HandlerFunctionForComposed<
     PushCommand<
-      GetCommandReturnType<
+      GetCommandParseResult<
         ComposedCommands<TCommands, TArgv & TCommandArgv>
       >,
       TName,
@@ -101,8 +104,6 @@ export type HandlerFunctionFor<
       ? HandlerFunctionForSubcommands<TCommand, TGlobalArgv, TType>
     : never;
 
-type Z = GetHandlersRecordReturnType<{}>;
-
 /**
  * Gets the type that will be returned by a handlers defined by the input `HandlersRecord`
  */
@@ -115,8 +116,6 @@ export type GetHandlersRecordReturnType<T extends HandlersRecord> = {
     : never;
 }[Extract<keyof T, string>];
 
-type T = GetHandlersRecordReturnType<HandlersRecord>[];
-
 type TypeError<TMessage extends string> = TMessage;
 
 export type HandlersRecord = Record<string, HandlerFunction>;
@@ -124,6 +123,7 @@ export type IsHandlersRecord<T extends HandlersRecord> = T extends
   Record<string, BaseHandlerFunction<any> | HandlerFunctionForComposed<any>>
   ? {}
   : TypeError<"Invalid input object">;
+
 type GetLastHandlersType<T extends HandlersRecord> =
   T[Cast<Last<(keyof T)>, keyof T>] extends infer A
     ? GetHandlerSyncType<Cast<A, HandlerFunction>>
@@ -138,6 +138,9 @@ export type GetFunctionSyncType<T extends (...args: any[]) => any> = T extends (
   ...args: any[]
 ) => infer R ? R extends Promise<any> ? "async" : "sync"
   : never;
+
+export type GetFunctionReturnType<T extends (...args: any[]) => any> =
+  ReturnType<T> extends Promise<infer R> ? R : ReturnType<T>;
 
 export type GetHandlerSyncType<T extends HandlerFunction> = GetFunctionSyncType<
   T

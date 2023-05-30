@@ -1,7 +1,7 @@
 import {
   buildAndParse,
   comm,
-  compose,
+  comp,
   Either,
   failClient,
   subs,
@@ -11,7 +11,7 @@ import {
 import * as client from "./client";
 import * as server from "./server";
 
-const cmd = compose(
+const cmd = comp(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
   subs(comm("client", "client management"), client.cmd),
   subs(comm("server", "server management"), server.cmd),

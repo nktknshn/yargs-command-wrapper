@@ -8,7 +8,7 @@ import {
   Either as E,
   subs,
 } from "../../src";
-import { pushCommand } from "../../src/parser";
+import { pushCommand } from "../../src/parser/helpers";
 
 const demandCommand = <T>(y: yargs.Argv<T>) => yargs.demandCommand(1);
 

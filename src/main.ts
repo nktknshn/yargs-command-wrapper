@@ -1,12 +1,11 @@
-import { isPromiseLike } from "tsafe";
 import y from "yargs";
-import { Either } from ".";
-import * as E from "./either";
-import { ErrorType } from "./error";
+import { Command } from "./command/commands/command";
+import { Either } from "./common/either";
+import * as E from "./common/either";
+import { ErrorType } from "./common/error";
+import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";
 import { HandlerFunctionFor, HandlerType } from "./handler";
-import { buildAndParse } from "./parser";
-import { Command } from "./types";
-import { isObjectWithOwnProperty } from "./util";
+import { buildAndParse } from "./parser/parser";
 
 export function failClient(
   yargs: y.Argv,
@@ -38,7 +37,7 @@ export const createMain = <
 async () => {
   const { yargs, result } = buildAndParse(cmd, process.argv.slice(2));
 
-  if (Either.isLeft(result)) {
+  if (E.isLeft(result)) {
     failClient(yargs, result);
   }
   const res = (handler as any)(result.right);

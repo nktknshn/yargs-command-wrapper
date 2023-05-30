@@ -1,9 +1,10 @@
-import { _createHandler } from "./create-handler-for";
+import { _createHandler } from "./create-handler-for/create-handler-for";
 import {
   ComposableHandler,
   ComposeArgv,
   ComposedHandlerComposable,
   ComposeNames,
+  ComposeReturnType,
   ComposeSyncTypes,
 } from "./types-compose";
 import { CommandArgs } from "./types-handler";
@@ -15,7 +16,8 @@ export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposedHandlerComposable<
     ComposeNames<THandlers>,
     ComposeArgv<THandlers>,
-    ComposeSyncTypes<THandlers>
+    ComposeSyncTypes<THandlers>,
+    ComposeReturnType<THandlers>
   >;
 
 /**

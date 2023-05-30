@@ -51,5 +51,5 @@ export const clientCmd = comp(
 );
 
 // createHandlerFor(cmd, handler);
-
+clientCmd.$.commands;
 export const cmd = clientCmd;

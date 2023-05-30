@@ -1,5 +1,5 @@
 import { expectTypeOf } from "expect-type";
-import { comm, comp, subs } from "../../src";
+import { buildAndParseUnsafeR, comm, comp, subs } from "../../src";
 import { opt } from "./addOption";
 import { buildAndParseUnsafe } from "./mocked";
 
@@ -23,7 +23,7 @@ describe("builder types", () => {
       ),
     );
 
-    expectTypeOf(buildAndParseUnsafe(cmd)).toEqualTypeOf<
+    expectTypeOf(buildAndParseUnsafeR(cmd)).toEqualTypeOf<
       | {
         command: "command1";
         subcommand: "c1sc1";
@@ -73,7 +73,7 @@ describe("builder types", () => {
       ),
     );
 
-    expectTypeOf(buildAndParseUnsafe(cmd)).toEqualTypeOf<
+    expectTypeOf(buildAndParseUnsafeR(cmd)).toEqualTypeOf<
       | {
         command: "command2";
         subcommand: "c2sc1";

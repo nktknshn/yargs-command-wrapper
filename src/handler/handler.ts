@@ -1,5 +1,5 @@
-import { Command } from "../types";
-import { isObjectWithOwnProperty } from "../util";
+import { Command } from "../command";
+import { isObjectWithOwnProperty } from "../common/util";
 import {
   GetHandlersRecordReturnType,
   GetHandlersRecordType,
