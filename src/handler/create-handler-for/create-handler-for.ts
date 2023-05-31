@@ -13,16 +13,21 @@ import { isObjectWithOwnProperty } from "../../common/util";
 import { popCommand } from "../helpers";
 
 import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
-import { CommandArgs, NestedCommandArgs } from "../types-handler";
-import { InputHandlerFunctionFor } from "./InputHandlerFunctionFor";
+import { CommandArgs, NestedCommandArgs } from "../types-handler-function";
 import {
-  GetReturnType,
-  GetSyncType,
-  InputHandlerForSubcommands,
+  ComposableHandlerForSubcommands,
   InputHandlerRecordFor,
   InputRecordHandler,
-} from "./types-handler-for";
+} from "./type-handler-for";
+import { GetReturnType, GetSyncType } from "./type-helpers";
+import { InputHandlerFunctionFor } from "./type-input-function";
 
+/**
+ * @description Create a handler for a command.
+ * @param command A command to create a handler for.
+ * @param functionOrRecord A function or a record that defines a handler for the command.
+ * @returns A handler for the command.
+ */
 export function createHandlerFor<
   TCommand extends CommandBasic,
   H extends InputHandlerFunctionFor<TCommand>,
@@ -45,8 +50,8 @@ export function createHandlerFor<
   TCommand extends CommandComposedWithSubcommands,
   H extends
     | InputHandlerFunctionFor<TCommand>
-    | InputHandlerForSubcommands<TCommand>
-    | InputHandlerRecordFor<TCommand>,
+    | InputHandlerRecordFor<TCommand>
+    | ComposableHandlerForSubcommands<TCommand>,
 >(
   command: TCommand,
   handler: H,
@@ -58,8 +63,8 @@ export function createHandlerFor<
   command: TCommand,
   functionOrRecord:
     | InputHandlerFunctionFor<TCommand>
-    | ComposableHandler
-    | InputHandlerRecordFor<TCommand>,
+    | InputHandlerRecordFor<TCommand>
+    | ComposableHandler,
 ): ComposableHandler {
   if (command.type === "command") {
     if (isFunctionHandler(functionOrRecord)) {
@@ -107,8 +112,8 @@ const _createHandlerForComposed = (
   }
   // ComposableHandler
   else if (isComposableHandler(functionOrRecord)) {
-    const handlerFunction = (argv: CommandArgs): void => {
-      functionOrRecord.handle(argv);
+    const handlerFunction = (argv: CommandArgs): unknown | Promise<unknown> => {
+      return functionOrRecord.handle(argv);
     };
     return _createHandler(
       handlerFunction,
@@ -116,7 +121,7 @@ const _createHandlerForComposed = (
     );
   }
   else if (isRecordHandler(functionOrRecord)) {
-    const handlerFunction = (args: CommandArgs): void | Promise<void> => {
+    const handlerFunction = (args: CommandArgs): unknown | Promise<unknown> => {
       const commandName = args.command;
 
       if (!(args.command in functionOrRecord)) {
@@ -197,7 +202,7 @@ const _createHandlerForSubcommands = (
   else if (isComposableHandler(functionOrRecord)) {
     const _handlerFunction = (
       args: NestedCommandArgs<{}>,
-    ): void | Promise<void> => {
+    ): unknown | Promise<unknown> => {
       return functionOrRecord.handle(popCommand(args));
     };
 
@@ -207,7 +212,7 @@ const _createHandlerForSubcommands = (
   else if (isRecordHandler(functionOrRecord)) {
     const _handlerFunction = (
       args: NestedCommandArgs<{}>,
-    ): void | Promise<void> => {
+    ): unknown | Promise<unknown> => {
       const commandName = args.command;
 
       if (command.command.commandName !== commandName) {
@@ -273,17 +278,18 @@ const _createHandlerForSubcommands = (
 
 type CreateHandlerForFunc<TCommand extends Command> = TCommand extends
   CommandBasic ? ((args: {}) => void)
-  : TCommand extends CommandComposed ? ((args: CommandArgs) => void)
+  : TCommand extends CommandComposed
+    ? ((args: CommandArgs) => unknown | Promise<unknown>)
   : TCommand extends CommandComposedWithSubcommands
-    ? ((args: NestedCommandArgs<{}>) => void)
+    ? ((args: NestedCommandArgs<{}>) => unknown | Promise<unknown>)
   : never;
 
 export const _createHandler = <TCommand extends Command>(
   handler: CreateHandlerForFunc<TCommand>,
   supports: string[],
 ): ComposableHandler => {
-  const _handler = (args: any): void => {
-    handler(args);
+  const _handler = (args: any): unknown | Promise<unknown> => {
+    return handler(args);
   };
   // _handler.supports = supports;
 

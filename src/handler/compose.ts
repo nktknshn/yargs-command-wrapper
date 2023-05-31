@@ -7,7 +7,7 @@ import {
   ComposeReturnType,
   ComposeSyncTypes,
 } from "./types-compose";
-import { CommandArgs } from "./types-handler";
+import { CommandArgs } from "./types-handler-function";
 
 /**
  * @description Composes handlers

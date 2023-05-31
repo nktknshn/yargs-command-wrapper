@@ -8,6 +8,6 @@ export {
   HandlerFunction,
   HandlerFunctionFor,
   HandlerSyncType as HandlerType,
-} from "./types-handler";
+} from "./types-handler-function";
 
 export { createHandlerFor } from "./create-handler-for/create-handler-for";

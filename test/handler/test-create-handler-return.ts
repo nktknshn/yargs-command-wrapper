@@ -30,7 +30,7 @@ describe("handlerFor return type", () => {
     const h = createHandlerFor(com1com2, {
       "com1": (): number => 1,
       "com2": (): string => "123",
-    }).handle({ command: "com1", argv: { a: "123" } });
+    });
 
     expectTypeOf(
       createHandlerFor(com1com2, { "com1": () => 1, "com2": () => "123" })

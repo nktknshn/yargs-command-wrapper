@@ -83,7 +83,7 @@ const cmd = comp(
   ),
 );
 
-const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));
+const { result, yargs } = buildAndParse(cmd);
 
 if (Either.isLeft(result)) {
   failClient(yargs, result);
@@ -99,7 +99,7 @@ if (result.right.command === "client") {
   const configCommand = clientCommand.$.commands.config;
 
   const configHandler = createHandlerFor(
-    configCommand,
+    clientCommand.$.commands.config,
     {
       "get": async ({ key }) => {
         console.log(`get config ${key ?? "all"}`);
@@ -111,14 +111,14 @@ if (result.right.command === "client") {
   );
 
   // `configHandler` can be used directly, e.g.:
-  //   configHandler({
+  //   configHandler.handle({
   //     command: "config",
   //     subcommand: "set",
   //     argv: { key: "foo", value: "bar" },
   //   });
 
   const clientHandler = createHandlerFor(
-    clientCommand,
+    cmd.$.commands.client,
     {
       "list": async ({ address, path }) => {
         console.log(`list ${address} ${path}`);
@@ -133,7 +133,7 @@ if (result.right.command === "client") {
     },
   );
 
-  // clientHandler({
+  // clientHandler.handle({
   //   command: "client",
   //   subcommand: "config",
   //   subsubcommand: "set",

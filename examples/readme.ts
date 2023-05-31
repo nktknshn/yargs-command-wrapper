@@ -41,13 +41,13 @@ const server = comp(
   ),
 );
 
-const cliCommand = comp(
+const command = comp(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
   server,
   subs(comm(["config", "c"], "config management"), config),
 );
 
-const { result, yargs } = buildAndParse(cliCommand, process.argv.slice(2));
+const { result, yargs } = buildAndParse(command, process.argv.slice(2));
 
 if (Either.isLeft(result)) {
   failClient(yargs, result);
@@ -75,19 +75,19 @@ else if (result.right.command === "config") {
 }
 
 // or by using createHandlerFor:
-const handler = createHandlerFor(cliCommand, {
+const handler = createHandlerFor(command, {
   config: {
-    get: ({ key, file }) => {
+    get: ({ key, file, debug }) => {
       console.log(`getting config ${file} key ${key}`);
     },
-    set: ({ key, value, file }) => {
+    set: ({ key, value, file, debug }) => {
       console.log(`setting config ${file} key ${key} to ${value}`);
     },
   },
-  start: ({ port }) => {
+  start: ({ port, debug }) => {
     console.log(`starting server on port ${port}`);
   },
-  stop: ({ force }) => {
+  stop: ({ force, debug }) => {
     console.log(`stopping server ${force ? "forcefully" : ""}`);
   },
 });

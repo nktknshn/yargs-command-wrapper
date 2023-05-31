@@ -1,6 +1,11 @@
 import { expectTypeOf } from "expect-type";
 import { comm, comp, subs } from "../../src";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
+import {
+  InputHandlerRecordFor,
+  InputHandlerRecordForCommands,
+} from "../../src/handler/create-handler-for/type-handler-for";
+import { InputHandlerFunctionFor } from "../../src/handler/create-handler-for/type-input-function";
 import { opt } from "../types/addOption";
 
 export const com1 = comm("com1", "description", opt("a"));

@@ -1,5 +1,5 @@
 import { Command } from "../command/";
-import { HandlerFunctionFor } from "./types-handler";
+import { HandlerFunctionFor } from "./types-handler-function";
 
 /**
  * @description Gets command's handler args type

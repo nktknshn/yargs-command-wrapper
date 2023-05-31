@@ -12,7 +12,7 @@ import {
   GetFunctionReturnType,
   GetFunctionSyncType,
   HandlerSyncType,
-} from "./types-handler";
+} from "./types-handler-function";
 
 import {
   GetCommandName,
@@ -61,7 +61,7 @@ export type GetComposableHandlerReturnType<
 > = GetFunctionReturnType<T["handle"]>;
 
 /**
- * @description
+ * @description A handler that can be composed with other handlers by `composeHandlers`.
  */
 export type ComposableHandlerFor<
   TCommand extends Command,

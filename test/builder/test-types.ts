@@ -11,8 +11,8 @@ import {
 } from "../../src/command/commands/composed/type-helpers";
 import { PushCommand } from "../../src/command/commands/with-subcommands/type-push-command";
 import { HandlerFunctionFor, HandlerType } from "../../src/handler";
-import { InputHandlerRecordFor } from "../../src/handler/create-handler-for/types-handler-for";
-import { HandlerFunctionForComposed } from "../../src/handler/types-handler";
+import { InputHandlerRecordFor } from "../../src/handler/create-handler-for/type-handler-for";
+import { HandlerFunctionForComposed } from "../../src/handler/types-handler-function";
 
 describe("mapped types", () => {
   test("flatten composed", async () => {

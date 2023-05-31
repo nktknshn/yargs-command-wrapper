@@ -3,8 +3,8 @@ import {
   CommandBasic,
   CommandComposed,
   CommandComposedWithSubcommands,
-} from "../command/";
-import { GetCommandParseResult } from "../command/";
+} from "../command";
+import { GetCommandParseResult } from "../command";
 import { PushCommand } from "../command/commands/with-subcommands/type-push-command";
 import { Cast, Last } from "../common/types-util";
 
@@ -29,8 +29,8 @@ export type HandlerSyncType = "sync" | "async";
  */
 export type BaseHandlerFunction<
   TArgv extends {},
-  TType extends HandlerSyncType = "sync",
-  TReturn = void,
+  TType extends HandlerSyncType = HandlerSyncType,
+  TReturn = unknown,
 > = TType extends "sync" ? ((argv: TArgv) => TReturn)
   : ((argv: TArgv) => Promise<TReturn>);
 
@@ -39,8 +39,8 @@ export type BaseHandlerFunction<
  */
 export type HandlerFunctionForComposed<
   TArgs extends CommandArgs,
-  TType extends HandlerSyncType = "sync",
-  TReturn = void,
+  TType extends HandlerSyncType = HandlerSyncType,
+  TReturn = unknown,
 > = BaseHandlerFunction<TArgs, TType, TReturn>;
 
 export type HandlerFunction =
@@ -50,7 +50,7 @@ export type HandlerFunction =
 type HandlerFunctionForBasic<
   TCommand extends CommandBasic,
   TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = "sync",
+  TType extends HandlerSyncType = HandlerSyncType,
 > = TCommand extends CommandBasic<infer TName, infer TArgv>
   ? BaseHandlerFunction<{ command: TName; argv: TArgv & TGlobalArgv }, TType>
   : never;
@@ -58,7 +58,7 @@ type HandlerFunctionForBasic<
 type GetHandlerFunctionForComposed<
   TCommand extends CommandComposed,
   TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = "sync",
+  TType extends HandlerSyncType = HandlerSyncType,
 > = TCommand extends CommandComposed<infer TCommands, infer TArgv>
   ? HandlerFunctionForComposed<
     GetCommandParseResult<CommandComposed<TCommands, TArgv & TGlobalArgv>>,
@@ -69,7 +69,7 @@ type GetHandlerFunctionForComposed<
 type HandlerFunctionForSubcommands<
   TCommand extends CommandComposedWithSubcommands,
   TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = "sync",
+  TType extends HandlerSyncType = HandlerSyncType,
 > = TCommand extends CommandComposedWithSubcommands<
   infer TName,
   infer TCommands,
@@ -92,7 +92,7 @@ type HandlerFunctionForSubcommands<
  */
 export type HandlerFunctionFor<
   TCommand extends Command,
-  TType extends HandlerSyncType = "sync",
+  TType extends HandlerSyncType = HandlerSyncType,
   TGlobalArgv extends {} = {},
 > =
   // or `BasicCommand` this is just a function takes `TArgv` and returns `void`
@@ -119,6 +119,7 @@ export type GetHandlersRecordReturnType<T extends HandlersRecord> = {
 type TypeError<TMessage extends string> = TMessage;
 
 export type HandlersRecord = Record<string, HandlerFunction>;
+
 export type IsHandlersRecord<T extends HandlersRecord> = T extends
   Record<string, BaseHandlerFunction<any> | HandlerFunctionForComposed<any>>
   ? {}
@@ -126,11 +127,11 @@ export type IsHandlersRecord<T extends HandlersRecord> = T extends
 
 type GetLastHandlersType<T extends HandlersRecord> =
   T[Cast<Last<(keyof T)>, keyof T>] extends infer A
-    ? GetHandlerSyncType<Cast<A, HandlerFunction>>
+    ? GetHandlerFunctionSyncType<Cast<A, HandlerFunction>>
     : never;
 
 export type GetHandlersRecordType<T extends HandlersRecord> =
-  GetHandlerSyncType<
+  GetHandlerFunctionSyncType<
     T[keyof T]
   >;
 
@@ -142,12 +143,11 @@ export type GetFunctionSyncType<T extends (...args: any[]) => any> = T extends (
 export type GetFunctionReturnType<T extends (...args: any[]) => any> =
   ReturnType<T> extends Promise<infer R> ? R : ReturnType<T>;
 
-export type GetHandlerSyncType<T extends HandlerFunction> = GetFunctionSyncType<
-  T
->;
+export type GetHandlerFunctionSyncType<T extends HandlerFunction> =
+  GetFunctionSyncType<T>;
 
 export type IsSameHandlersType<T extends HandlersRecord> =
   GetLastHandlersType<T> extends infer A
-    ? GetHandlerSyncType<T[keyof T]> extends A ? {}
+    ? GetHandlerFunctionSyncType<T[keyof T]> extends A ? {}
     : TypeError<"Handlers must be all sync or all async">
     : never;

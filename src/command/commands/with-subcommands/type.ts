@@ -8,7 +8,13 @@ import { CommandComposed, HelperObjectComposed } from "../composed/type";
 export type CommandComposedWithSubcommands<
   TCommandName extends string = string,
   TCommands extends readonly Command[] = readonly Command[],
+  /**
+   * @description the argv type of the parent command.
+   */
   TArgv extends {} = {},
+  /**
+   * @description if the command is constructed from a composed command, this is the argv type of this command.
+   */
   TComposedArgv extends {} = {},
 > = {
   readonly command: CommandBasic<TCommandName, TArgv>;

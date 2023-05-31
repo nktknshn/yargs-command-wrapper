@@ -8,7 +8,7 @@ import {
   HandlersRecord,
   IsHandlersRecord,
   IsSameHandlersType,
-} from "./types-handler";
+} from "./types-handler-function";
 
 import { popCommand } from "./helpers";
 
