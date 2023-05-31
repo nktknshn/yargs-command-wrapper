@@ -1,24 +1,13 @@
-import { _createHandler } from "./create-handler-for/create-handler-for";
+import { CommandArgs } from "../../command/commands/composed/type-command-args";
+import { _createHandler } from "../create-handler-for/create-handler-for";
+import { ComposableHandler } from "./type";
 import {
-  ComposableHandler,
   ComposeArgv,
-  ComposedHandlerComposable,
+  ComposedHandlers,
   ComposeNames,
   ComposeReturnType,
   ComposeSyncTypes,
 } from "./types-compose";
-import { CommandArgs } from "./types-handler-function";
-
-/**
- * @description Composes handlers
- */
-export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
-  ComposedHandlerComposable<
-    ComposeNames<THandlers>,
-    ComposeArgv<THandlers>,
-    ComposeSyncTypes<THandlers>,
-    ComposeReturnType<THandlers>
-  >;
 
 /**
  * @description Composes handlers created by `createHandlerFor`
@@ -46,7 +35,7 @@ export function composeHandlers<THandlers extends readonly ComposableHandler[]>(
     supports.push(...h.supports);
   }
 
-  let _handler = (args: CommandArgs): void | Promise<void> => {
+  let _handler = (args: CommandArgs): unknown | Promise<unknown> => {
     for (const h of handlers) {
       if (h.supports.includes(args.command)) {
         return h.handle(args);

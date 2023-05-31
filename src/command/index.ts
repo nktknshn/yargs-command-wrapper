@@ -8,4 +8,5 @@ export { GetWithSubcommandsParseResult } from "./commands/with-subcommands/type-
 
 export { buildYargs } from "../parser/build-yargs";
 export { Command } from "./commands/command";
+export { GetCommandArgv } from "./commands/type-helpers";
 export { GetCommandParseResult } from "./commands/type-parse-result";

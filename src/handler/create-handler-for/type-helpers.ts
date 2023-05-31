@@ -1,42 +1,23 @@
 import { Command } from "../../command";
+import { ComposableHandler } from "../handler-composable/type";
 import {
-  ComposableHandler,
   GetComposableHandlerReturnType,
   GetComposableHandlerSyncType,
-} from "../types-compose";
-import {
-  GetFunctionReturnType,
-  GetFunctionSyncType,
-  GetHandlerFunctionSyncType,
-  HandlerFunction,
-} from "../types-handler-function";
-import { InputHandlerRecordFor, InputRecordHandler } from "./type-handler-for";
-import { InputHandlerFunctionFor } from "./type-input-function";
+} from "../handler-composable/type-helpers";
 
-// helpers
-type GetInputRecordHandlerForSyncType<
-  T extends InputRecordHandler,
-> = {
-  [K in keyof T]: T[K] extends HandlerFunction ? GetFunctionSyncType<T[K]>
-    : T[K] extends ComposableHandler ? GetFunctionSyncType<T[K]["handle"]>
-    : T[K] extends InputRecordHandler ? GetInputRecordHandlerForSyncType<T[K]>
-    : never;
-}[keyof T];
-type GetInputRecordHandlerForReturnType<
-  T extends InputRecordHandler,
-> = {
-  [K in keyof T]: T[K] extends HandlerFunction ? GetFunctionReturnType<T[K]>
-    : T[K] extends ComposableHandler ? GetFunctionReturnType<T[K]["handle"]>
-    : T[K] extends InputRecordHandler ? GetInputRecordHandlerForReturnType<T[K]>
-    : never;
-}[keyof T];
+import { HandlerFunction } from "../handler-function/type";
+import { GetFunctionReturnType, GetFunctionSyncType } from "../type-helpers";
+import {
+  InputHandlerRecordFor,
+  InputRecordHandler,
+} from "./type-create-handler-for";
 
 export type GetSyncType<
   T extends
     | HandlerFunction
     | InputHandlerRecordFor<Command>
     | ComposableHandler,
-> = T extends HandlerFunction ? GetHandlerFunctionSyncType<T>
+> = T extends HandlerFunction ? GetFunctionSyncType<T>
   : T extends InputRecordHandler ? GetInputRecordHandlerForSyncType<T>
   : T extends ComposableHandler ? GetComposableHandlerSyncType<T>
   : never;
@@ -50,3 +31,22 @@ export type GetReturnType<
   : T extends InputRecordHandler ? GetInputRecordHandlerForReturnType<T>
   : T extends ComposableHandler ? GetComposableHandlerReturnType<T>
   : never;
+
+// helpers
+type GetInputRecordHandlerForSyncType<
+  T extends InputRecordHandler,
+> = {
+  [K in keyof T]: T[K] extends HandlerFunction ? GetFunctionSyncType<T[K]>
+    : T[K] extends ComposableHandler ? GetFunctionSyncType<T[K]["handle"]>
+    : T[K] extends InputRecordHandler ? GetInputRecordHandlerForSyncType<T[K]>
+    : never;
+}[keyof T];
+
+type GetInputRecordHandlerForReturnType<
+  T extends InputRecordHandler,
+> = {
+  [K in keyof T]: T[K] extends HandlerFunction ? GetFunctionReturnType<T[K]>
+    : T[K] extends ComposableHandler ? GetFunctionReturnType<T[K]["handle"]>
+    : T[K] extends InputRecordHandler ? GetInputRecordHandlerForReturnType<T[K]>
+    : never;
+}[keyof T];

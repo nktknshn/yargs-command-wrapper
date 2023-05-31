@@ -1,5 +1,6 @@
 import { expectTypeOf } from "expect-type";
 
+import { HandlerFunctionFor } from "../../src/";
 import { Command, CommandBasic, CommandComposed } from "../../src/command/";
 import {
   GetCommandParseResult,
@@ -10,9 +11,8 @@ import {
   ComposeCommandsFlatten,
 } from "../../src/command/commands/composed/type-helpers";
 import { PushCommand } from "../../src/command/commands/with-subcommands/type-push-command";
-import { HandlerFunctionFor, HandlerType } from "../../src/handler";
-import { InputHandlerRecordFor } from "../../src/handler/create-handler-for/type-handler-for";
-import { HandlerFunctionForComposed } from "../../src/handler/types-handler-function";
+import { InputHandlerRecordFor } from "../../src/handler/create-handler-for/type-create-handler-for";
+import { HandlerFunction } from "../../src/handler/handler-function/type";
 
 describe("mapped types", () => {
   test("flatten composed", async () => {
@@ -61,13 +61,12 @@ describe("mapped types", () => {
     type B = InputHandlerRecordFor<Command>;
     type A = HandlerFunctionFor<Command>;
     type C = GetCommandParseResult<Command>;
-    type D = HandlerFunctionForComposed<
-      PushCommand<Command, string, {}>,
-      HandlerType
+    type D = HandlerFunction<
+      PushCommand<Command, string, {}>
     >;
 
     type E<T extends Command> = T extends CommandComposed<infer C, infer D>
-      ? HandlerFunctionForComposed<GetCommandParseResult<CommandComposed<C>>>
+      ? HandlerFunction<GetCommandParseResult<CommandComposed<C>>>
       : never;
 
     type EE = E<Command>;

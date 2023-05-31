@@ -1,42 +1,22 @@
 import { expectTypeOf } from "expect-type";
-import { comm, comp, subs } from "../../src";
+import { comp, subs } from "../../src";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
 import {
   InputHandlerRecordFor,
   InputHandlerRecordForCommands,
-} from "../../src/handler/create-handler-for/type-handler-for";
+} from "../../src/handler/create-handler-for/type-create-handler-for";
 import { InputHandlerFunctionFor } from "../../src/handler/create-handler-for/type-input-function";
-import { opt } from "../types/addOption";
-
-export const com1 = comm("com1", "description", opt("a"));
-export const com2 = comm("com2", "description", opt("c"));
-export const com3 = comm("com3", "description", opt("d"));
-
-export const com1com2 = comp(com1, com2);
-export const com2com3 = comp(com2, com3);
-
-const sub1 = comm("sub1", "sub1", opt("sub1argv"));
-const sub2 = comm("sub2", "sub2", opt("sub2argv"));
-
-const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
-const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));
-
-export const s1s2comp = comp(subsub1, subsub2);
-
-export const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [
-  subsub1,
-  subsub2,
-]);
-
-/**
- * @description com4: sub1 sub2 sub3
- */
-export const command3 = subs(
-  comm("com4", "com4", opt("com4argv")),
-  [sub1, sub2, sub3],
-);
-
-const composedCommand = comp(com1, com2com3, command3);
+import {
+  com1,
+  com1com2,
+  com2,
+  com2com3,
+  com3,
+  command3,
+  composedCommand,
+  s1s2comp,
+  sub3,
+} from "./fixtures";
 
 describe("handlerFor", () => {
   test("basic", () => {

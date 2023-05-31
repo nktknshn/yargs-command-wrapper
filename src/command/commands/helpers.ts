@@ -1,4 +1,4 @@
-import { Command } from "./commands/command";
+import { Command } from "./command";
 
 export const showCommand = <TCommand extends Command>(
   command: TCommand,

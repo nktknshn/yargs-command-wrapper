@@ -1,8 +1,8 @@
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
-import { CommandArgs } from "../../../handler";
 import { Command } from "../command";
 import { GetCommandParseResult } from "../type-parse-result";
 import { CommandComposed } from "./type";
+import { CommandArgs } from "./type-command-args";
 
 /**
  * @description Get the parsing result of a composed command.

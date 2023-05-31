@@ -1,14 +1,20 @@
 import { expectTypeOf } from "expect-type";
-import { buildAndParseUnsafe, comm, comp } from "../../src";
-import { composeHandlers } from "../../src/handler/compose";
+import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
+import { ComposableHandlerForSubcommands } from "../../src/handler/create-handler-for/type-create-handler-for";
+import { composeHandlers } from "../../src/handler/handler-composable/compose";
+import { ComposeReturnType } from "../../src/handler/handler-composable/types-compose";
 import {
+  com,
   com1,
   com1com2,
   com2,
   com2com3,
+  com5,
+  com6,
+  com7,
   command3,
-} from "./test-create-handler-for";
+} from "./fixtures";
 
 describe("compose handlers", () => {
   test("basic", () => {
@@ -28,9 +34,51 @@ describe("compose handlers", () => {
 
     const com1com2handler = composeHandlers(com1handler, com2handler);
 
+    type A = ComposeReturnType<[typeof com1handler, typeof com2handler]>;
+
     expectTypeOf(com1com2handler.handle).returns.toEqualTypeOf<
       number | string
     >();
+  });
+
+  test("compose like example 1", () => {
+    const cmdClient0 = comp(com("client1"), com("client2"));
+    const cmdConfig0 = comp(com("cfg1"), com("cfg2"));
+
+    const cmdConfig = subs(com("config"), cmdConfig0);
+
+    const cmdClient = comp(cmdClient0, cmdConfig);
+
+    const cmdClient0handler = createHandlerFor(cmdClient0, (args) => {});
+    const cmdConfig0handler = createHandlerFor(cmdConfig0, (args) => {});
+
+    const cmdClientHandler = composeHandlers(
+      cmdClient0handler,
+      createHandlerFor(cmdConfig, cmdConfig0handler),
+    );
+
+    const subClient = subs(com("client"), cmdClient);
+
+    type A = ComposableHandlerForSubcommands<typeof subClient>;
+    type B = typeof cmdClientHandler;
+
+    type C = B extends A ? 1 : 2;
+
+    createHandlerFor(subClient, cmdClientHandler);
+
+    const cmdServer = subs(com5, comp(com6, com7));
+
+    const cmdServerHandler = createHandlerFor(cmdServer, (args) => {});
+
+    const cmd = comp(
+      subClient,
+      cmdServer,
+    );
+
+    createHandlerFor(cmd, {
+      "client": cmdClientHandler,
+      "com5": cmdServerHandler,
+    });
   });
 
   test("cocompose", () => {

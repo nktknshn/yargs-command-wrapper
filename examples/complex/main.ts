@@ -36,7 +36,7 @@ handler({
 */
 
 async function main() {
-  const { yargs, result } = buildAndParse(cmd, process.argv.slice(2));
+  const { yargs, result } = buildAndParse(cmd);
 
   if (Either.isLeft(result)) {
     failClient(yargs, result);

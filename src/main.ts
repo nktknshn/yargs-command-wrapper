@@ -4,7 +4,7 @@ import { Either } from "./common/either";
 import * as E from "./common/either";
 import { ErrorType } from "./common/error";
 import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";
-import { HandlerFunctionFor, HandlerType } from "./handler";
+import { HandlerFunctionFor } from "./handler/handler-function/type-handler-function-for";
 import { buildAndParse } from "./parser/parser";
 
 /**
@@ -34,7 +34,7 @@ export function failClient(
 
 export const createMain = <
   TCommand extends Command,
-  THandler extends HandlerFunctionFor<TCommand, HandlerType>,
+  THandler extends HandlerFunctionFor<TCommand>,
 >(
   cmd: TCommand,
   handler: THandler,

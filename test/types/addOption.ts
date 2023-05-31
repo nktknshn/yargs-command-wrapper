@@ -1,7 +1,5 @@
 import yargs from "yargs";
 
-type Type = "number" | "string" | "boolean";
-
 export const opt = <TName extends string>(
   name: TName,
 ) =>

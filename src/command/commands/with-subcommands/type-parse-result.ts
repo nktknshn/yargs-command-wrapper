@@ -1,6 +1,6 @@
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
-import { CommandArgs } from "../../../handler";
 import { Command } from "../command";
+import { CommandArgs } from "../composed/type-command-args";
 import { GetCommandParseResult } from "../type-parse-result";
 import { CommandComposedWithSubcommands } from "./type";
 import { PushCommand } from "./type-push-command";

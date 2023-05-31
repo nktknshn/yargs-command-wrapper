@@ -1,12 +1,6 @@
 import { expectTypeOf } from "expect-type";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
-import {
-  com1,
-  com1com2,
-  command3,
-  s1s2comp,
-  sub3,
-} from "./test-create-handler-for";
+import { com1, com1com2, command3, s1s2comp, sub3 } from "./fixtures";
 
 describe("handlerFor return type", () => {
   test("basic", () => {

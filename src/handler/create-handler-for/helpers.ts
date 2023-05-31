@@ -1,5 +1,6 @@
-import { Cast, ToList, TupleKeys } from "../common/types-util";
-import { CommandArgs, NestedCommandArgs } from "./types-handler-function";
+import { CommandArgs } from "../../command/commands/composed/type-command-args";
+import { NestedCommandArgs } from "../../command/commands/with-subcommands/type-nested-command-args";
+import { Cast, ToList, TupleKeys } from "../../common/types-util";
 
 export type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
     [P in TupleKeys<L>]:

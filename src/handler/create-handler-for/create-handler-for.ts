@@ -10,23 +10,25 @@ import {
   findByNameInComposed,
 } from "../../command/commands/composed/helpers";
 import { isObjectWithOwnProperty } from "../../common/util";
-import { popCommand } from "../helpers";
+import { popCommand } from "./helpers";
 
-import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
-import { CommandArgs, NestedCommandArgs } from "../types-handler-function";
+import { CommandArgs } from "../../command/commands/composed/type-command-args";
+import { NestedCommandArgs } from "../../command/commands/with-subcommands/type-nested-command-args";
+import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
+import { ComposableHandler } from "../handler-composable/type";
 import {
   ComposableHandlerForSubcommands,
   InputHandlerRecordFor,
   InputRecordHandler,
-} from "./type-handler-for";
+} from "./type-create-handler-for";
 import { GetReturnType, GetSyncType } from "./type-helpers";
 import { InputHandlerFunctionFor } from "./type-input-function";
 
 /**
- * @description Create a handler for a command.
+ * @description Create a composable handler for a command.
  * @param command A command to create a handler for.
  * @param functionOrRecord A function or a record that defines a handler for the command.
- * @returns A handler for the command.
+ * @returns A composable handler for the command.
  */
 export function createHandlerFor<
   TCommand extends CommandBasic,

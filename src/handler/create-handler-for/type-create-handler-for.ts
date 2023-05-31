@@ -3,15 +3,15 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
 } from "../../command";
-
-import { HandlerFunction, HandlerSyncType } from "../types-handler-function";
-
 import {
   CommandsFlattenList,
   GetCommandName,
 } from "../../command/commands/composed/type-helpers";
+import { GetNestedComposedCommand } from "../../command/commands/with-subcommands/type-helpers";
 import { Cast, TupleKeys } from "../../common/types-util";
-import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
+import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
+import { ComposableHandler } from "../handler-composable/type";
+import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
 import { InputHandlerFunctionFor } from "./type-input-function";
 
 export type InputRecordHandler = {
@@ -19,7 +19,7 @@ export type InputRecordHandler = {
 };
 
 /**
- * @description defines a record that can be used to define a handler for a composed command or a command with subs.
+ * @description defines a record that can be used to create a handler for a composed command or a command with subs.
  */
 export type InputHandlerRecordFor<
   TCommand extends Command,
@@ -42,6 +42,9 @@ export type InputHandlerRecordFor<
       >
     : never;
 
+/**
+ * @description defines a record that can be used to create a handler for a list of commands.
+ */
 export type InputHandlerRecordForCommands<
   TCommands extends readonly Command[],
   TGlobalArgv extends {},
@@ -83,12 +86,10 @@ export type InputHandlerRecordForCommands<
 export type ComposableHandlerForSubcommands<
   TCommand extends Command,
   TGlobalArgv extends {} = {},
-> = TCommand extends CommandComposedWithSubcommands<
-  infer TName,
-  infer TCommands,
-  infer TArgv,
-  infer TCommandArgv
-> ? ComposableHandlerFor<
-    CommandComposed<TCommands, TGlobalArgv & TArgv & TCommandArgv>
+> = TCommand extends CommandComposedWithSubcommands ? ComposableHandlerFor<
+    GetNestedComposedCommand<TCommand>,
+    HandlerSyncType,
+    unknown,
+    TGlobalArgv
   >
   : never;
