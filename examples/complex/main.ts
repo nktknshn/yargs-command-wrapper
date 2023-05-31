@@ -13,8 +13,8 @@ import * as server from "./server";
 
 const cmd = comp(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-  subs(comm("client", "client management"), client.cmd),
-  subs(comm("server", "server management"), server.cmd),
+  subs(comm(["client", "c"], "client management"), client.cmd),
+  subs(comm(["server", "s"], "server management"), server.cmd),
 );
 
 const handler = createHandlerFor(cmd, {
@@ -24,7 +24,7 @@ const handler = createHandlerFor(cmd, {
 
 /*
 handler can be used directly:
-handler({
+handler.handle({
   command: "client",
   subcommand: "list",
   argv: {

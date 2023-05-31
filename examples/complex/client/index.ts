@@ -1,17 +1,22 @@
-import { comm, comp, composeHandlers, subs } from "../../../src";
-import { createHandlerFor } from "../../../src/handler";
-import { cmd as clientCommand } from "./args";
+import {
+  comm,
+  comp,
+  composeHandlers,
+  createHandlerFor,
+  subs,
+} from "../../../src";
+import * as client from "./client";
 import * as config from "./config";
-import { handler as clientHandler } from "./handler";
 
-const configCommand = subs(
-  comm("config", "config management"),
-  config.cmd,
+export const cmd = comp(
+  client.cmd,
+  subs(
+    comm(["config", "c"], "config management"),
+    config.cmd,
+  ),
 );
 
-export const cmd = comp(clientCommand, configCommand);
-
 export const handler = composeHandlers(
-  clientHandler,
-  createHandlerFor(configCommand, config.handler),
+  client.handler,
+  createHandlerFor(cmd.$.commands.config, config.handler),
 );

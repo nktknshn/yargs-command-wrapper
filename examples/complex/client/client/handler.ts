@@ -1,5 +1,5 @@
-import { createHandlerFor, GetCommandArgv } from "../../../src";
-import { Address } from "../common";
+import { createHandlerFor, GetCommandArgv } from "../../../../src";
+import { Address } from "../../common";
 import { cmd } from "./args";
 
 const listHandler = async (

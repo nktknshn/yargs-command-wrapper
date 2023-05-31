@@ -1,5 +1,5 @@
-import { comm, comp, subs } from "../../../src";
-import { parseAddress } from "../common";
+import { comm, comp, subs } from "../../../../src";
+import { parseAddress } from "../../common";
 
 export const commandList = comm(
   "list <address> [path]",

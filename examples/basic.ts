@@ -96,7 +96,6 @@ if (result.right.argv.debug) {
 // using helpers to handle commands
 if (result.right.command === "client") {
   const clientCommand = cmd.$.commands.client;
-  const configCommand = clientCommand.$.commands.config;
 
   const configHandler = createHandlerFor(
     clientCommand.$.commands.config,
