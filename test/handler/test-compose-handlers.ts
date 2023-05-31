@@ -17,7 +17,7 @@ describe("compose handlers", () => {
 
     const com1com2handler = composeHandlers(com1handler, com2handler);
 
-    const { result } = buildAndParseUnsafe(com1com2, ["com1"]);
+    const { result } = buildAndParseUnsafe(com1com2, "com1 -a");
 
     com1com2handler.handle(result);
   });

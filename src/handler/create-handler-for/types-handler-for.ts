@@ -1,18 +1,14 @@
 import {
-  BasicCommand,
   Command,
-  CommandWithSubcommands,
-  ComposedCommands,
-  GetCommandParseResult,
+  CommandComposed as CommandComposed,
+  CommandComposedWithSubcommands as CommandComposedWithSubcommands,
 } from "../../command";
 
 import {
-  BaseHandlerFunction,
   GetFunctionReturnType,
   GetFunctionSyncType,
   GetHandlerSyncType,
   HandlerFunction,
-  HandlerFunctionForComposed,
   HandlerSyncType,
 } from "../types-handler";
 
@@ -27,10 +23,75 @@ import {
   GetComposableHandlerReturnType,
   GetComposableHandlerSyncType,
 } from "../types-compose";
+import { InputHandlerFunctionFor } from "./InputHandlerFunctionFor";
 
 export type InputRecordHandler = {
   [key: string]: HandlerFunction | InputRecordHandler | ComposableHandler;
 };
+
+/**
+ * @description defines a record that can be used to define a handler for a composed command or a command with subs.
+ */
+export type InputHandlerRecordFor<
+  TCommand extends Command,
+  TGlobalArgv extends {} = {},
+> = TCommand extends CommandComposed
+  ? InputHandlerRecordForComposedCommands<TCommand, TGlobalArgv>
+  : TCommand extends CommandComposedWithSubcommands<
+    infer TName,
+    infer TCommands,
+    infer TArgv,
+    infer TCommandArgv
+  > ? InputHandlerRecordForComposedCommands<
+      CommandComposed<TCommands, TArgv & TCommandArgv & TGlobalArgv>,
+      TGlobalArgv
+    >
+  : never;
+
+export type InputHandlerRecordForComposedCommands<
+  TCommand extends CommandComposed,
+  TGlobalArgv extends {},
+> = ComposeCommandsFlatten<TCommand> extends CommandComposed<
+  infer TCommands,
+  infer TArgv
+> ? {
+    [
+      // key is the name of the command
+      P in TupleKeys<TCommands> as GetCommandName<
+        Cast<TCommands[P], Command>
+      >
+    ]:
+      // the value is a function
+      | InputHandlerFunctionFor<
+        Cast<TCommands[P], Command>,
+        TArgv & TGlobalArgv
+      >
+      // the value is another record
+      | InputHandlerRecordFor<
+        Cast<TCommands[P], Command>,
+        TArgv & TGlobalArgv
+      >
+      | InputHandlerForSubcommands<Cast<TCommands[P], Command>>
+      | ComposableHandlerFor<Cast<TCommands[P], Command>>;
+  }
+  : never;
+
+/**
+ * @description handler for a command with subcommands can be created from a composable handler for the subcommands.
+ */
+export type InputHandlerForSubcommands<
+  TCommand extends Command,
+> = TCommand extends CommandComposedWithSubcommands<
+  infer TName,
+  infer TCommands,
+  infer TArgv,
+  infer TCommandArgv
+> ? ComposableHandlerFor<
+    CommandComposed<TCommands, TArgv & TCommandArgv>
+  >
+  : never;
+
+// helpers
 
 type GetInputRecordHandlerForSyncType<
   T extends InputRecordHandler,
@@ -49,29 +110,6 @@ type GetInputRecordHandlerForReturnType<
     : T[K] extends InputRecordHandler ? GetInputRecordHandlerForReturnType<T[K]>
     : never;
 }[keyof T];
-
-/**
- * @description defines a record that can be used to define a handler for a command.
- */
-export type InputHandlerRecordFor<
-  TCommand extends Command | readonly Command[],
-  TGlobalArgv extends {} = {},
-  THandlerType extends HandlerSyncType = HandlerSyncType,
-  TReturn = unknown,
-> = TCommand extends ComposedCommands
-  ? InputRecordForComposedCommands<TCommand, TGlobalArgv, THandlerType>
-  : TCommand extends CommandWithSubcommands<
-    infer TName,
-    infer TCommands,
-    infer TArgv,
-    infer TCommandArgv
-  > ? InputRecordForComposedCommands<
-      ComposedCommands<TCommands, TArgv & TCommandArgv & TGlobalArgv>,
-      TGlobalArgv,
-      THandlerType,
-      TReturn
-    >
-  : never;
 
 export type GetSyncType<
   T extends
@@ -93,126 +131,4 @@ export type GetReturnType<
   ? GetFunctionReturnType<T>
   : T extends InputRecordHandler ? GetInputRecordHandlerForReturnType<T>
   : T extends ComposableHandler ? GetComposableHandlerReturnType<T>
-  : never;
-
-export type InputHandlerForSubcommands<
-  TCommand extends CommandWithSubcommands,
-  TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = HandlerSyncType,
-  TReturn = unknown,
-> = TCommand extends CommandWithSubcommands<
-  infer TName,
-  infer TCommands,
-  infer TArgv,
-  infer TCommandArgv
-> ? ComposableHandlerFor<
-    ComposedCommands<TCommands, TArgv & TCommandArgv>,
-    TType,
-    TGlobalArgv,
-    TReturn
-  >
-  : never;
-
-export type InputHandlerBasicCommandFunc<
-  TCommand extends BasicCommand,
-  TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = HandlerSyncType,
-  TReturn = unknown,
-> = TCommand extends BasicCommand<infer TName, infer TArgv>
-  ? BaseHandlerFunction<TArgv & TGlobalArgv, TType, TReturn>
-  : never;
-
-export type InputHandlerComposedCommandFunc<
-  TCommand extends ComposedCommands,
-  TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = HandlerSyncType,
-  TReturn = unknown,
-> = TCommand extends ComposedCommands<infer TCommands, infer TArgv>
-  ? HandlerFunctionForComposed<
-    GetCommandParseResult<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
-    TType,
-    TReturn
-  >
-  : never;
-
-export type InputHandlerCommandWithSubcommandsFunc<
-  TCommand extends CommandWithSubcommands,
-  TGlobalArgv extends {} = {},
-  TType extends HandlerSyncType = HandlerSyncType,
-  TReturn = unknown,
-> = TCommand extends CommandWithSubcommands<
-  infer TName,
-  infer TCommands,
-  infer TArgv,
-  infer TComposedArgv
->
-  //
-  ? HandlerFunctionForComposed<
-    GetCommandParseResult<
-      ComposedCommands<TCommands, TArgv & TGlobalArgv & TComposedArgv>
-    >,
-    TType,
-    TReturn
-  >
-  : never;
-
-export type InputHandlerFunctionFor<
-  TCommand extends Command,
-  TGlobalArgv extends {} = {},
-  THandlerType extends HandlerSyncType = HandlerSyncType,
-  TReturn = unknown,
-> = TCommand extends BasicCommand
-  ? InputHandlerBasicCommandFunc<TCommand, TGlobalArgv, THandlerType, TReturn>
-  : TCommand extends ComposedCommands ? InputHandlerComposedCommandFunc<
-      TCommand,
-      TGlobalArgv,
-      THandlerType,
-      TReturn
-    >
-  : TCommand extends CommandWithSubcommands
-    ? InputHandlerCommandWithSubcommandsFunc<
-      TCommand,
-      TGlobalArgv,
-      THandlerType,
-      TReturn
-    >
-  : never;
-
-export type InputRecordForComposedCommands<
-  TCommand extends ComposedCommands,
-  TGlobalArgv extends {},
-  THandlerType extends HandlerSyncType,
-  TReturn = unknown,
-> = ComposeCommandsFlatten<TCommand> extends ComposedCommands<
-  infer TCommands,
-  infer TArgv
-> ? {
-    [
-      // key is the name of the command
-      P in TupleKeys<TCommands> as GetCommandName<
-        Cast<TCommands[P], Command>
-      >
-    ]:
-      // the value is a function
-      | InputHandlerFunctionFor<
-        Cast<TCommands[P], Command>,
-        TArgv & TGlobalArgv,
-        THandlerType,
-        TReturn
-      >
-      // the value is another handler
-      | ComposableHandlerFor<
-        Cast<TCommands[P], Command>,
-        THandlerType,
-        TArgv & TGlobalArgv,
-        TReturn
-      >
-      // the value is a record
-      | InputHandlerRecordFor<
-        Cast<TCommands[P], Command>,
-        TArgv & TGlobalArgv,
-        THandlerType,
-        TReturn
-      >;
-  }
   : never;

@@ -1,10 +1,10 @@
 import { Cast, IntersectOf } from "../../../common/types-util";
 import { ToList, ToUnion } from "../../../common/types-util";
 import {
-  BasicCommand,
   Command,
-  CommandWithSubcommands,
-  ComposedCommands,
+  CommandBasic,
+  CommandComposed,
+  CommandComposedWithSubcommands,
 } from "../..";
 import { NamedCommand } from "../command";
 
@@ -14,8 +14,8 @@ export type GetCommandsNames<TCommands extends readonly NamedCommand[]> =
 /**
  * @description Gets a union of all the composed commands names
  */
-export type GetComposedCommandsNames<T extends ComposedCommands> = T extends
-  ComposedCommands<infer TCommands>
+export type GetComposedCommandsNames<T extends CommandComposed> = T extends
+  CommandComposed<infer TCommands>
   ? GetCommandsNames<CommandsFlattenList<TCommands>>
   : never;
 
@@ -23,10 +23,11 @@ export type GetComposedCommandsNames<T extends ComposedCommands> = T extends
  * @description Gets the name of a command. For a composed command it returns `never`
  */
 export type GetCommandName<TCommand extends Command> = TCommand extends
-  BasicCommand<infer TName, infer TArgv> ? TName
-  : TCommand extends ComposedCommands ? never
+  CommandBasic<infer TName, infer TArgv> ? TName
+  : TCommand extends CommandComposed ? never
   : TCommand extends
-    CommandWithSubcommands<infer TName, infer TArgv, infer TCommands> ? TName
+    CommandComposedWithSubcommands<infer TName, infer TArgv, infer TCommands>
+    ? TName
   : never;
 
 /**
@@ -34,7 +35,7 @@ export type GetCommandName<TCommand extends Command> = TCommand extends
  */
 export type CommandsFlatten<TCommands extends readonly Command[]> = Cast<
   ToUnion<TCommands> extends infer C
-    ? C extends ComposedCommands ? _ComposeCommandsFlatten<C> : C
+    ? C extends CommandComposed ? _ComposeCommandsFlatten<C> : C
     : never,
   NamedCommand
 >;
@@ -50,15 +51,15 @@ export type CommandsFlattenList<TCommands extends readonly Command[]> = Cast<
 /**
  * @description Flattens a composed commands tree into a list of commands that are not composed
  */
-export type ComposeCommandsFlatten<TCommand extends Command> = ComposedCommands<
+export type ComposeCommandsFlatten<TCommand extends Command> = CommandComposed<
   Cast<ToList<_ComposeCommandsFlatten<TCommand>>, readonly Command[]>,
   _ComposeCommandsFlattenArgv<TCommand>
 >;
 
 type _ComposeCommandsFlatten<TCommand extends Command> = TCommand extends
-  ComposedCommands<infer TCommands, infer TArgv>
+  CommandComposed<infer TCommands, infer TArgv>
   ? ToUnion<TCommands> extends infer C
-    ? C extends ComposedCommands ? _ComposeCommandsFlatten<C> : C
+    ? C extends CommandComposed ? _ComposeCommandsFlatten<C> : C
   : never
   : never;
 
@@ -66,11 +67,11 @@ type _ComposeCommandsFlatten<TCommand extends Command> = TCommand extends
  * @description Gets composed commands common Argv
  */
 type _ComposeCommandsFlattenArgv<TCommand extends Command> = TCommand extends
-  ComposedCommands<infer TCommands, infer TArgv> ? 
+  CommandComposed<infer TCommands, infer TArgv> ? 
     & TArgv
     & IntersectOf<
       (ToUnion<TCommands> extends infer C
-        ? C extends ComposedCommands ? _ComposeCommandsFlattenArgv<C> : {}
+        ? C extends CommandComposed ? _ComposeCommandsFlattenArgv<C> : {}
         : never)
     >
   : never;

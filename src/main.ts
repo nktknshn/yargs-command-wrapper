@@ -7,6 +7,11 @@ import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";
 import { HandlerFunctionFor, HandlerType } from "./handler";
 import { buildAndParse } from "./parser/parser";
 
+/**
+ * @description show help and error message and exit with code 1
+ * @param yargs yargs object built from command
+ * @returns
+ */
 export function failClient(
   yargs: y.Argv,
   error: string | ErrorType | E.Left<ErrorType>,

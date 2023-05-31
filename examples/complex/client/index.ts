@@ -12,7 +12,7 @@ const configCommand = subs(
 export const cmd = comp(clientCommand, configCommand);
 
 export const handler = composeHandlers(
-  createHandlerFor(clientCommand, clientHandler),
+  clientHandler,
   createHandlerFor(
     configCommand,
     config.handler,

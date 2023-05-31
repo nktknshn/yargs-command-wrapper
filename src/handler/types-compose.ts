@@ -1,8 +1,8 @@
 import {
-  BasicCommand,
   Command,
-  CommandWithSubcommands,
-  ComposedCommands,
+  CommandBasic,
+  CommandComposed,
+  CommandComposedWithSubcommands,
 } from "../command/";
 import { GetCommandParseResult, GetComposedParseResult } from "../command/";
 
@@ -65,27 +65,28 @@ export type GetComposableHandlerReturnType<
  */
 export type ComposableHandlerFor<
   TCommand extends Command,
-  TType extends HandlerSyncType = HandlerSyncType,
-  TGlobalArgv extends {} = {},
+  TSyncType extends HandlerSyncType = HandlerSyncType,
   TReturn = unknown,
+  TGlobalArgv extends {} = {},
 > =
   //
-  TCommand extends BasicCommand ? BasicHandlerComposable<
+  TCommand extends CommandBasic ? BasicHandlerComposable<
       TCommand["commandName"],
       GetCommandParseResult<TCommand, TGlobalArgv>,
-      TType,
+      TSyncType,
       TReturn
     >
-    : TCommand extends ComposedCommands ? ComposedHandlerComposable<
+    : TCommand extends CommandComposed ? ComposedHandlerComposable<
         Cast<ToList<GetComposedCommandsNames<TCommand>>, readonly string[]>,
         GetComposedParseResult<TCommand, TGlobalArgv>,
-        TType,
+        TSyncType,
         TReturn
       >
-    : TCommand extends CommandWithSubcommands ? ComposedHandlerComposable<
+    : TCommand extends CommandComposedWithSubcommands
+      ? ComposedHandlerComposable<
         [GetCommandName<TCommand>],
         GetCommandParseResult<TCommand, TGlobalArgv>,
-        TType,
+        TSyncType,
         TReturn
       >
     : never;

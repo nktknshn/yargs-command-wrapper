@@ -1,15 +1,18 @@
-import { BasicCommand } from "../basic/type";
+import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
-import { ComposedCommands, HelperObjectComposed } from "../composed/type";
+import { CommandComposed, HelperObjectComposed } from "../composed/type";
 
-export type CommandWithSubcommands<
+/**
+ * @description defines a command with subcommands.
+ */
+export type CommandComposedWithSubcommands<
   TCommandName extends string = string,
   TCommands extends readonly Command[] = readonly Command[],
   TArgv extends {} = {},
   TComposedArgv extends {} = {},
 > = {
-  readonly command: BasicCommand<TCommandName, TArgv>;
-  readonly subcommands: ComposedCommands<TCommands, TComposedArgv>;
+  readonly command: CommandBasic<TCommandName, TArgv>;
+  readonly subcommands: CommandComposed<TCommands, TComposedArgv>;
   readonly type: "with-subcommands";
 };
 

@@ -1,6 +1,6 @@
 import { YargsCommandBuilder } from "../../types";
 
-export type BasicCommand<
+export type CommandBasic<
   TCommandName extends string = string,
   TArgv extends {} = {},
 > = {

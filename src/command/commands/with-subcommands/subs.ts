@@ -2,22 +2,25 @@ import { isObjectWithOwnProperty } from "../../../common/util";
 import { Command } from "../command";
 
 import { CommandsTuple } from "../../types";
-import { BasicCommand } from "../basic/type";
+import { CommandBasic } from "../basic/type";
 
 import { composeCommands } from "../composed/compose-commands";
 import { createHelperObject } from "../composed/helper-object";
-import { ComposedCommands } from "../composed/type";
-import { CommandWithSubcommands, HelperObjectWithSubcommands } from "./type";
+import { CommandComposed } from "../composed/type";
+import {
+  CommandComposedWithSubcommands,
+  HelperObjectWithSubcommands,
+} from "./type";
 
 export function subs<
   TCommandName extends string,
   TArgv extends {},
   const TCommands extends readonly Command[],
 >(
-  command: BasicCommand<TCommandName, TArgv>,
+  command: CommandBasic<TCommandName, TArgv>,
   subcommands: TCommands,
 ):
-  & CommandWithSubcommands<TCommandName, TCommands, TArgv, {}>
+  & CommandComposedWithSubcommands<TCommandName, TCommands, TArgv, {}>
   & { $: HelperObjectWithSubcommands<TCommands, TArgv> };
 
 export function subs<
@@ -26,10 +29,14 @@ export function subs<
   TCommands extends Command[],
   TComposedArgv extends {},
 >(
-  command: BasicCommand<TCommandName, TArgv>,
-  subcommands: ComposedCommands<TCommands, TComposedArgv>,
+  command: CommandBasic<TCommandName, TArgv>,
+  subcommands: CommandComposed<TCommands, TComposedArgv>,
 ):
-  & CommandWithSubcommands<TCommandName, TCommands, TArgv & TComposedArgv>
+  & CommandComposedWithSubcommands<
+    TCommandName,
+    TCommands,
+    TArgv & TComposedArgv
+  >
   & { $: HelperObjectWithSubcommands<TCommands, TArgv> };
 
 export function subs<
@@ -38,10 +45,15 @@ export function subs<
   TCommands extends CommandsTuple,
   TComposedArgv extends {},
 >(
-  command: BasicCommand<TCommandName, TArgv>,
-  subcommands: ComposedCommands<TCommands, TComposedArgv> | TCommands,
+  command: CommandBasic<TCommandName, TArgv>,
+  subcommands: CommandComposed<TCommands, TComposedArgv> | TCommands,
 ):
-  & CommandWithSubcommands<TCommandName, TCommands, TArgv, TComposedArgv>
+  & CommandComposedWithSubcommands<
+    TCommandName,
+    TCommands,
+    TArgv,
+    TComposedArgv
+  >
   & { $: HelperObjectWithSubcommands<TCommands, TArgv> }
 {
   if (

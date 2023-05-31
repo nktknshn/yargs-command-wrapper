@@ -2,10 +2,10 @@ import {
   buildAndParse,
   comm,
   comp,
+  createHandlerFor,
   Either,
   failClient,
   subs,
-  subsHandlers,
 } from "../../src";
 
 import * as client from "./client";
@@ -17,21 +17,23 @@ const cmd = comp(
   subs(comm("server", "server management"), server.cmd),
 );
 
-const handler = subsHandlers({
-  "client": client.handler.handle,
+const handler = createHandlerFor(cmd, {
+  "client": client.handler,
   "server": server.handler,
 });
 
-// handler can be used directly:
-// handler({
-//   command: "client",
-//   subcommand: "list",
-//   argv: {
-//     address: { address: "localhost", port: 8080 },
-//     path: "/",
-//     debug: true,
-//   },
-// });
+/*
+handler can be used directly:
+handler({
+  command: "client",
+  subcommand: "list",
+  argv: {
+    address: { address: "localhost", port: 8080 },
+    path: "/",
+    debug: true,
+  },
+});
+*/
 
 async function main() {
   const { yargs, result } = buildAndParse(cmd, process.argv.slice(2));
@@ -46,7 +48,7 @@ async function main() {
     );
   }
 
-  await handler(result.right);
+  await handler.handle(result.right);
 }
 
 main();

@@ -155,18 +155,119 @@ describe("handlerFor", () => {
     });
   });
 
-  test("subs composed handler", () => {
+  test("subs composed handler 0", () => {
+    const [fn1, fn2] = [jest.fn(), jest.fn()];
+
     const s1s2compHandler = createHandlerFor(s1s2comp, {
-      "subsub1": (): number[] => [],
-      "subsub2": (): string[] => [],
+      "subsub1": (args) => {
+        fn1(args);
+      },
+      "subsub2": (args) => {},
     });
 
     const sub3handler = createHandlerFor(sub3, s1s2compHandler);
 
-    createHandlerFor(command3, {
+    sub3handler.handle({
+      command: "sub3",
+      subcommand: "subsub1",
+      argv: { sub3argv: "123", subsub1argv: "456" },
+    });
+
+    expect(fn1).toBeCalledWith({
+      sub3argv: "123",
+      subsub1argv: "456",
+    });
+  });
+
+  test("subs composed handler 1", () => {
+    const [fn1, fn2] = [jest.fn(), jest.fn()];
+
+    const s1s2compHandler = createHandlerFor(s1s2comp, {
+      "subsub1": (args) => {
+        fn1(args);
+      },
+      "subsub2": (args) => {},
+    });
+
+    const sub3handler = createHandlerFor(sub3, s1s2compHandler);
+
+    const handler = createHandlerFor(command3, {
       "sub1": () => 1,
       "sub2": () => "123",
       "sub3": sub3handler,
+    });
+
+    handler.handle({
+      command: "com4",
+      subcommand: "sub3",
+      subsubcommand: "subsub1",
+      argv: { com4argv: "123", sub3argv: "456", subsub1argv: "789" },
+    });
+
+    expect(fn1).toBeCalledWith({
+      com4argv: "123",
+      sub3argv: "456",
+      subsub1argv: "789",
+    });
+  });
+
+  test("subs composed handler 2", () => {
+    const [fn1, fn2] = [jest.fn(), jest.fn()];
+
+    const s1s2compHandler = createHandlerFor(s1s2comp, {
+      "subsub1": (args) => {
+        fn1(args);
+      },
+      "subsub2": (args) => {},
+    });
+
+    const handler = createHandlerFor(command3, {
+      "sub1": () => 1,
+      "sub2": () => "123",
+      "sub3": s1s2compHandler,
+    });
+
+    handler.handle({
+      command: "com4",
+      subcommand: "sub3",
+      subsubcommand: "subsub1",
+      argv: { com4argv: "123", sub3argv: "456", subsub1argv: "789" },
+    });
+
+    expect(fn1).toBeCalledWith({
+      com4argv: "123",
+      sub3argv: "456",
+      subsub1argv: "789",
+    });
+  });
+
+  test("subs composed handler 3", () => {
+    const [fn1, fn2] = [jest.fn(), jest.fn()];
+
+    const s1s2compHandler = createHandlerFor(s1s2comp, {
+      "subsub1": (args) => {
+        fn1(args);
+      },
+      "subsub2": (args) => {},
+    });
+
+    const _cmd = comp(com1, com2, sub3);
+
+    const handler = createHandlerFor(_cmd, {
+      "com1": () => {},
+      "com2": () => {},
+      "sub3": s1s2compHandler,
+    });
+
+    handler.handle({
+      command: "sub3",
+      subcommand: "subsub1",
+      argv: { sub3argv: "456", subsub1argv: "789" },
+    });
+
+    expect(fn1).toBeCalledWith({
+      sub3argv: "456",
+      subsub1argv: "789",
     });
   });
 

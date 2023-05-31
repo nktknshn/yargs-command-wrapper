@@ -12,6 +12,12 @@ type BuildAndParseResult<TCommand extends Command> = {
   yargs: y.Argv;
 };
 
+/**
+ * @description build yargs object and parse arguments
+ * @param command command object
+ * @param arg arguments to parse. if not provided, process.argv.slice(2) is used
+ * @returns yargs object and parse result
+ */
 export const buildAndParse = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
@@ -29,6 +35,11 @@ export const buildAndParse = <TCommand extends Command>(
   };
 };
 
+/**
+ * @description Build yargs object and parse arguments. Throw error if failed
+ * @param
+ * @returns
+ */
 export const buildAndParseUnsafe = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
@@ -53,6 +64,11 @@ export const buildAndParseUnsafeR = <TCommand extends Command>(
   return result.right;
 };
 
+/**
+ * @description parse arguments with yargs object built from command
+ * @param
+ * @returns
+ */
 export const parse = <TCommand extends Command>(
   command: TCommand,
   yargsObject: y.Argv,

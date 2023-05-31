@@ -1,7 +1,7 @@
 import y from "yargs";
 import { YargsCommandBuilder } from "../../types";
 import { getCommandNameFromDesc } from "./helpers";
-import { BasicCommand } from "./type";
+import { CommandBasic } from "./type";
 import { GetCommandNameFromDesc } from "./type-command-name";
 
 // import debug from 'debug'
@@ -19,7 +19,7 @@ export const command = <const TCommandDesc extends readonly string[] | string, T
   description: string,
   // XXX try to avoid using `as` here
   builder: YargsCommandBuilder<TArgv> = (yargs) => yargs as y.Argv<TArgv>
-): BasicCommand<GetCommandNameFromDesc<TCommandDesc>, TArgv> => {
+): CommandBasic<GetCommandNameFromDesc<TCommandDesc>, TArgv> => {
   const _commandDesc: readonly string[] = typeof commandDesc === "string"
     ? [commandDesc]
     : commandDesc;

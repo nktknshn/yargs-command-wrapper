@@ -11,6 +11,8 @@ npm install --save yargs-command-wrapper
 
 # Usage
 
+**API might change in the future.**
+
 ```typescript
 import {
   buildAndParse,

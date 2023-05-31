@@ -1,8 +1,8 @@
 import {
-  BasicCommand,
   Command,
-  CommandWithSubcommands,
-  ComposedCommands,
+  CommandBasic,
+  CommandComposed,
+  CommandComposedWithSubcommands,
 } from "../..";
 
 /**
@@ -11,7 +11,7 @@ import {
 export const findByNameInComposed = (
   commands: readonly Command[],
   name: string,
-): BasicCommand | CommandWithSubcommands | undefined => {
+): CommandBasic | CommandComposedWithSubcommands | undefined => {
   for (const command of commands) {
     if (command.type === "command") {
       if (command.commandName === name) {

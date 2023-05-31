@@ -2,7 +2,7 @@ import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
 import { CommandArgs } from "../../../handler";
 import { Command } from "../command";
 import { GetCommandParseResult } from "../type-parse-result";
-import { CommandWithSubcommands } from "./type";
+import { CommandComposedWithSubcommands } from "./type";
 import { PushCommand } from "./type-push-command";
 
 export type GetSubcommandsParseResult<
@@ -22,14 +22,13 @@ export type GetSubcommandsParseResult<
 >;
 
 export type GetWithSubcommandsParseResult<
-  T extends CommandWithSubcommands,
+  T extends CommandComposedWithSubcommands,
   TGlobalArgv = {},
-> = T extends CommandWithSubcommands<
+> = T extends CommandComposedWithSubcommands<
   infer TCommandName,
   infer TCommands,
   infer TCommandArgv
->
-  ? GetSubcommandsParseResult<
+> ? GetSubcommandsParseResult<
     TCommands,
     TCommandName,
     TCommandArgv,

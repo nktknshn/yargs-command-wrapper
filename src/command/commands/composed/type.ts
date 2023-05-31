@@ -2,7 +2,10 @@ import { YargsCommandBuilder } from "../../types";
 import { Command } from "../command";
 import { CommandsFlatten, GetCommandName } from "./type-helpers";
 
-export type ComposedCommands<
+/**
+ * @description composes multiple commands into a single command.
+ */
+export type CommandComposed<
   TCommands extends readonly Command[] = readonly Command[],
   TArgv extends {} = {},
 > = {

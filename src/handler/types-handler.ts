@@ -1,8 +1,8 @@
 import {
-  BasicCommand,
   Command,
-  CommandWithSubcommands,
-  ComposedCommands,
+  CommandBasic,
+  CommandComposed,
+  CommandComposedWithSubcommands,
 } from "../command/";
 import { GetCommandParseResult } from "../command/";
 import { PushCommand } from "../command/commands/with-subcommands/type-push-command";
@@ -48,29 +48,29 @@ export type HandlerFunction =
   | HandlerFunctionForComposed<any>;
 
 type HandlerFunctionForBasic<
-  TCommand extends BasicCommand,
+  TCommand extends CommandBasic,
   TGlobalArgv extends {} = {},
   TType extends HandlerSyncType = "sync",
-> = TCommand extends BasicCommand<infer TName, infer TArgv>
+> = TCommand extends CommandBasic<infer TName, infer TArgv>
   ? BaseHandlerFunction<{ command: TName; argv: TArgv & TGlobalArgv }, TType>
   : never;
 
 type GetHandlerFunctionForComposed<
-  TCommand extends ComposedCommands,
+  TCommand extends CommandComposed,
   TGlobalArgv extends {} = {},
   TType extends HandlerSyncType = "sync",
-> = TCommand extends ComposedCommands<infer TCommands, infer TArgv>
+> = TCommand extends CommandComposed<infer TCommands, infer TArgv>
   ? HandlerFunctionForComposed<
-    GetCommandParseResult<ComposedCommands<TCommands, TArgv & TGlobalArgv>>,
+    GetCommandParseResult<CommandComposed<TCommands, TArgv & TGlobalArgv>>,
     TType
   >
   : never;
 
 type HandlerFunctionForSubcommands<
-  TCommand extends CommandWithSubcommands,
+  TCommand extends CommandComposedWithSubcommands,
   TGlobalArgv extends {} = {},
   TType extends HandlerSyncType = "sync",
-> = TCommand extends CommandWithSubcommands<
+> = TCommand extends CommandComposedWithSubcommands<
   infer TName,
   infer TCommands,
   infer TArgv,
@@ -78,7 +78,7 @@ type HandlerFunctionForSubcommands<
 > ? HandlerFunctionForComposed<
     PushCommand<
       GetCommandParseResult<
-        ComposedCommands<TCommands, TArgv & TCommandArgv>
+        CommandComposed<TCommands, TArgv & TCommandArgv>
       >,
       TName,
       TGlobalArgv
@@ -96,11 +96,11 @@ export type HandlerFunctionFor<
   TGlobalArgv extends {} = {},
 > =
   // or `BasicCommand` this is just a function takes `TArgv` and returns `void`
-  TCommand extends BasicCommand
+  TCommand extends CommandBasic
     ? HandlerFunctionForBasic<TCommand, TGlobalArgv, TType>
-    : TCommand extends ComposedCommands
+    : TCommand extends CommandComposed
       ? GetHandlerFunctionForComposed<TCommand, TGlobalArgv, TType>
-    : TCommand extends CommandWithSubcommands
+    : TCommand extends CommandComposedWithSubcommands
       ? HandlerFunctionForSubcommands<TCommand, TGlobalArgv, TType>
     : never;
 

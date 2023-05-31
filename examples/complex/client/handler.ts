@@ -1,7 +1,6 @@
-import { GetCommandArgv, subsHandlers } from "../../../src";
+import { createHandlerFor, GetCommandArgv, subsHandlers } from "../../../src";
 import { Address } from "../common";
-import { commandUpload } from "./args";
-
+import { cmd } from "./args";
 const listHandler = async (
   argv: { address: Address; path: string; debug: boolean },
 ) => {
@@ -18,14 +17,16 @@ const downloadHandler = async (
   );
 };
 
-const uploadHandler = async (argv: GetCommandArgv<typeof commandUpload>) => {
+const uploadHandler = async (
+  argv: GetCommandArgv<typeof cmd.$.commands.upload>,
+) => {
   console.log(
     `upload ${argv.address.address}:${argv.address.port} ${argv.files} to ${argv.destination}`,
   );
 };
 
-export const handler = subsHandlers({
-  "list": listHandler,
-  "download": downloadHandler,
-  "upload": uploadHandler,
+export const handler = createHandlerFor(cmd, {
+  list: listHandler,
+  download: downloadHandler,
+  upload: uploadHandler,
 });

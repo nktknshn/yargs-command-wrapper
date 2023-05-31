@@ -1,6 +1,6 @@
 import { CommandsTuple, YargsCommandBuilder } from "../../types";
 import { createHelperObject } from "./helper-object";
-import { ComposedCommands, HelperObjectComposed } from "./type";
+import { CommandComposed, HelperObjectComposed } from "./type";
 
 /**
  * @description Create a command that can be one of the `commands`
@@ -14,7 +14,7 @@ export function composeCommands<
   builder: YargsCommandBuilder<TArgv>,
   ...commands: TCommands
 ):
-  & ComposedCommands<TCommands, TArgv>
+  & CommandComposed<TCommands, TArgv>
   & { $: HelperObjectComposed<TCommands, TArgv> };
 
 export function composeCommands<
@@ -23,7 +23,7 @@ export function composeCommands<
 >(
   ...commands: TCommands
 ):
-  & ComposedCommands<TCommands, TArgv>
+  & CommandComposed<TCommands, TArgv>
   & { $: HelperObjectComposed<TCommands, TArgv> };
 
 export function composeCommands<
@@ -33,7 +33,7 @@ export function composeCommands<
   builder: YargsCommandBuilder<TArgv> | TCommands,
   ...commands: TCommands
 ):
-  & ComposedCommands<TCommands, TArgv>
+  & CommandComposed<TCommands, TArgv>
   & { $: HelperObjectComposed<TCommands, TArgv> }
 {
   let _builder = undefined;

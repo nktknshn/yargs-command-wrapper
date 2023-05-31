@@ -1,8 +1,8 @@
 import {
-  BasicCommand,
   Command,
-  CommandWithSubcommands,
-  ComposedCommands,
+  CommandBasic,
+  CommandComposed,
+  CommandComposedWithSubcommands,
 } from "../../command";
 
 import {
@@ -14,35 +14,35 @@ import { popCommand } from "../helpers";
 
 import { ComposableHandler, ComposableHandlerFor } from "../types-compose";
 import { CommandArgs, NestedCommandArgs } from "../types-handler";
+import { InputHandlerFunctionFor } from "./InputHandlerFunctionFor";
 import {
   GetReturnType,
   GetSyncType,
   InputHandlerForSubcommands,
-  InputHandlerFunctionFor,
   InputHandlerRecordFor,
   InputRecordHandler,
 } from "./types-handler-for";
 
 export function createHandlerFor<
-  TCommand extends BasicCommand,
+  TCommand extends CommandBasic,
   H extends InputHandlerFunctionFor<TCommand>,
 >(
   command: TCommand,
   handler: H,
-): ComposableHandlerFor<TCommand, GetSyncType<H>, {}, GetReturnType<H>>;
+): ComposableHandlerFor<TCommand, GetSyncType<H>, GetReturnType<H>>;
 
 export function createHandlerFor<
-  TCommand extends ComposedCommands,
+  TCommand extends CommandComposed,
   H extends
     | InputHandlerFunctionFor<TCommand>
     | InputHandlerRecordFor<TCommand>,
 >(
   command: TCommand,
   handler: H,
-): ComposableHandlerFor<TCommand, GetSyncType<H>, {}, GetReturnType<H>>;
+): ComposableHandlerFor<TCommand, GetSyncType<H>, GetReturnType<H>>;
 
 export function createHandlerFor<
-  TCommand extends CommandWithSubcommands,
+  TCommand extends CommandComposedWithSubcommands,
   H extends
     | InputHandlerFunctionFor<TCommand>
     | InputHandlerForSubcommands<TCommand>
@@ -50,7 +50,7 @@ export function createHandlerFor<
 >(
   command: TCommand,
   handler: H,
-): ComposableHandlerFor<TCommand, GetSyncType<H>, {}, GetReturnType<H>>;
+): ComposableHandlerFor<TCommand, GetSyncType<H>, GetReturnType<H>>;
 
 export function createHandlerFor<
   TCommand extends Command,
@@ -83,8 +83,8 @@ export function createHandlerFor<
  * @description Create a handler for a basic command.
  */
 const _createHandlerForCommand = (
-  command: BasicCommand,
-  functionOrRecord: InputHandlerFunctionFor<BasicCommand>,
+  command: CommandBasic,
+  functionOrRecord: InputHandlerFunctionFor<CommandBasic>,
 ): ComposableHandler => {
   return _createHandler((args: any) => {
     return functionOrRecord(args.argv);
@@ -92,10 +92,10 @@ const _createHandlerForCommand = (
 };
 
 const _createHandlerForComposed = (
-  command: ComposedCommands,
+  command: CommandComposed,
   functionOrRecord:
     // either a function or a record
-    | InputHandlerFunctionFor<ComposedCommands>
+    | InputHandlerFunctionFor<CommandComposed>
     | InputRecordHandler
     | ComposableHandler,
 ): ComposableHandler => {
@@ -120,6 +120,11 @@ const _createHandlerForComposed = (
       const commandName = args.command;
 
       if (!(args.command in functionOrRecord)) {
+        console.error(
+          args,
+          functionOrRecord,
+        );
+
         throw new Error(`No handler found for command ${commandName}`);
       }
 
@@ -141,7 +146,18 @@ const _createHandlerForComposed = (
         return handler(args);
       }
       else if (isComposableHandler(handler)) {
-        return handler.handle(args);
+        if (handler.supports.includes(args.command)) {
+          return handler.handle(args);
+        }
+        else if (commandToHandle.type === "with-subcommands") {
+          // this is the case when the handler is
+          return createHandlerFor(commandToHandle, handler).handle(args);
+        }
+        else {
+          throw new Error(
+            `Invalid handler for ${commandToHandle.type}: ${handler}`,
+          );
+        }
       }
       // handler is a record
       else {
@@ -166,10 +182,10 @@ const _createHandlerForComposed = (
 };
 
 const _createHandlerForSubcommands = (
-  command: CommandWithSubcommands,
+  command: CommandComposedWithSubcommands,
   functionOrRecord:
     // either a function or a record
-    | InputHandlerFunctionFor<CommandWithSubcommands>
+    | InputHandlerFunctionFor<CommandComposedWithSubcommands>
     | InputRecordHandler
     | ComposableHandler,
 ): ComposableHandler => {
@@ -185,9 +201,7 @@ const _createHandlerForSubcommands = (
       return functionOrRecord.handle(popCommand(args));
     };
 
-    return _createHandler<CommandWithSubcommands>(_handlerFunction, [
-      command.command.commandName,
-    ]);
+    return _createHandler(_handlerFunction, [command.command.commandName]);
   }
   // InputRecordHandler
   else if (isRecordHandler(functionOrRecord)) {
@@ -204,6 +218,11 @@ const _createHandlerForSubcommands = (
       const _args = popCommand(args);
 
       if (!(_args.command in functionOrRecord)) {
+        console.error(
+          _args,
+          functionOrRecord,
+        );
+
         throw new Error(`No handler found for command ${commandName}`);
       }
 
@@ -221,7 +240,18 @@ const _createHandlerForSubcommands = (
         return handler(_args.argv);
       }
       else if (isComposableHandler(handler)) {
-        return handler.handle(_args);
+        if (handler.supports.includes(_args.command)) {
+          return handler.handle(_args);
+        }
+        else if (namedCommand.type === "with-subcommands") {
+          // this is the case when the handler is
+          return createHandlerFor(namedCommand, handler).handle(_args);
+        }
+        else {
+          throw new Error(
+            `Invalid handler for ${namedCommand.type}: ${handler}`,
+          );
+        }
       }
       else {
         if (namedCommand.type === "with-subcommands") {
@@ -233,7 +263,7 @@ const _createHandlerForSubcommands = (
       }
     };
 
-    return _createHandler<CommandWithSubcommands>(_handlerFunction, [
+    return _createHandler<CommandComposedWithSubcommands>(_handlerFunction, [
       command.command.commandName,
     ]);
   }
@@ -242,9 +272,9 @@ const _createHandlerForSubcommands = (
 };
 
 type CreateHandlerForFunc<TCommand extends Command> = TCommand extends
-  BasicCommand ? ((args: {}) => void)
-  : TCommand extends ComposedCommands ? ((args: CommandArgs) => void)
-  : TCommand extends CommandWithSubcommands
+  CommandBasic ? ((args: {}) => void)
+  : TCommand extends CommandComposed ? ((args: CommandArgs) => void)
+  : TCommand extends CommandComposedWithSubcommands
     ? ((args: NestedCommandArgs<{}>) => void)
   : never;
 

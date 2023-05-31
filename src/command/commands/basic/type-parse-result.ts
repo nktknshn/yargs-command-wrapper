@@ -1,8 +1,8 @@
-import { BasicCommand } from "./type";
+import { CommandBasic } from "./type";
 
 export type GetBasicParseResult<
-  T extends BasicCommand<string, {}> = BasicCommand<string, {}>,
+  T extends CommandBasic<string, {}> = CommandBasic<string, {}>,
   TGlobalArgv = {},
-> = T extends BasicCommand<infer C, infer R>
+> = T extends CommandBasic<infer C, infer R>
   ? { command: C; argv: R & TGlobalArgv }
   : never;

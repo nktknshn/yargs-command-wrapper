@@ -23,7 +23,7 @@ describe("builder types", () => {
       ),
     );
 
-    expectTypeOf(buildAndParseUnsafeR(cmd)).toEqualTypeOf<
+    expectTypeOf(buildAndParseUnsafe(cmd)).toEqualTypeOf<
       | {
         command: "command1";
         subcommand: "c1sc1";
@@ -73,7 +73,7 @@ describe("builder types", () => {
       ),
     );
 
-    expectTypeOf(buildAndParseUnsafeR(cmd)).toEqualTypeOf<
+    expectTypeOf(buildAndParseUnsafe(cmd)).toEqualTypeOf<
       | {
         command: "command2";
         subcommand: "c2sc1";
