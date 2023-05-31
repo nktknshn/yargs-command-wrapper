@@ -1,3 +1,4 @@
+import { EmptyRecord } from "../../common/types";
 import { HandlerSyncType } from "../handler-function/type";
 
 /**
@@ -5,7 +6,7 @@ import { HandlerSyncType } from "../handler-function/type";
  */
 export interface ComposableHandler<
   TNames extends readonly string[] = readonly string[],
-  TArgv extends {} = any,
+  TArgv extends EmptyRecord = EmptyRecord,
   TType extends HandlerSyncType = HandlerSyncType,
   TReturn = unknown,
 > {

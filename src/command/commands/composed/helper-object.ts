@@ -1,11 +1,13 @@
+import { EmptyRecord } from "../../../common/types";
 import { Command } from "../..";
 import { CommandsTuple } from "../../types";
+import { showCommands } from "../helpers";
 import { composedCommandNames, findByNameInComposed } from "./helpers";
 import { HelperObjectComposed } from "./type";
 
 export const createHelperObject = <
   TCommands extends CommandsTuple,
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 >(
   commands: TCommands,
 ): HelperObjectComposed<TCommands, TArgv> => {
@@ -17,7 +19,9 @@ export const createHelperObject = <
     const cmd = findByNameInComposed(commands, name);
     if (!cmd) {
       throw new Error(
-        `Command ${name} not found in composed command ${commands}`,
+        `Command ${name} not found in composed command ${
+          showCommands(commands)
+        }`,
       );
     }
     commandsObject[name] = cmd;

@@ -1,7 +1,9 @@
 import { expectTypeOf } from "expect-type";
 import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
+import { HandlerFunction } from "../../src/handler";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
 import { ComposableHandlerForSubcommands } from "../../src/handler/create-handler-for/type-create-handler-for";
+import { GetReturnType } from "../../src/handler/create-handler-for/type-helpers";
 import { composeHandlers } from "../../src/handler/handler-composable/compose";
 import { ComposeReturnType } from "../../src/handler/handler-composable/types-compose";
 import {
@@ -33,7 +35,11 @@ describe("compose handlers", () => {
     const com2handler = createHandlerFor(com2, (args) => "123");
 
     const com1com2handler = composeHandlers(com1handler, com2handler);
+    type F = (args: {
+      a: string;
+    }) => void;
 
+    type Z = F extends HandlerFunction ? 1 : 2;
     type A = ComposeReturnType<[typeof com1handler, typeof com2handler]>;
 
     expectTypeOf(com1com2handler.handle).returns.toEqualTypeOf<

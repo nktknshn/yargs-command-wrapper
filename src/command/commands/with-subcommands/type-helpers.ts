@@ -4,7 +4,7 @@ import { CommandComposedWithSubcommands } from "./type";
 export type GetNestedComposedCommand<
   TCommand extends CommandComposedWithSubcommands,
 > = TCommand extends CommandComposedWithSubcommands<
-  infer TName,
+  string,
   infer TCommands,
   infer TArgv,
   infer TComposedArgv

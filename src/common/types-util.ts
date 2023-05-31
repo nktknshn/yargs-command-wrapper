@@ -8,21 +8,22 @@ export type ToUnion<L> = L extends readonly [infer A, ...infer B]
   ? A | ToUnion<B>
   : never;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type ListHead<L> = L extends readonly [infer A, ...infer _] ? A : never;
 
-export type Last<U extends any> = IntersectOf<
+export type Last<U> = IntersectOf<
   U extends unknown // Distribute U
     ? (x: U) => void
     : never // To intersect
 > extends (x: infer P) => void ? P // Extract merged
   : never; // ^^^ Last parameter
 
-export type IntersectOf<U extends any> =
+export type IntersectOf<U> =
   (U extends unknown ? (k: U) => void : never) extends ((k: infer I) => void)
     ? I
     : never;
 
-export type Cast<A1 extends unknown, A2 extends unknown> = A1 extends A2 ? A1
+export type Cast<A1, A2> = A1 extends A2 ? A1
   : A2;
 
 export type TupleToUnion<T extends ReadonlyArray<unknown>> = T[number];

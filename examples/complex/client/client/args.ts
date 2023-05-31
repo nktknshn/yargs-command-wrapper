@@ -1,4 +1,4 @@
-import { comm, comp, subs } from "../../../../src";
+import { comm, comp } from "../../../../src";
 import { parseAddress } from "../../common";
 
 export const commandList = comm(

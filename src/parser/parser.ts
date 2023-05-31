@@ -4,6 +4,7 @@ import { GetCommandParseResult } from "../command/commands/type-parse-result";
 import { YargsCommandBuilder } from "../command/types";
 import * as E from "../common/either";
 import { ErrorType } from "../common/error";
+import { EmptyRecord } from "../common/types";
 import { build } from "./build-yargs";
 import { appendSubcommand, findAlias } from "./helpers";
 
@@ -21,7 +22,7 @@ type BuildAndParseResult<TCommand extends Command> = {
 export const buildAndParse = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-  builder?: YargsCommandBuilder<{}>,
+  builder?: YargsCommandBuilder<EmptyRecord>,
 ): BuildAndParseResult<TCommand> => {
   const yargsObject = build(command);
 
@@ -85,11 +86,8 @@ export const parse = <TCommand extends Command>(
     let currentCommand: Command | undefined = command;
 
     const parsedCommands = argv._;
-    const withIndex = parsedCommands.map(String).map((x, idx) =>
-      [idx, x] as const
-    );
 
-    for (let [idx, cmd] of withIndex) {
+    for (let cmd of parsedCommands.map(String)) {
       if (currentCommand === undefined) {
         return E.left({
           error: "command not found",

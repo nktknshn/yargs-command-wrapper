@@ -5,6 +5,7 @@ import {
   CommandComposedWithSubcommands,
   GetCommandParseResult,
 } from "../../command";
+import { EmptyRecord } from "../../common/types";
 import { HandlerFunction } from "./type";
 
 /**
@@ -12,7 +13,7 @@ import { HandlerFunction } from "./type";
  */
 export type HandlerFunctionFor<
   TCommand extends Command,
-  TGlobalArgv extends {} = {},
+  TGlobalArgv extends EmptyRecord = EmptyRecord,
 > =
   // or `BasicCommand` this is just a function takes `TArgv`
   TCommand extends CommandBasic<infer TName, infer TArgv>

@@ -17,5 +17,3 @@ export type PushCommand<T, C extends string, TArgv> = ToList<T> extends infer TS
       & { argv: TArgv };
   }[TupleKeys<TS>]
   : never;
-
-// type A1 = PushCommand<{ argv: { a: number } }, "command1", {}>;

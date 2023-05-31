@@ -1,13 +1,7 @@
 import { CommandArgs } from "../../command/commands/composed/type-command-args";
 import { _createHandler } from "../create-handler-for/create-handler-for";
 import { ComposableHandler } from "./type";
-import {
-  ComposeArgv,
-  ComposedHandlers,
-  ComposeNames,
-  ComposeReturnType,
-  ComposeSyncTypes,
-} from "./types-compose";
+import { ComposedHandlers } from "./types-compose";
 
 /**
  * @description Composes handlers created by `createHandlerFor`
@@ -35,7 +29,7 @@ export function composeHandlers<THandlers extends readonly ComposableHandler[]>(
     supports.push(...h.supports);
   }
 
-  let _handler = (args: CommandArgs): unknown | Promise<unknown> => {
+  const _handler = (args: CommandArgs): unknown | Promise<unknown> => {
     for (const h of handlers) {
       if (h.supports.includes(args.command)) {
         return h.handle(args);

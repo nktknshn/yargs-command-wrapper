@@ -1,3 +1,4 @@
+import { EmptyRecord } from "../../../common/types";
 import { Cast, IntersectOf } from "../../../common/types-util";
 import { ToList, ToUnion } from "../../../common/types-util";
 import {
@@ -23,11 +24,9 @@ export type GetComposedCommandsNames<T extends CommandComposed> = T extends
  * @description Gets the name of a command. For a composed command it returns `never`
  */
 export type GetCommandName<TCommand extends Command> = TCommand extends
-  CommandBasic<infer TName, infer TArgv> ? TName
+  CommandBasic<infer TName> ? TName
   : TCommand extends CommandComposed ? never
-  : TCommand extends
-    CommandComposedWithSubcommands<infer TName, infer TArgv, infer TCommands>
-    ? TName
+  : TCommand extends CommandComposedWithSubcommands<infer TName> ? TName
   : never;
 
 /**
@@ -57,7 +56,7 @@ export type ComposeCommandsFlatten<TCommand extends Command> = CommandComposed<
 >;
 
 type _ComposeCommandsFlatten<TCommand extends Command> = TCommand extends
-  CommandComposed<infer TCommands, infer TArgv>
+  CommandComposed<infer TCommands>
   ? ToUnion<TCommands> extends infer C
     ? C extends CommandComposed ? _ComposeCommandsFlatten<C> : C
   : never
@@ -71,7 +70,8 @@ type _ComposeCommandsFlattenArgv<TCommand extends Command> = TCommand extends
     & TArgv
     & IntersectOf<
       (ToUnion<TCommands> extends infer C
-        ? C extends CommandComposed ? _ComposeCommandsFlattenArgv<C> : {}
+        ? C extends CommandComposed ? _ComposeCommandsFlattenArgv<C>
+        : EmptyRecord
         : never)
     >
   : never;

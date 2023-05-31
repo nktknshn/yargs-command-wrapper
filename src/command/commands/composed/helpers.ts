@@ -1,9 +1,4 @@
-import {
-  Command,
-  CommandBasic,
-  CommandComposed,
-  CommandComposedWithSubcommands,
-} from "../..";
+import { Command, CommandBasic, CommandComposedWithSubcommands } from "../..";
 
 /**
  * @description Traverses composed commands tree and returns command with given name

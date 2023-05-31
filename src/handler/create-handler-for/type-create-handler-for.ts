@@ -8,6 +8,7 @@ import {
   GetCommandName,
 } from "../../command/commands/composed/type-helpers";
 import { GetNestedComposedCommand } from "../../command/commands/with-subcommands/type-helpers";
+import { EmptyRecord } from "../../common/types";
 import { Cast, TupleKeys } from "../../common/types-util";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { ComposableHandler } from "../handler-composable/type";
@@ -23,14 +24,14 @@ export type InputRecordHandler = {
  */
 export type InputHandlerRecordFor<
   TCommand extends Command,
-  TGlobalArgv extends {} = {},
+  TGlobalArgv extends EmptyRecord = EmptyRecord,
 > =
   // Record for CommandComposed
   TCommand extends CommandComposed<infer TCommands, infer TArgv>
     ? InputHandlerRecordForCommands<TCommands, TGlobalArgv & TArgv>
     // Record for CommandComposedWithSubcommands
     : TCommand extends CommandComposedWithSubcommands<
-      infer TName,
+      string,
       infer TCommands,
       infer TArgv,
       infer TCommandArgv
@@ -46,8 +47,9 @@ export type InputHandlerRecordFor<
  * @description defines a record that can be used to create a handler for a list of commands.
  */
 export type InputHandlerRecordForCommands<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TCommands extends readonly Command[],
-  TGlobalArgv extends {},
+  TGlobalArgv extends EmptyRecord,
 > = CommandsFlattenList<TCommands> extends infer TCommands ? {
     [
       // key is the name of the command
@@ -85,7 +87,7 @@ export type InputHandlerRecordForCommands<
  */
 export type ComposableHandlerForSubcommands<
   TCommand extends Command,
-  TGlobalArgv extends {} = {},
+  TGlobalArgv extends EmptyRecord = EmptyRecord,
 > = TCommand extends CommandComposedWithSubcommands ? ComposableHandlerFor<
     GetNestedComposedCommand<TCommand>,
     HandlerSyncType,

@@ -1,5 +1,6 @@
 import { CommandArgs } from "../../command/commands/composed/type-command-args";
 import { NestedCommandArgs } from "../../command/commands/with-subcommands/type-nested-command-args";
+import { EmptyRecord } from "../../common/types";
 import { Cast, ToList, TupleKeys } from "../../common/types-util";
 
 export type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
@@ -16,17 +17,17 @@ export type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
 
 export function popCommand<
   T extends NestedCommandArgs<TArgv>,
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 >(args: T): PopCommand<T>;
 
 export function popCommand<
   T extends { command: string; argv: TArgv },
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 >(args: T): TArgv;
 
 export function popCommand<
   T extends CommandArgs<TArgv>,
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 >(args: T): PopCommand<T> | TArgv {
   if (!("subcommand" in args as unknown)) {
     return args.argv;

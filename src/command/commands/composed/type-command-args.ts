@@ -2,7 +2,9 @@
  * @description CommandArgs is the type of the argument that is passed to the handler
  */
 
-export type CommandArgs<TArgv extends {} = {}> = {
+import { EmptyRecord } from "../../../common/types";
+
+export type CommandArgs<TArgv extends EmptyRecord = EmptyRecord> = {
   "command": string;
   "argv": TArgv;
 };

@@ -1,3 +1,4 @@
+import { EmptyRecord } from "../../../common/types";
 import { CommandsTuple, YargsCommandBuilder } from "../../types";
 import { createHelperObject } from "./helper-object";
 import { CommandComposed, HelperObjectComposed } from "./type";
@@ -9,7 +10,7 @@ import { CommandComposed, HelperObjectComposed } from "./type";
  */
 export function composeCommands<
   TCommands extends CommandsTuple,
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 >(
   builder: YargsCommandBuilder<TArgv>,
   ...commands: TCommands
@@ -19,7 +20,7 @@ export function composeCommands<
 
 export function composeCommands<
   TCommands extends CommandsTuple,
-  TArgv extends {} = {},
+  TArgv extends EmptyRecord = EmptyRecord,
 >(
   ...commands: TCommands
 ):
@@ -28,7 +29,7 @@ export function composeCommands<
 
 export function composeCommands<
   TCommands extends CommandsTuple,
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 >(
   builder: YargsCommandBuilder<TArgv> | TCommands,
   ...commands: TCommands

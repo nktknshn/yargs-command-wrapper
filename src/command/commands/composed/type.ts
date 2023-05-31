@@ -1,5 +1,7 @@
+import { EmptyRecord } from "../../../common/types";
 import { YargsCommandBuilder } from "../../types";
 import { Command } from "../command";
+import { AddArgv } from "../type-add-argv";
 import { CommandsFlatten, GetCommandName } from "./type-helpers";
 
 /**
@@ -7,7 +9,7 @@ import { CommandsFlatten, GetCommandName } from "./type-helpers";
  */
 export type CommandComposed<
   TCommands extends readonly Command[] = readonly Command[],
-  TArgv extends {} = {},
+  TArgv extends EmptyRecord = EmptyRecord,
 > = {
   readonly commands: TCommands;
   readonly builder?: YargsCommandBuilder<TArgv>;
@@ -16,9 +18,12 @@ export type CommandComposed<
 
 export type HelperObjectComposed<
   TCommands extends readonly Command[],
-  TArgv extends {},
+  TArgv extends EmptyRecord,
 > = {
   readonly commands: {
-    [C in CommandsFlatten<TCommands> as GetCommandName<C>]: C;
+    [C in CommandsFlatten<TCommands> as GetCommandName<C>]:
+      & C
+      & AddArgv<C, TArgv>;
+    // & AddArgv<C, TArgv>;
   };
 };

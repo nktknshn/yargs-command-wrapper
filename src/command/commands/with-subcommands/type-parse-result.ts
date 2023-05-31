@@ -1,3 +1,4 @@
+import { EmptyRecord } from "../../../common/types";
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
 import { Command } from "../command";
 import { CommandArgs } from "../composed/type-command-args";
@@ -9,7 +10,7 @@ export type GetSubcommandsParseResult<
   TCommands extends readonly Command[],
   TCommandName extends string,
   TArgv,
-  TGlobalArgv = {},
+  TGlobalArgv = EmptyRecord,
 > = FallbackNever<
   {
     [P in TupleKeys<TCommands>]: PushCommand<
@@ -23,7 +24,7 @@ export type GetSubcommandsParseResult<
 
 export type GetWithSubcommandsParseResult<
   T extends CommandComposedWithSubcommands,
-  TGlobalArgv = {},
+  TGlobalArgv = EmptyRecord,
 > = T extends CommandComposedWithSubcommands<
   infer TCommandName,
   infer TCommands,

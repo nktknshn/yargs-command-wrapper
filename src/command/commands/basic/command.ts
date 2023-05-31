@@ -1,4 +1,5 @@
 import y from "yargs";
+import { EmptyRecord } from "../../../common/types";
 import { YargsCommandBuilder } from "../../types";
 import { getCommandNameFromDesc } from "./helpers";
 import { CommandBasic } from "./type";
@@ -13,7 +14,7 @@ import { GetCommandNameFromDesc } from "./type-command-name";
  * @returns A typed command object.
  */
 // dprint-ignore
-export const command = <const TCommandDesc extends readonly string[] | string, TArgv extends {}>(
+export const command = <const TCommandDesc extends readonly string[] | string, TArgv extends EmptyRecord>(
   // XXX the line above requires typescript ^5.0
   commandDesc: TCommandDesc,
   description: string,

@@ -18,3 +18,7 @@ export const showCommand = <TCommand extends Command>(
     return command;
   }
 };
+
+export const showCommands = (commands: readonly Command[]): string => {
+  return `commands(${commands.map(showCommand).join(", ")})`;
+};

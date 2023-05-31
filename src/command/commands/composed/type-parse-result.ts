@@ -1,3 +1,4 @@
+import { EmptyRecord } from "../../../common/types";
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
 import { Command } from "../command";
 import { GetCommandParseResult } from "../type-parse-result";
@@ -9,7 +10,7 @@ import { CommandArgs } from "./type-command-args";
  */
 export type GetComposedParseResult<
   T extends CommandComposed = CommandComposed,
-  TGlobalArgv = {},
+  TGlobalArgv = EmptyRecord,
 > = FallbackNever<
   T extends CommandComposed<infer CS, infer TGlobalArgvComposed> ? {
       [P in TupleKeys<CS>]: GetCommandParseResult<

@@ -48,7 +48,7 @@ export const build = <TCommand extends Command>(command: TCommand) =>
 const createYargs = () => {
   return y().exitProcess(false)
     .showHelpOnFail(false)
-    .fail((msg, err, yargs) => {
+    .fail((msg, err) => {
       if (err) throw err;
       if (msg) throw new Error(msg);
     })

@@ -1,6 +1,5 @@
 import y from "yargs";
 import { Command } from "./command/commands/command";
-import { Either } from "./common/either";
 import * as E from "./common/either";
 import { ErrorType } from "./common/error";
 import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";

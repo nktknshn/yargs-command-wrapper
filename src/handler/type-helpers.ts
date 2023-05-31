@@ -1,6 +1,6 @@
 export type GetFunctionSyncType<T extends (...args: any[]) => any> = T extends (
   ...args: any[]
-) => infer R ? R extends Promise<any> ? "async" : "sync"
+) => infer R ? R extends Promise<unknown> ? "async" : "sync"
   : never;
 
 export type GetFunctionReturnType<T extends (...args: any[]) => any> =

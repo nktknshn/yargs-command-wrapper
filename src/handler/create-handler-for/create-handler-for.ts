@@ -14,6 +14,7 @@ import { popCommand } from "./helpers";
 
 import { CommandArgs } from "../../command/commands/composed/type-command-args";
 import { NestedCommandArgs } from "../../command/commands/with-subcommands/type-nested-command-args";
+import { EmptyRecord } from "../../common/types";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { ComposableHandler } from "../handler-composable/type";
 import {
@@ -203,7 +204,7 @@ const _createHandlerForSubcommands = (
   // ComposableHandler
   else if (isComposableHandler(functionOrRecord)) {
     const _handlerFunction = (
-      args: NestedCommandArgs<{}>,
+      args: NestedCommandArgs<EmptyRecord>,
     ): unknown | Promise<unknown> => {
       return functionOrRecord.handle(popCommand(args));
     };
@@ -213,7 +214,7 @@ const _createHandlerForSubcommands = (
   // InputRecordHandler
   else if (isRecordHandler(functionOrRecord)) {
     const _handlerFunction = (
-      args: NestedCommandArgs<{}>,
+      args: NestedCommandArgs<EmptyRecord>,
     ): unknown | Promise<unknown> => {
       const commandName = args.command;
 
