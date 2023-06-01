@@ -26,7 +26,9 @@ const uploadHandler = async (
 ) => {
   argv.debug;
   console.log(
-    `upload ${argv.address.address}:${argv.address.port} ${argv.files} to ${argv.destination}`,
+    `upload ${argv.address.address}:${argv.address.port} ${
+      argv.files.join(", ")
+    } to ${argv.destination}`,
   );
 };
 

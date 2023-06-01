@@ -55,12 +55,12 @@ const cmd = comp(
       comm(["download <files..>", "d"], "download files", _ =>
         _.options({
           address: { type: "string", demandOption: true },
-          files: { type: "string", array: true },
+          files: { type: "string", array: true, demandOption: true },
         })),
       comm(["upload <files..>", "u"], "upload files", _ =>
         _.options({
           address: { type: "string", demandOption: true },
-          files: { type: "string", array: true },
+          files: { type: "string", array: true, demandOption: true },
         })),
       subs(
         comm(["config", "c"], "config management"),
@@ -124,10 +124,10 @@ if (result.right.command === "client") {
         console.log(`list ${address} ${path}`);
       },
       "download": async ({ address, files }) => {
-        console.log(`download ${address} ${files}`);
+        console.log(`download ${address} ${files.join(", ")}`);
       },
       "upload": async ({ address, files }) => {
-        console.log(`upload ${address} ${files}`);
+        console.log(`upload ${address} ${files.join(", ")}`);
       },
       "config": configHandler,
     },
@@ -141,7 +141,7 @@ if (result.right.command === "client") {
   // });
 
   // handle parsed arguments
-  clientHandler.handle(result.right);
+  clientHandler.handle(result.right).catch(console.error);
 }
 
 // or handle parsed arguments manually
@@ -162,7 +162,9 @@ switch (result.right.command) {
         switch (result.right.subsubcommand) {
           case "get":
             console.log(
-              `List server config ${result.right.subsubcommand} ${result.right.argv.key}`,
+              `List server config ${result.right.subsubcommand} ${
+                result.right.argv.key ?? "all"
+              }`,
             );
             break;
           case "set":

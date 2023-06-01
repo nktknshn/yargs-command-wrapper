@@ -37,7 +37,7 @@ export const commandUpload = comm(
         demandOption: true,
         coerce: parseAddress,
       })
-      .positional("files", { type: "string", array: true })
+      .positional("files", { type: "string", array: true, demandOption: true })
       .option("destination", { alias: "D", type: "string", default: "/" }),
 );
 

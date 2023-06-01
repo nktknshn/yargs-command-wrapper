@@ -280,7 +280,7 @@ const _createHandlerForSubcommands = (
 };
 
 type CreateHandlerForFunc<TCommand extends Command> = TCommand extends
-  CommandBasic ? ((args: {}) => void)
+  CommandBasic ? ((args: EmptyRecord) => void)
   : TCommand extends CommandComposed
     ? ((args: CommandArgs) => unknown | Promise<unknown>)
   : TCommand extends CommandComposedWithSubcommands

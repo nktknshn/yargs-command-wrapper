@@ -32,7 +32,7 @@ const server = comp(
   comm(
     ["start", "sta"],
     "start server",
-    _ => _.option("port", { type: "number" }),
+    _ => _.option("port", { type: "number", default: 8080 }),
   ),
   comm(
     ["stop", "sto"],
@@ -65,7 +65,7 @@ else if (result.right.command === "stop") {
 }
 else if (result.right.command === "config") {
   if (result.right.subcommand === "get") {
-    console.log(`getting config key ${result.right.argv.key}`);
+    console.log(`getting config key ${result.right.argv.key ?? "all"}`);
   }
   else {
     console.log(
@@ -78,7 +78,7 @@ else if (result.right.command === "config") {
 const handler = createHandlerFor(command, {
   config: {
     get: ({ key, file, debug }) => {
-      console.log(`getting config ${file} key ${key}`);
+      console.log(`getting config ${file} key ${key ?? "all"}`);
     },
     set: ({ key, value, file, debug }) => {
       console.log(`setting config ${file} key ${key} to ${value}`);
