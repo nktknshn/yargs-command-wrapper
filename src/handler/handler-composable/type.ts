@@ -1,15 +1,29 @@
-import { EmptyRecord } from "../../common/types";
-import { HandlerSyncType } from "../handler-function/type";
+import { CommandArgs } from "../../command/commands/args/type-command-args";
+import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
 
 /**
  * @description A handler that can be composed with other handlers by `composeHandlers`. It is basically a function along with the names of the commands it supports.
  */
 export interface ComposableHandler<
   TNames extends readonly string[] = readonly string[],
-  TArgv extends EmptyRecord = EmptyRecord,
+  TArgs extends CommandArgs = CommandArgs<never, never>,
+  // TArgs extends CommandArgs = any,
   TType extends HandlerSyncType = HandlerSyncType,
   TReturn = unknown,
 > {
-  handle(argv: TArgv): TType extends "sync" ? TReturn : Promise<TReturn>;
+  handle: HandlerFunction<TArgs, TType, TReturn>;
   supports: TNames;
 }
+
+type A = ComposableHandler<
+  ["a"],
+  { command: string; argv: { a: number } },
+  "sync",
+  void
+>;
+
+type CC = HandlerFunction;
+type B = A extends ComposableHandler ? true : false;
+
+type TC = { command: "a"; argv: { a: number } } extends CommandArgs ? true
+  : false;

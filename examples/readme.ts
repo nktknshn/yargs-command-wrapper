@@ -77,17 +77,17 @@ else if (result.right.command === "config") {
 // or by using createHandlerFor:
 const handler = createHandlerFor(command, {
   config: {
-    get: ({ key, file, debug }) => {
+    get: ({ key, file }) => {
       console.log(`getting config ${file} key ${key ?? "all"}`);
     },
-    set: ({ key, value, file, debug }) => {
+    set: ({ key, value, file }) => {
       console.log(`setting config ${file} key ${key} to ${value}`);
     },
   },
-  start: ({ port, debug }) => {
+  start: ({ port }) => {
     console.log(`starting server on port ${port}`);
   },
-  stop: ({ force, debug }) => {
+  stop: ({ force }) => {
     console.log(`stopping server ${force ? "forcefully" : ""}`);
   },
 });

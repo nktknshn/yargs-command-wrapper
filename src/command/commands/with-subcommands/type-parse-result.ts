@@ -1,7 +1,8 @@
 import { EmptyRecord } from "../../../common/types";
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
+import { CommandArgs } from "../args/type-command-args";
+import { NestedCommandArgs } from "../args/type-nested-command-args";
 import { Command } from "../command";
-import { CommandArgs } from "../composed/type-command-args";
 import { GetCommandParseResult } from "../type-parse-result";
 import { CommandComposedWithSubcommands } from "./type";
 import { PushCommand } from "./type-push-command";
@@ -19,7 +20,7 @@ export type GetSubcommandsParseResult<
       TArgv
     >;
   }[TupleKeys<TCommands>],
-  CommandArgs
+  NestedCommandArgs<EmptyRecord, string, string>
 >;
 
 export type GetWithSubcommandsParseResult<

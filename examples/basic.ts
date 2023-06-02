@@ -110,13 +110,6 @@ if (result.right.command === "client") {
     },
   );
 
-  // `configHandler` can be used directly, e.g.:
-  //   configHandler.handle({
-  //     command: "config",
-  //     subcommand: "set",
-  //     argv: { key: "foo", value: "bar" },
-  //   });
-
   const clientHandler = createHandlerFor(
     cmd.$.commands.client,
     {
@@ -133,13 +126,15 @@ if (result.right.command === "client") {
     },
   );
 
-  // clientHandler.handle({
-  //   command: "client",
-  //   subcommand: "config",
-  //   subsubcommand: "set",
-  //   argv: { key: "foo", value: "bar" },
-  // });
-
+  /*
+  the handler can be used like this:
+    clientHandler.handle({
+      command: "client",
+      subcommand: "config",
+      subsubcommand: "set",
+      argv: { key: "foo", value: "bar" },
+    });
+ */
   // handle parsed arguments
   clientHandler.handle(result.right).catch(console.error);
 }

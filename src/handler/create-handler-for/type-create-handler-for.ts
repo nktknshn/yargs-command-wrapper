@@ -43,6 +43,8 @@ export type InputHandlerRecordFor<
       >
     : never;
 
+type A = InputHandlerRecordFor<Command>;
+
 /**
  * @description defines a record that can be used to create a handler for a list of commands.
  */
@@ -95,3 +97,5 @@ export type ComposableHandlerForSubcommands<
     TGlobalArgv
   >
   : never;
+
+type B = ComposableHandlerForSubcommands<Command>;

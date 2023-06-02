@@ -4,7 +4,10 @@
 
 import { EmptyRecord } from "../../../common/types";
 
-export type CommandArgs<TArgv extends EmptyRecord = EmptyRecord> = {
-  "command": string;
+export type CommandArgs<
+  TArgv extends EmptyRecord = EmptyRecord,
+  TName extends string = string,
+> = {
+  "command": TName;
   "argv": TArgv;
 };

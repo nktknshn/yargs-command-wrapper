@@ -28,4 +28,6 @@ export type Cast<A1, A2> = A1 extends A2 ? A1
 
 export type TupleToUnion<T extends ReadonlyArray<unknown>> = T[number];
 
-export type FallbackNever<T, U> = [T] extends [never] ? U : T;
+export type FallbackType<T, U, V> = [T] extends [U] ? V : T;
+
+export type FallbackNever<T, U> = FallbackType<T, never, U>;

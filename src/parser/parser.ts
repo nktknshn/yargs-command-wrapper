@@ -1,4 +1,5 @@
 import y from "yargs";
+import { appendSubcommand } from "../command/commands/args/push-command";
 import { Command } from "../command/commands/command";
 import { GetCommandParseResult } from "../command/commands/type-parse-result";
 import { YargsCommandBuilder } from "../command/types";
@@ -6,7 +7,7 @@ import * as E from "../common/either";
 import { ErrorType } from "../common/error";
 import { EmptyRecord } from "../common/types";
 import { build } from "./build-yargs";
-import { appendSubcommand, findAlias } from "./helpers";
+import { findAlias } from "./helpers";
 
 type BuildAndParseResult<TCommand extends Command> = {
   result: E.Either<ErrorType, GetCommandParseResult<TCommand>>;

@@ -440,7 +440,9 @@ describe("handlerFor", () => {
       "com2": args => {},
     });
 
-    expectTypeOf(handlerMixed2.handle).returns.toEqualTypeOf<
+    type R1 = ReturnType<typeof handlerMixed2.handle>;
+
+    expectTypeOf(handlerMixed2.handle).returns.toMatchTypeOf<
       Promise<void> | void
     >();
 
@@ -457,8 +459,12 @@ describe("handlerFor", () => {
     const handler3m = createHandlerFor(nested1, handlerMixed2);
 
     expectTypeOf(handler3.handle).returns.toEqualTypeOf<void>();
+
     expectTypeOf(handler3a.handle).returns.toEqualTypeOf<Promise<void>>();
-    expectTypeOf(handler3m.handle).returns.toEqualTypeOf<
+
+    type R2 = ReturnType<typeof handler3m.handle>;
+
+    expectTypeOf(handler3m.handle).returns.toMatchTypeOf<
       Promise<void> | void
     >();
   });

@@ -1,4 +1,4 @@
-import { Cast, ToList, ToUnion } from "../../common/types-util";
+import { Cast, FallbackType, ToList, ToUnion } from "../../common/types-util";
 
 import { ComposableHandler } from "./type";
 import {
@@ -13,7 +13,7 @@ import {
  */
 export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposableHandler<
-    ComposeNames<THandlers>,
+    FallbackType<ComposeNames<THandlers>, [], readonly string[]>,
     ComposeArgv<THandlers>,
     ComposeSyncTypes<THandlers>,
     ComposeReturnType<THandlers>

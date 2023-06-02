@@ -19,3 +19,5 @@ export type GetCommandParseResult<
   : TCommand extends CommandComposedWithSubcommands
     ? GetWithSubcommandsParseResult<TCommand, TGlobalArgv>
   : never;
+
+type A = GetCommandParseResult<Command>;
