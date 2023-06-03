@@ -1,14 +1,12 @@
 import { EmptyRecord, NonEmptyTuple } from "../../../common/types";
-import { Cast, ToList, TupleKeys } from "../../../common/types-util";
-import { CommandArgs } from "./type-command-args";
+import { Cast } from "../../../common/types-util";
 import {
   CommandArgsGeneric,
   IntersectionToNames,
 } from "./type-command-args-generic";
-import { NestedCommandArgs } from "./type-nested-command-args";
 
 /**
- * @description removes heading command
+ * @description removes heading command from type
  */
 export type PopCommandType<
   T extends CommandArgsGeneric<EmptyRecord, [string]>,
@@ -17,6 +15,9 @@ export type PopCommandType<
   : CommandArgsGeneric<T["argv"], Cast<TTail, NonEmptyTuple<string>>>
   : never;
 
+/**
+ * @description removes heading command
+ */
 export function popCommand<
   T extends CommandArgsGeneric<TArgv, [string]>,
   TArgv extends EmptyRecord,

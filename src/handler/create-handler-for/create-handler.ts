@@ -1,9 +1,5 @@
 import { CommandArgs } from "../../../test/test-try-handler";
-import {
-  Command,
-  CommandComposedWithSubcommands,
-  GetCommandParseResult,
-} from "../../command";
+import { Command } from "../../command";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { ComposableHandler } from "../handler-composable/type";
 import { HandlerFunction } from "../handler-function/type";

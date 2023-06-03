@@ -35,4 +35,5 @@ export type FallbackNever<T, U> = FallbackType<T, never, U>;
 export type FallbackToNever<T, U> = FallbackType<T, U, never>;
 
 export type Extends<T, U> = T extends U ? true : false;
-export type Equal<T, U> = [T] extends [U] ? true : false;
+export type Equal<T, U> = [T] extends [U] ? [U] extends [T] ? true : false
+  : false;

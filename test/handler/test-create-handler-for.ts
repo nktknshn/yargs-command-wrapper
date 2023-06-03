@@ -12,10 +12,10 @@ import {
   com2,
   com2com3,
   com3,
-  command3,
   composedCommand,
+  deepNested,
+  nestedCommand,
   s1s2comp,
-  sub3,
 } from "./fixtures";
 
 describe("handlerFor", () => {
@@ -124,7 +124,7 @@ describe("handlerFor", () => {
   });
 
   test("subs basic", () => {
-    createHandlerFor(sub3, {
+    createHandlerFor(nestedCommand, {
       "subsub1": (args) => {
         args.sub3argv;
         args.subsub1argv;
@@ -135,7 +135,7 @@ describe("handlerFor", () => {
       },
     });
 
-    createHandlerFor(sub3, (args) => {
+    createHandlerFor(nestedCommand, (args) => {
       expectTypeOf(args.command).toEqualTypeOf<"subsub1" | "subsub2">();
     });
   });
@@ -150,7 +150,7 @@ describe("handlerFor", () => {
       "subsub2": (args) => {},
     });
 
-    const sub3handler = createHandlerFor(sub3, s1s2compHandler);
+    const sub3handler = createHandlerFor(nestedCommand, s1s2compHandler);
 
     sub3handler.handle({
       command: "sub3",
@@ -174,9 +174,9 @@ describe("handlerFor", () => {
       "subsub2": (args) => {},
     });
 
-    const sub3handler = createHandlerFor(sub3, s1s2compHandler);
+    const sub3handler = createHandlerFor(nestedCommand, s1s2compHandler);
 
-    const handler = createHandlerFor(command3, {
+    const handler = createHandlerFor(deepNested, {
       "sub1": () => 1,
       "sub2": () => "123",
       "sub3": sub3handler,
@@ -206,7 +206,7 @@ describe("handlerFor", () => {
       "subsub2": (args) => {},
     });
 
-    const handler = createHandlerFor(command3, {
+    const handler = createHandlerFor(deepNested, {
       "sub1": () => 1,
       "sub2": () => "123",
       "sub3": s1s2compHandler,
@@ -236,7 +236,7 @@ describe("handlerFor", () => {
       "subsub2": (args) => {},
     });
 
-    const _cmd = comp(com1, com2, sub3);
+    const _cmd = comp(com1, com2, nestedCommand);
 
     const handler = createHandlerFor(_cmd, {
       "com1": () => {},
@@ -259,7 +259,7 @@ describe("handlerFor", () => {
   test("nested function handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const handler1 = createHandlerFor(command3, (args) => {
+    const handler1 = createHandlerFor(deepNested, (args) => {
       fn1(args);
       args.command;
 
@@ -284,7 +284,7 @@ describe("handlerFor", () => {
   test("nested structure handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const sub3handler = createHandlerFor(sub3, {
+    const sub3handler = createHandlerFor(nestedCommand, {
       "subsub1": (args) => {
         fn1(args);
         args.sub3argv;
@@ -297,7 +297,7 @@ describe("handlerFor", () => {
       },
     });
 
-    const handler1 = createHandlerFor(command3, {
+    const handler1 = createHandlerFor(deepNested, {
       "sub1": (args) => {},
       "sub2": (args) => {},
       "sub3": sub3handler,
@@ -320,7 +320,7 @@ describe("handlerFor", () => {
   test("nested record handler", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const handler1 = createHandlerFor(command3, {
+    const handler1 = createHandlerFor(deepNested, {
       "sub1": (args) => {
         args.com4argv;
         args.sub1argv;
@@ -338,7 +338,7 @@ describe("handlerFor", () => {
   test("nested structure handler 2", () => {
     const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
 
-    const command34handler = createHandlerFor(command3, {
+    const command34handler = createHandlerFor(deepNested, {
       "sub1": (args) => {},
       "sub2": (args) => {
         fn2(args);
@@ -440,14 +440,12 @@ describe("handlerFor", () => {
       "com2": args => {},
     });
 
-    type R1 = ReturnType<typeof handlerMixed2.handle>;
-
-    expectTypeOf(handlerMixed2.handle).returns.toMatchTypeOf<
+    expectTypeOf<ReturnType<typeof handlerMixed2.handle>>().toEqualTypeOf<
       Promise<void> | void
     >();
 
-    const handlerSync3 = createHandlerFor(sub3, () => {});
-    const handlerAsync3 = createHandlerFor(sub3, async () => {});
+    const handlerSync3 = createHandlerFor(nestedCommand, () => {});
+    const handlerAsync3 = createHandlerFor(nestedCommand, async () => {});
 
     expectTypeOf(handlerSync3.handle).returns.toEqualTypeOf<void>();
     expectTypeOf(handlerAsync3.handle).returns.toEqualTypeOf<Promise<void>>();

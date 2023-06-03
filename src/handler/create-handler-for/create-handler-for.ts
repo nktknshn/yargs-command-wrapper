@@ -77,7 +77,7 @@ export function createHandlerFor(
     if (isFunctionHandler(functionOrRecord)) {
       return _createHandlerForCommand(
         command,
-        functionOrRecord as InputHandlerFunctionFor<CommandBasic>,
+        functionOrRecord,
       );
     }
     else {

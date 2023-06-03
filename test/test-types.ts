@@ -7,12 +7,12 @@ import {
   CommandComposedWithSubcommands,
   GetCommandParseResult,
 } from "../src/command";
-import { CommandArgsGeneric } from "../src/command/commands/args/type-command-args-generic";
 import { NestedCommandArgs } from "../src/command/commands/args/type-nested-command-args";
+import { HandlerFunction } from "../src/handler";
 import { InputHandlerFunctionFor } from "../src/handler/create-handler-for/type-input-function";
 import { ComposableHandlerFor } from "../src/handler/handler-composable/composable-handler-for";
 import { ComposableHandler } from "../src/handler/handler-composable/type";
-import { ComposedHandlers } from "../src/handler/handler-composable/types-compose";
+import { DefaultHandler } from "../src/handler/handler-function/type-handler-function-for";
 import { CommandArgs } from "./test-try-handler";
 
 type Extends<T1, T2> = T1 extends T2 ? true : false;
@@ -54,39 +54,51 @@ describe("test types hierarchy", () => {
   });
 
   test("parse result", () => {
-    type T5 = GetCommandParseResult<Command>;
-    type T6 = GetCommandParseResult<CommandBasic>;
-    type T7 = GetCommandParseResult<CommandComposed>;
-    type T8 = GetCommandParseResult<CommandComposedWithSubcommands>;
+    type TCommand = GetCommandParseResult<Command>;
+    type TCommandBasic = GetCommandParseResult<CommandBasic>;
+    type TCommandComposed = GetCommandParseResult<CommandComposed>;
+    type TCommandComposedWithSubcommands = GetCommandParseResult<
+      CommandComposedWithSubcommands
+    >;
 
-    type T5a = GetCommandParseResult<BC1>;
+    expectTypeOf<TCommandBasic>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposed>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposedWithSubcommands>().toMatchTypeOf<TCommand>();
 
-    expectTypeOf<GetCommandParseResult<BC1>>().toMatchTypeOf<T5>();
-    expectTypeOf<GetCommandParseResult<BC1>>().toMatchTypeOf<T6>();
+    expectTypeOf<GetCommandParseResult<BC1>>().toMatchTypeOf<TCommand>();
+    expectTypeOf<GetCommandParseResult<BC1>>().toMatchTypeOf<TCommandBasic>();
 
-    expectTypeOf<GetCommandParseResult<CC1>>().toMatchTypeOf<T5>();
-    expectTypeOf<GetCommandParseResult<CC1>>().toMatchTypeOf<T7>();
+    expectTypeOf<GetCommandParseResult<CC1>>().toMatchTypeOf<TCommand>();
+    expectTypeOf<GetCommandParseResult<CC1>>().toMatchTypeOf<
+      TCommandComposed
+    >();
 
-    expectTypeOf<GetCommandParseResult<SC1>>().toMatchTypeOf<T5>();
-    expectTypeOf<GetCommandParseResult<SC1>>().toMatchTypeOf<T8>();
+    expectTypeOf<GetCommandParseResult<SC1>>().toMatchTypeOf<TCommand>();
+    expectTypeOf<GetCommandParseResult<SC1>>().toMatchTypeOf<
+      TCommandComposedWithSubcommands
+    >();
   });
 
   test("handler function for", () => {
     type TCommand = HandlerFunctionFor<Command>;
 
-    // type Z =
-    //   | ((argv: { command: string; argv: EmptyRecord }) => unknown)
-    //   | ((argv: { command: string; argv: EmptyRecord }) => Promise<unknown>);
-
     type TCommandBasic = HandlerFunctionFor<CommandBasic>;
-    type TCommandBasicNever = HandlerFunctionFor<CommandBasic<never, never>>;
     type TCommandComposed = HandlerFunctionFor<CommandComposed>;
     type TCommandComposedWithSubcommands = HandlerFunctionFor<
       CommandComposedWithSubcommands
     >;
 
+    expectTypeOf<TCommandBasic>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposed>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposedWithSubcommands>().toMatchTypeOf<TCommand>();
+
     type TBC1 = HandlerFunctionFor<BC1>;
     type TCC1 = HandlerFunctionFor<CC1>;
+    type TSC1 = HandlerFunctionFor<SC1>;
+
+    expectTypeOf<TBC1>().toMatchTypeOf<HandlerFunction>();
+    expectTypeOf<TCC1>().toMatchTypeOf<HandlerFunction>();
+    expectTypeOf<TSC1>().toMatchTypeOf<HandlerFunction>();
 
     expectTypeOf<TBC1>().toMatchTypeOf<TCommand>();
     expectTypeOf<TBC1>().toMatchTypeOf<TCommandBasic>();
@@ -103,24 +115,54 @@ describe("test types hierarchy", () => {
       CommandComposedWithSubcommands
     >;
 
+    expectTypeOf<TCommandBasic>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposed>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposedWithSubcommands>().toMatchTypeOf<TCommand>();
+
+    type TBC1 = ComposableHandlerFor<BC1>;
+    type TCC1 = ComposableHandlerFor<CC1>;
     type TSC1 = ComposableHandlerFor<SC1>;
 
-    expectTypeOf<ComposableHandlerFor<BC1>>().toMatchTypeOf<TCommand>();
+    type A = Extends<TSC1, ComposableHandler>;
 
-    type A = ComposableHandlerFor<BC1>;
-    type Aex = ComposableHandlerFor<BC1> extends TCommand ? true : false;
+    expectTypeOf<TBC1>().toMatchTypeOf<ComposableHandler>();
+    expectTypeOf<TBC1>().toMatchTypeOf<TCommandBasic>();
 
-    type TComposed = ComposedHandlers<[BC1, BC2]>;
+    expectTypeOf<TCC1>().toMatchTypeOf<ComposableHandler>();
+    expectTypeOf<TCC1>().toMatchTypeOf<TCommandComposed>();
+
+    expectTypeOf<TSC1>().toMatchTypeOf<ComposableHandler>();
+    expectTypeOf<TSC1>().toMatchTypeOf<TCommandComposedWithSubcommands>();
+
+    expectTypeOf<TBC1>().toMatchTypeOf<TCommand>();
   });
 
   test("input handler functions", () => {
-    type T9 = InputHandlerFunctionFor<Command>;
-    type T10 = InputHandlerFunctionFor<CommandBasic>;
-    type T11 = InputHandlerFunctionFor<CommandComposed>;
-    type T12 = InputHandlerFunctionFor<CommandComposedWithSubcommands>;
+    type TCommand = InputHandlerFunctionFor<Command>;
+    type TCommandBasic = InputHandlerFunctionFor<CommandBasic>;
+    type TCommandComposed = InputHandlerFunctionFor<CommandComposed>;
+    type TCommandComposedWithSubcommands = InputHandlerFunctionFor<
+      CommandComposedWithSubcommands
+    >;
 
-    expectTypeOf<InputHandlerFunctionFor<BC1>>().toMatchTypeOf<T9>();
-    expectTypeOf<InputHandlerFunctionFor<BC1>>().toMatchTypeOf<T10>();
+    expectTypeOf<TCommandBasic>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposed>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCommandComposedWithSubcommands>().toMatchTypeOf<TCommand>();
+
+    type B = DefaultHandler<CC1>;
+
+    type TBC1 = InputHandlerFunctionFor<BC1>;
+    type TCC1 = InputHandlerFunctionFor<CC1>;
+    type TSC1 = InputHandlerFunctionFor<SC1>;
+
+    expectTypeOf<TBC1>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TBC1>().toMatchTypeOf<TCommandBasic>();
+
+    expectTypeOf<TCC1>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TCC1>().toMatchTypeOf<TCommandComposed>();
+
+    expectTypeOf<TSC1>().toMatchTypeOf<TCommand>();
+    expectTypeOf<TSC1>().toMatchTypeOf<TCommandComposedWithSubcommands>();
 
     type A = InputHandlerFunctionFor<BC1>;
   });

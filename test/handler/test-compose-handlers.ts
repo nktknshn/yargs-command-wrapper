@@ -21,7 +21,7 @@ import {
   com5,
   com6,
   com7,
-  command3,
+  deepNested,
 } from "./fixtures";
 
 describe("compose handlers", () => {
@@ -125,7 +125,7 @@ describe("compose handlers", () => {
       }
     });
 
-    const handler3 = createHandlerFor(command3, (args) => {
+    const handler3 = createHandlerFor(deepNested, (args) => {
       args.command;
       expectTypeOf(args.command).toEqualTypeOf<"sub1" | "sub2" | "sub3">();
       // args.subcommand;
