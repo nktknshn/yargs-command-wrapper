@@ -31,3 +31,8 @@ export type TupleToUnion<T extends ReadonlyArray<unknown>> = T[number];
 export type FallbackType<T, U, V> = [T] extends [U] ? V : T;
 
 export type FallbackNever<T, U> = FallbackType<T, never, U>;
+
+export type FallbackToNever<T, U> = FallbackType<T, U, never>;
+
+export type Extends<T, U> = T extends U ? true : false;
+export type Equal<T, U> = [T] extends [U] ? true : false;

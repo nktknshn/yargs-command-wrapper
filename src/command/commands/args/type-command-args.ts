@@ -3,11 +3,9 @@
  */
 
 import { EmptyRecord } from "../../../common/types";
+import { CommandArgsGeneric } from "./type-command-args-generic";
 
 export type CommandArgs<
   TArgv extends EmptyRecord = EmptyRecord,
   TName extends string = string,
-> = {
-  "command": TName;
-  "argv": TArgv;
-};
+> = CommandArgsGeneric<TArgv, [TName]>;

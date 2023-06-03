@@ -6,6 +6,7 @@ import {
   GetCommandParseResult,
 } from "../../command";
 import { EmptyRecord } from "../../common/types";
+import { FallbackToNever, FallbackType } from "../../common/types-util";
 import { HandlerFunction } from "./type";
 
 /**
@@ -17,7 +18,14 @@ export type HandlerFunctionFor<
 > =
   // or `BasicCommand` this is just a function takes `TArgv`
   TCommand extends CommandBasic<infer TName, infer TArgv>
-    ? HandlerFunction<{ command: TName; argv: TArgv & TGlobalArgv }>
+    ? HandlerFunction<{ command: TName; argv: TArgv }>
+    // ? HandlerFunction<
+    //     {
+    //       command: FallbackToNever<TName, string>;
+    //       argv: FallbackToNever<TArgv & TGlobalArgv, EmptyRecord>;
+    //     }
+    //   >
+    //
     : TCommand extends CommandComposed ? HandlerFunction<
         GetCommandParseResult<TCommand, TGlobalArgv>
       >

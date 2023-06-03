@@ -21,7 +21,12 @@ export function subs<
   command: CommandBasic<TCommandName, TArgv>,
   subcommands: TCommands,
 ):
-  & CommandComposedWithSubcommands<TCommandName, TCommands, TArgv, EmptyRecord>
+  & CommandComposedWithSubcommands<
+    TCommandName,
+    TCommands,
+    TArgv,
+    EmptyRecord
+  >
   & { $: HelperObjectWithSubcommands<TCommands, TArgv> };
 
 export function subs<

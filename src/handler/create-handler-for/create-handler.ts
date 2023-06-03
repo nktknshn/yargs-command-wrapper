@@ -1,3 +1,4 @@
+import { CommandArgs } from "../../../test/test-try-handler";
 import {
   Command,
   CommandComposedWithSubcommands,
@@ -26,7 +27,7 @@ export function createHandler<
 >;
 
 export function createHandler(
-  handle: HandlerFunction,
+  handle: HandlerFunction<CommandArgs<never, never>>,
   supports: readonly string[],
 ): ComposableHandler {
   return { handle, supports };

@@ -31,8 +31,6 @@ type H = ComposedHandlers<[
   >,
 ]>;
 
-type A = ComposeArgv<[ComposableHandler]>;
-
 type CompHand = ComposableHandler<readonly string[], CommandArgs>;
 /**
  * @description Composes handlers created by `createHandlerFor`

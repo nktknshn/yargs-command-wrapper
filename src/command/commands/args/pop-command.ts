@@ -1,34 +1,31 @@
-import { EmptyRecord } from "../../../common/types";
+import { EmptyRecord, NonEmptyTuple } from "../../../common/types";
 import { Cast, ToList, TupleKeys } from "../../../common/types-util";
 import { CommandArgs } from "./type-command-args";
+import {
+  CommandArgsGeneric,
+  IntersectionToNames,
+} from "./type-command-args-generic";
 import { NestedCommandArgs } from "./type-nested-command-args";
 
-export type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
-    [P in TupleKeys<L>]:
-      & Omit<L[P], "command">
-      & {
-        argv: Cast<L[P], CommandArgs>["argv"];
-      }
-      & {
-        [K in keyof L[P] as K extends `sub${infer U}` ? U : never]: L[P][K];
-      };
-  }[TupleKeys<L>]
+/**
+ * @description removes heading command
+ */
+export type PopCommandType<
+  T extends CommandArgsGeneric<EmptyRecord, [string]>,
+> = IntersectionToNames<T> extends [infer THead, ...infer TTail]
+  ? TTail extends [] ? T["argv"]
+  : CommandArgsGeneric<T["argv"], Cast<TTail, NonEmptyTuple<string>>>
   : never;
 
 export function popCommand<
-  T extends NestedCommandArgs<EmptyRecord, string, string>,
->(args: T): PopCommand<T>;
-
-export function popCommand<
-  T extends { command: string; argv: TArgv },
+  T extends CommandArgsGeneric<TArgv, [string]>,
   TArgv extends EmptyRecord,
->(args: T): TArgv;
+>(args: T): PopCommandType<T>;
 
-export function popCommand<
-  T extends CommandArgs<TArgv>,
-  TArgv extends EmptyRecord,
->(args: T): PopCommand<T> | TArgv {
-  if (!("subcommand" in args as unknown)) {
+export function popCommand(
+  args: CommandArgsGeneric<EmptyRecord, [string]>,
+): Record<string, unknown> {
+  if (!("subcommand" in args)) {
     return args.argv;
   }
 
@@ -41,11 +38,11 @@ export function popCommand<
       continue;
     }
     else if (/(sub)+command/.test(key)) {
-      const value = args[key];
+      const value = args[key as keyof typeof args];
       const k = key.replace(/^sub/, "");
       result[k] = value;
     }
   }
 
-  return result as PopCommand<T>;
+  return result;
 }
