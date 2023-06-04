@@ -1,4 +1,4 @@
-import { CommandArgs } from "../../../test/test-try-handler";
+import { CommandArgs } from "../../../ignored/test-try-handler";
 import { Command } from "../../command";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { ComposableHandler } from "../handler-composable/type";

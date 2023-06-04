@@ -1,12 +1,6 @@
 import { expectTypeOf } from "expect-type";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
-import {
-  com1,
-  com1com2,
-  deepNested,
-  nestedCommand,
-  s1s2comp,
-} from "./fixtures";
+import { com1, com1com2, deepNested, s1s2comp, subsCommand } from "./fixtures";
 
 describe("handlerFor return type", () => {
   test("basic", () => {
@@ -20,9 +14,9 @@ describe("handlerFor return type", () => {
     expectTypeOf(createHandlerFor(com1com2, () => {}).handle).returns
       .toEqualTypeOf<void>();
 
-    expectTypeOf(createHandlerFor(nestedCommand, () => {}).handle).returns
+    expectTypeOf(createHandlerFor(subsCommand, () => {}).handle).returns
       .toEqualTypeOf<void>();
-    expectTypeOf(createHandlerFor(nestedCommand, async () => "123").handle)
+    expectTypeOf(createHandlerFor(subsCommand, async () => "123").handle)
       .returns
       .toEqualTypeOf<Promise<string>>();
   });
@@ -40,7 +34,7 @@ describe("handlerFor return type", () => {
       .toMatchTypeOf<number | string>();
 
     expectTypeOf(
-      createHandlerFor(nestedCommand, {
+      createHandlerFor(subsCommand, {
         "subsub1": () => 1,
         "subsub2": () => "123",
       })
@@ -49,7 +43,7 @@ describe("handlerFor return type", () => {
       .toMatchTypeOf<number | string>();
 
     expectTypeOf(
-      createHandlerFor(nestedCommand, {
+      createHandlerFor(subsCommand, {
         "subsub1": () => 1,
         "subsub2": () => "123",
       })
@@ -80,7 +74,7 @@ describe("handlerFor return type", () => {
     ).returns
       .toMatchTypeOf<number | string | number[] | string[]>();
 
-    const sub3handler = createHandlerFor(nestedCommand, {
+    const sub3handler = createHandlerFor(subsCommand, {
       "subsub1": (): number[] => [],
       "subsub2": (): string[] => [],
     });

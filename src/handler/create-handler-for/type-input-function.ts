@@ -6,7 +6,6 @@ import {
 } from "../../command";
 import { GetNestedComposedCommand } from "../../command/commands/with-subcommands/type-helpers";
 import { EmptyRecord } from "../../common/types";
-import { Equal } from "../../common/types-util";
 import { HandlerFunction } from "../handler-function/type";
 import { HandlerFunctionFor } from "../handler-function/type-handler-function-for";
 
@@ -21,8 +20,7 @@ export type InputHandlerFunctionFor<
    * for a basic command, the handler is a function that receives argv (command name is not included)
    */
   TCommand extends CommandBasic<string, infer TArgv>
-    ? Equal<TCommand, CommandBasic> extends true ? HandlerFunction<never>
-    : HandlerFunction<TArgv & TGlobalArgv>
+    ? HandlerFunction<TArgv & TGlobalArgv>
     /**
      * handler for a composed command is defined by a function that receives argv and command name which is a union of composed commands names
      */

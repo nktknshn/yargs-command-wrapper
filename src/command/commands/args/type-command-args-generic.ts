@@ -1,5 +1,5 @@
 import { EmptyRecord, NonEmptyTuple } from "../../../common/types";
-import { Cast, Extends } from "../../../common/types-util";
+import { Cast } from "../../../common/types-util";
 
 /**
  * @description Generic type for result returned by a parser
@@ -39,7 +39,3 @@ type _IntersectionToNames<
       >,
     ]
   : never;
-
-// type _A = Extends<{}, Record<string, never>>;
-// type _A1 = Extends<boolean, {}>;
-// type A = IntersectionToNames<NamesToIntersection<["a", "b", "c"]>>;

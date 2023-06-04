@@ -13,8 +13,8 @@ import {
  */
 export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposableHandler<
-    FallbackType<ComposeNames<THandlers>, [], readonly string[]>,
     ComposeArgv<THandlers>,
+    FallbackType<ComposeNames<THandlers>, [], readonly string[]>,
     ComposeSyncTypes<THandlers>,
     ComposeReturnType<THandlers>
   >;

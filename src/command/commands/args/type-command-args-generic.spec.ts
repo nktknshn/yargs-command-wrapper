@@ -1,4 +1,4 @@
-import { expectTypeOf, Extends } from "expect-type";
+import { expectTypeOf } from "expect-type";
 import { EmptyRecord } from "../../../common/types";
 import { CommandArgsGeneric } from "./type-command-args-generic";
 

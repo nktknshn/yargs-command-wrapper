@@ -10,7 +10,7 @@ import {
  */
 export type PopCommandType<
   T extends CommandArgsGeneric<EmptyRecord, [string]>,
-> = IntersectionToNames<T> extends [infer THead, ...infer TTail]
+> = IntersectionToNames<T> extends [string, ...infer TTail]
   ? TTail extends [] ? T["argv"]
   : CommandArgsGeneric<T["argv"], Cast<TTail, NonEmptyTuple<string>>>
   : never;

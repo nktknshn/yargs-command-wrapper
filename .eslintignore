@@ -3,3 +3,5 @@ node_modules
 test/
 .eslintrc.cjs
 jest.config.js
+ignored
+/**/*.spec.ts

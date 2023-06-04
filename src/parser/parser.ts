@@ -1,7 +1,7 @@
 import y from "yargs";
 import { appendSubcommand } from "../command/commands/args/push-command";
 import { Command } from "../command/commands/command";
-import { GetCommandParseResult } from "../command/commands/type-parse-result";
+import { GetCommandArgs } from "../command/commands/type-parse-result";
 import { YargsCommandBuilder } from "../command/types";
 import * as E from "../common/either";
 import { ErrorType } from "../common/error";
@@ -10,7 +10,7 @@ import { build } from "./build-yargs";
 import { findAlias } from "./helpers";
 
 type BuildAndParseResult<TCommand extends Command> = {
-  result: E.Either<ErrorType, GetCommandParseResult<TCommand>>;
+  result: E.Either<ErrorType, GetCommandArgs<TCommand>>;
   yargs: y.Argv;
 };
 
@@ -45,7 +45,7 @@ export const buildAndParse = <TCommand extends Command>(
 export const buildAndParseUnsafe = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-): { result: GetCommandParseResult<TCommand>; yargs: y.Argv } => {
+): { result: GetCommandArgs<TCommand>; yargs: y.Argv } => {
   const { result, yargs } = buildAndParse(command, arg);
 
   if (E.isLeft(result)) {
@@ -57,7 +57,7 @@ export const buildAndParseUnsafe = <TCommand extends Command>(
 export const buildAndParseUnsafeR = <TCommand extends Command>(
   command: TCommand,
   arg?: string | readonly string[],
-): GetCommandParseResult<TCommand> => {
+): GetCommandArgs<TCommand> => {
   const { result } = buildAndParse(command, arg);
 
   if (E.isLeft(result)) {
@@ -76,7 +76,7 @@ export const parse = <TCommand extends Command>(
   yargsObject: y.Argv,
   arg?: string | readonly string[],
   stripArgv = true,
-): E.Either<ErrorType, GetCommandParseResult<TCommand>> => {
+): E.Either<ErrorType, GetCommandArgs<TCommand>> => {
   try {
     const argv = arg !== undefined
       ? yargsObject.parseSync(arg)
@@ -114,14 +114,14 @@ export const parse = <TCommand extends Command>(
       // result[`${prefix}command`] = cmd;
     }
 
-    let _argv: Partial<typeof argv> = { ...argv };
+    const _argv: Partial<typeof argv> = { ...argv };
     if (stripArgv) {
       delete _argv["_"];
       delete _argv["$0"];
     }
     result["argv"] = _argv;
 
-    return E.of(result as GetCommandParseResult<TCommand>);
+    return E.of(result as GetCommandArgs<TCommand>);
   } catch (e) {
     return E.left({ error: "yargs error", message: String(e) });
   }

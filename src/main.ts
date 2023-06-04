@@ -44,7 +44,7 @@ async () => {
   if (E.isLeft(result)) {
     failClient(yargs, result);
   }
-  const res = (handler as any)(result.right);
+  const res = handler(result.right as any);
 
   if (isPromiseLike(res)) {
     await res;

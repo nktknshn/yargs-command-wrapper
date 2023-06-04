@@ -15,8 +15,14 @@ import { ComposableHandler } from "../handler-composable/type";
 import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
 import { InputHandlerFunctionFor } from "./type-input-function";
 
-export type InputRecordHandler = {
-  [key: string]: HandlerFunction | InputRecordHandler | ComposableHandler;
+/**
+ * @description Generic type for a record that defines a handler for a command.
+ */
+export type InputHandlerRecordType<TArgv extends EmptyRecord = EmptyRecord> = {
+  [key: string]:
+    | HandlerFunction<TArgv>
+    | InputHandlerRecordType<TArgv>
+    | ComposableHandler<any>;
 };
 
 /**
@@ -42,8 +48,6 @@ export type InputHandlerRecordFor<
         TGlobalArgv & TCommandArgv & TArgv
       >
     : never;
-
-type A = InputHandlerRecordFor<Command>;
 
 /**
  * @description defines a record that can be used to create a handler for a list of commands.
@@ -97,5 +101,3 @@ export type ComposableHandlerForSubcommands<
     TGlobalArgv
   >
   : never;
-
-type B = ComposableHandlerForSubcommands<Command>;

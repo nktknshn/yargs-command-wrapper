@@ -1,37 +1,8 @@
 import { CommandArgs } from "../../command/commands/args/type-command-args";
-import { HandlerFunction } from "../handler-function/type";
 import { ComposableHandler } from "./type";
-import { ComposeArgv, ComposedHandlers, ComposeNames } from "./types-compose";
+import { ComposeArgv, ComposedHandlers } from "./types-compose";
 
-type C1 = ComposableHandler<
-  ["com1"],
-  { command: "com1"; argv: { a: number } },
-  "sync",
-  void
->;
-
-type H = ComposedHandlers<[
-  ComposableHandler<
-    ["com1"],
-    { command: "com1"; argv: { a: number } },
-    "sync",
-    void
-  >,
-  ComposableHandler<
-    ["com2"],
-    { command: "com2"; argv: { b: number } },
-    "sync",
-    void
-  >,
-  ComposableHandler<
-    ["com3"],
-    { command: "com3"; argv: { c: number } },
-    "sync",
-    void
-  >,
-]>;
-
-type CompHand = ComposableHandler<readonly string[], CommandArgs>;
+type CompHand = ComposableHandler<CommandArgs, readonly string[]>;
 /**
  * @description Composes handlers created by `createHandlerFor`
  * @example

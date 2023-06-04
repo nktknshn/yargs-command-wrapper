@@ -16,7 +16,9 @@ export const cmd = comp(
   ),
 );
 
+const h = createHandlerFor(cmd.$.commands.config, config.handler);
+
 export const handler = composeHandlers(
   client.handler,
-  createHandlerFor(cmd.$.commands.config, config.handler),
+  h,
 );
