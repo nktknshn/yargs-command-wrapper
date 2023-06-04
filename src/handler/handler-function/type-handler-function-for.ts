@@ -3,7 +3,7 @@ import {
   CommandBasic,
   CommandComposed,
   CommandComposedWithSubcommands,
-  GetCommandParseResult,
+  GetCommandArgs,
 } from "../../command";
 import { EmptyRecord } from "../../common/types";
 import { HandlerFunction } from "./type";
@@ -14,14 +14,12 @@ import { HandlerFunction } from "./type";
 export type HandlerFunctionFor<
   TCommand extends Command,
   TGlobalArgv extends EmptyRecord = EmptyRecord,
-> =
-  // or `BasicCommand` this is just a function takes `TArgv`
-  TCommand extends CommandBasic<infer TName, infer TArgv>
-    ? HandlerFunction<{ command: TName; argv: TArgv & TGlobalArgv }>
-    : TCommand extends CommandComposed ? HandlerFunction<
-        GetCommandParseResult<TCommand, TGlobalArgv>
-      >
-    : TCommand extends CommandComposedWithSubcommands ? HandlerFunction<
-        GetCommandParseResult<TCommand, TGlobalArgv>
-      >
-    : never;
+> = TCommand extends CommandBasic<infer TName, infer TArgv>
+  ? HandlerFunction<{ command: TName; argv: TArgv }>
+  : TCommand extends CommandComposed ? HandlerFunction<
+      GetCommandArgs<TCommand, TGlobalArgv>
+    >
+  : TCommand extends CommandComposedWithSubcommands ? HandlerFunction<
+      GetCommandArgs<TCommand, TGlobalArgv>
+    >
+  : never;

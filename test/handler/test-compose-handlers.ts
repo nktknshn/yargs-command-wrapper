@@ -1,11 +1,17 @@
 import { expectTypeOf } from "expect-type";
 import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
+import { CommandArgs } from "../../src/command/commands/args/type-command-args";
+import { NestedCommandArgs } from "../../src/command/commands/args/type-nested-command-args";
 import { HandlerFunction } from "../../src/handler";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
 import { ComposableHandlerForSubcommands } from "../../src/handler/create-handler-for/type-create-handler-for";
 import { GetReturnType } from "../../src/handler/create-handler-for/type-helpers";
 import { composeHandlers } from "../../src/handler/handler-composable/compose";
-import { ComposeReturnType } from "../../src/handler/handler-composable/types-compose";
+import { ComposableHandler } from "../../src/handler/handler-composable/type";
+import {
+  ComposedHandlers,
+  ComposeReturnType,
+} from "../../src/handler/handler-composable/types-compose";
 import {
   com,
   com1,
@@ -15,7 +21,7 @@ import {
   com5,
   com6,
   com7,
-  command3,
+  deepNested,
 } from "./fixtures";
 
 describe("compose handlers", () => {
@@ -119,7 +125,7 @@ describe("compose handlers", () => {
       }
     });
 
-    const handler3 = createHandlerFor(command3, (args) => {
+    const handler3 = createHandlerFor(deepNested, (args) => {
       args.command;
       expectTypeOf(args.command).toEqualTypeOf<"sub1" | "sub2" | "sub3">();
       // args.subcommand;
@@ -132,6 +138,22 @@ describe("compose handlers", () => {
       handler12,
       handler3,
     );
+
+    type Args = CommandArgs<never, never>;
+    type A = Parameters<typeof handler3["handle"]>[0];
+    type Ex0 = Args extends A ? true : false;
+
+    type A0 = Parameters<typeof handler3["handle"]>[0];
+    type ExA0 = Args extends
+      { command: "abcd"; subcommand: "abcd"; argv: { a: number } } ? true
+      : false;
+
+    type EX1 = typeof handler3 extends ComposableHandler ? true : false;
+
+    type H = ComposedHandlers<[
+      typeof handler12,
+      typeof handler3,
+    ]>;
 
     composedHandler.handle({ command: "com1", argv: { a: "123" } });
 

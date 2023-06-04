@@ -3,14 +3,15 @@ import {
   CommandBasic,
   CommandComposed,
   CommandComposedWithSubcommands,
+  GetCommandArgs,
+  GetComposedParseResult,
 } from "../../command";
-import { GetCommandParseResult, GetComposedParseResult } from "../../command";
 import {
   GetCommandName,
   GetComposedCommandsNames,
 } from "../../command/commands/composed/type-helpers";
 import { EmptyRecord } from "../../common/types";
-import { Cast, ToList } from "../../common/types-util";
+import { Cast, FallbackType, ToList } from "../../common/types-util";
 import { HandlerSyncType } from "../handler-function/type";
 import { ComposableHandler } from "./type";
 
@@ -23,20 +24,24 @@ export type ComposableHandlerFor<
   TReturn = unknown,
   TGlobalArgv extends EmptyRecord = EmptyRecord,
 > = TCommand extends CommandBasic ? ComposableHandler<
+    GetCommandArgs<TCommand, TGlobalArgv>,
     [TCommand["commandName"]],
-    GetCommandParseResult<TCommand, TGlobalArgv>,
     TSyncType,
     TReturn
   >
   : TCommand extends CommandComposed ? ComposableHandler<
-      Cast<ToList<GetComposedCommandsNames<TCommand>>, readonly string[]>,
       GetComposedParseResult<TCommand, TGlobalArgv>,
+      FallbackType<
+        Cast<ToList<GetComposedCommandsNames<TCommand>>, readonly string[]>,
+        [],
+        string[]
+      >,
       TSyncType,
       TReturn
     >
   : TCommand extends CommandComposedWithSubcommands ? ComposableHandler<
+      GetCommandArgs<TCommand, TGlobalArgv>,
       [GetCommandName<TCommand>],
-      GetCommandParseResult<TCommand, TGlobalArgv>,
       TSyncType,
       TReturn
     >

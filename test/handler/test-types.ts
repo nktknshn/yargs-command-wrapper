@@ -6,10 +6,19 @@ import {
 } from "../../src/handler/create-handler-for/type-create-handler-for";
 import { GetSyncType } from "../../src/handler/create-handler-for/type-helpers";
 import { InputHandlerFunctionFor } from "../../src/handler/create-handler-for/type-input-function";
-import { com1, com1com2, com2, com2com3 } from "./fixtures";
+import { com1, com1com2, com2, com2com3, deepNested } from "./fixtures";
+
+type Com1 = typeof com1;
+type Com2 = typeof com2;
+type Com1Com2 = typeof com1com2;
+type Com2Com3 = typeof com2com3;
+type DeepNested = typeof deepNested;
 
 describe("test handler types", () => {
-  test("test input record", async () => {
+  test("test deep nested", () => {
+  });
+
+  test("test input record", () => {
     const a: InputHandlerRecordForCommands<typeof com2com3.commands, {}> = {
       com2: (args) => 1,
       com3: (args) => 2,

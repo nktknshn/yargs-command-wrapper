@@ -1,8 +1,8 @@
 import { EmptyRecord } from "../../../common/types";
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
+import { NestedCommandArgs } from "../args/type-nested-command-args";
 import { Command } from "../command";
-import { CommandArgs } from "../composed/type-command-args";
-import { GetCommandParseResult } from "../type-parse-result";
+import { GetCommandArgs } from "../type-parse-result";
 import { CommandComposedWithSubcommands } from "./type";
 import { PushCommand } from "./type-push-command";
 
@@ -14,15 +14,15 @@ export type GetSubcommandsParseResult<
 > = FallbackNever<
   {
     [P in TupleKeys<TCommands>]: PushCommand<
-      GetCommandParseResult<Cast<TCommands[P], Command>, TGlobalArgv>,
+      GetCommandArgs<Cast<TCommands[P], Command>, TGlobalArgv>,
       TCommandName,
       TArgv
     >;
   }[TupleKeys<TCommands>],
-  CommandArgs
+  NestedCommandArgs
 >;
 
-export type GetWithSubcommandsParseResult<
+export type GetWithSubcommandsArgs<
   T extends CommandComposedWithSubcommands,
   TGlobalArgv = EmptyRecord,
 > = T extends CommandComposedWithSubcommands<

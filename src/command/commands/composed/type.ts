@@ -24,6 +24,5 @@ export type HelperObjectComposed<
     [C in CommandsFlatten<TCommands> as GetCommandName<C>]:
       & C
       & AddArgv<C, TArgv>;
-    // & AddArgv<C, TArgv>;
   };
 };

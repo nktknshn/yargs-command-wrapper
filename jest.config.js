@@ -18,8 +18,8 @@ module.exports = {
       statements: 100,
     }
   },
-
   roots: [
     "<rootDir>/test/",
-  ]
+  ],
+  modulePathIgnorePatterns: ["test/test-types.ts"]
 }

@@ -1,52 +1,32 @@
-import { CommandArgs } from "../../command/commands/composed/type-command-args";
-import { NestedCommandArgs } from "../../command/commands/with-subcommands/type-nested-command-args";
-import { EmptyRecord } from "../../common/types";
-import { Cast, ToList, TupleKeys } from "../../common/types-util";
+import { Command } from "../../command";
+import { isObjectWithOwnProperty } from "../../common/util";
+import { ComposableHandler } from "../handler-composable/type";
+import { InputHandlerRecordType } from "./type-create-handler-for";
+import { InputHandlerFunctionFor } from "./type-input-function";
 
-export type PopCommand<T extends CommandArgs> = ToList<T> extends infer L ? {
-    [P in TupleKeys<L>]:
-      & Omit<L[P], "command">
-      & {
-        argv: Cast<L[P], CommandArgs>["argv"];
-      }
-      & {
-        [K in keyof L[P] as K extends `sub${infer U}` ? U : never]: L[P][K];
-      };
-  }[TupleKeys<L>]
-  : never;
+export const isFunctionHandler = <TCommand extends Command>(
+  handler:
+    | InputHandlerFunctionFor<Command>
+    | InputHandlerRecordType
+    | ComposableHandler,
+): handler is InputHandlerFunctionFor<TCommand> => {
+  return typeof handler === "function";
+};
 
-export function popCommand<
-  T extends NestedCommandArgs<TArgv>,
-  TArgv extends EmptyRecord,
->(args: T): PopCommand<T>;
+export const isRecordHandler = <TCommand extends Command>(
+  handler:
+    | InputHandlerFunctionFor<TCommand>
+    | InputHandlerRecordType
+    | ComposableHandler,
+): handler is InputHandlerRecordType => {
+  return typeof handler === "object";
+};
 
-export function popCommand<
-  T extends { command: string; argv: TArgv },
-  TArgv extends EmptyRecord,
->(args: T): TArgv;
-
-export function popCommand<
-  T extends CommandArgs<TArgv>,
-  TArgv extends EmptyRecord,
->(args: T): PopCommand<T> | TArgv {
-  if (!("subcommand" in args as unknown)) {
-    return args.argv;
-  }
-
-  const result: Record<string, unknown> = {
-    argv: args.argv,
-  };
-
-  for (const key in args) {
-    if (key === "command") {
-      continue;
-    }
-    else if (/(sub)+command/.test(key)) {
-      const value = args[key];
-      const k = key.replace(/^sub/, "");
-      result[k] = value;
-    }
-  }
-
-  return result as PopCommand<T>;
-}
+export const isComposableHandler = (
+  handler:
+    | InputHandlerFunctionFor<Command>
+    | InputHandlerRecordType
+    | ComposableHandler,
+): handler is ComposableHandler => {
+  return isObjectWithOwnProperty(handler, "handle");
+};

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export type GetFunctionSyncType<T extends (...args: never[]) => unknown> =
   T extends (
     ...args: never[]

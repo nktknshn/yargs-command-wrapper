@@ -15,14 +15,16 @@ export const com9 = comm("com9", "description", opt("d6"));
 
 export const com1com2 = comp(com1, com2);
 export const com2com3 = comp(com2, com3);
+
 const sub1 = comm("sub1", "sub1", opt("sub1argv"));
 const sub2 = comm("sub2", "sub2", opt("sub2argv"));
+
 const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
 const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));
 
 export const s1s2comp = comp(subsub1, subsub2);
 
-export const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [
+export const subsCommand = subs(comm("sub3", "sub3", opt("sub3argv")), [
   subsub1,
   subsub2,
 ]);
@@ -30,8 +32,9 @@ export const sub3 = subs(comm("sub3", "sub3", opt("sub3argv")), [
  * @description com4: sub1 sub2 sub3
  */
 
-export const command3 = subs(
+export const deepNested = subs(
   comm("com4", "com4", opt("com4argv")),
-  [sub1, sub2, sub3],
+  [sub1, sub2, subsCommand],
 );
-export const composedCommand = comp(com1, com2com3, command3);
+
+export const composedCommand = comp(com1, com2com3, deepNested);

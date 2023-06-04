@@ -1,5 +1,5 @@
 export { GetCommandArgv } from "./command";
-export type { GetCommandParseResult } from "./command";
+export type { GetCommandArgs as GetCommandParseResult } from "./command";
 export { command, command as comm } from "./command/commands/basic/command";
 export {
   composeCommands,

@@ -1,6 +1,6 @@
 import { TupleToUnion } from "./types-util";
 
-export type ObjectType = {};
+export type ObjectType = object;
 
 export const isPromiseLike = <T>(a: unknown): a is PromiseLike<T> => {
   return (
