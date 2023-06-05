@@ -1,7 +1,18 @@
 # About
 
-This wrapper allows to separate args parsing from their handling in a functional and
-a typesafe way.
+This wrapper enables the parsing of commands and subcommands into a unified set
+of types that can be handled independently. Additionally, it simplifies the process
+of creating a handler for these commands
+
+The inferred union type of the parsed arguments is as follows:
+
+```typescript
+type ParsedArgs = 
+| { command: "server"; subcommand: "start"; argv: { port: number; } };
+| { command: "client"; subcommand: "connect"; argv: { host: string; port: number; } }
+| { command: "client"; subcommand: "config"; subsubcommand: "get"; argv: { key?: string; file: string; } }
+| { command: "client"; subcommand: "config"; subsubcommand: "set"; argv: { key: string; value: string; file: string; } }
+```
 
 # Installation
 
@@ -9,32 +20,32 @@ a typesafe way.
 npm install --save yargs-command-wrapper
 ```
 
-# Usage
+# Example
 
 **API might change in the future.**
 
 ```typescript
 import {
   buildAndParse,
-  comm,
-  comp,
+  command,
+  composeCommands,
   createHandlerFor,
   Either,
   failClient,
-  subs,
+  subcommands,
 } from "yargs-command-wrapper";
 
-const config = comp(
+const config = composeCommands(
   _ =>
     _.options({
       file: { alias: "f", type: "string", default: "config.json" },
     }),
-  comm(
+  command(
     ["get [key]", "g"],
     "get config value",
     _ => _.positional("key", { type: "string" }),
   ),
-  comm(
+  command(
     ["set <key> <value>", "s"],
     "set config key",
     _ =>
@@ -44,26 +55,25 @@ const config = comp(
   ),
 );
 
-const server = comp(
-  comm(
-    ["start", "sta"],
-    "start server",
-    _ => _.option("port", { type: "number" }),
-  ),
-  comm(
-    ["stop", "sto"],
-    "stop server",
-    _ => _.option("force", { type: "boolean", default: false }),
-  ),
+const serverStart = command(
+  ["start", "sta"],
+  "start server",
+  _ => _.option("port", { type: "number", default: 8080 }),
 );
 
-const cliCommand = comp(
+const serverStop = command(
+  ["stop", "sto"],
+  "stop server",
+  _ => _.option("force", { type: "boolean", default: false }),
+);
+
+const cmd = composeCommands(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-  server,
-  subs(comm(["config", "c"], "config management"), config),
+  composeCommands(serverStart, serverStop),
+  subcommands(command(["config", "c"], "config management"), config),
 );
 
-const { result, yargs } = buildAndParse(cliCommand, process.argv.slice(2));
+const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));
 
 if (Either.isLeft(result)) {
   failClient(yargs, result);
@@ -81,7 +91,7 @@ else if (result.right.command === "stop") {
 }
 else if (result.right.command === "config") {
   if (result.right.subcommand === "get") {
-    console.log(`getting config key ${result.right.argv.key}`);
+    console.log(`getting config key ${result.right.argv.key ?? "all"}`);
   }
   else {
     console.log(
@@ -90,20 +100,20 @@ else if (result.right.command === "config") {
   }
 }
 
-// or by using createHandlerFor:
-const handler = createHandlerFor(cliCommand, {
+// or with use of `createHandlerFor`:
+const handler = createHandlerFor(cmd, {
   config: {
-    get: ({ key, file }) => {
-      console.log(`getting config ${file} key ${key}`);
+    get: ({ key, file, debug }) => {
+      console.log(`getting config ${file} key ${key ?? "all"}`);
     },
-    set: ({ key, value, file }) => {
+    set: ({ key, value, file, debug }) => {
       console.log(`setting config ${file} key ${key} to ${value}`);
     },
   },
-  start: ({ port }) => {
+  start: ({ port, debug }) => {
     console.log(`starting server on port ${port}`);
   },
-  stop: ({ force }) => {
+  stop: ({ force, debug }) => {
     console.log(`stopping server ${force ? "forcefully" : ""}`);
   },
 });
