@@ -1,5 +1,7 @@
 # About
 
+![build status](https://github.com/nktknshn/yargs-command-wrapper/actions/workflows/node.js.yml/badge.svg?branch=master)
+
 This wrapper enables the parsing of commands and subcommands into a unified set
 of types that can be handled independently. Additionally, it simplifies the process
 of creating a handler for these commands
