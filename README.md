@@ -6,9 +6,10 @@ of creating a handler for these commands
 
 The inferred union type of the parsed arguments is as follows:
 
+<!-- dprint-ignore -->
 ```typescript
 type ParsedArgs = 
-| { command: "server"; subcommand: "start"; argv: { port: number; } };
+| { command: "server"; subcommand: "start"; argv: { port: number; } }
 | { command: "client"; subcommand: "connect"; argv: { host: string; port: number; } }
 | { command: "client"; subcommand: "config"; subsubcommand: "get"; argv: { key?: string; file: string; } }
 | { command: "client"; subcommand: "config"; subsubcommand: "set"; argv: { key: string; value: string; file: string; } }
