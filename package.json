@@ -1,17 +1,20 @@
 {
   "name": "yargs-command-wrapper",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "version": "1.0.1",
+  "description": "wraps yargs command to make it more typesafe",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/.bin/jest"
+    "test": "./node_modules/.bin/jest",
+    "build": "./node_modules/.bin/tsc",
+    "build-publish": "rm -rf dist/ && ./node_modules/.bin/tsc -p tsconfig.publish.json",
+    "prepublishOnly": "npm run build-publish"
   },
-  "author": "",
+  "files": ["/dist"],
+  "author": "Nikita Kanashin",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.1",
-    "@types/yargs": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
     "eslint": "^8.41.0",
@@ -21,7 +24,18 @@
     "tsafe": "^1.6.0",
     "typescript": "^5.0.4"
   },
-  "dependencies": {
+  "peerDependencies": {
+    "@types/yargs": "^17.0.24",
     "yargs": "^17.7.2"
-  }
+  },
+  "keywords": [
+    "yargs",
+    "argument",
+    "args",
+    "option",
+    "parser",
+    "parsing",
+    "cli",
+    "command"
+  ]
 }
