@@ -1,3 +1,4 @@
+import { vi as jest } from "vitest";
 import { createHandlerFor } from "../../src";
 import { Command } from "../../src/command";
 import {

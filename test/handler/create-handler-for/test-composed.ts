@@ -1,3 +1,4 @@
+import { vi as jest } from "vitest";
 import { comp } from "../../../src";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import { com1, com2, com2com3, com3, s1s2comp, subsCommand } from "../fixtures";

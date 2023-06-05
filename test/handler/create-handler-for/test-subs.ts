@@ -1,4 +1,5 @@
 import { expectTypeOf } from "expect-type";
+import { vi as jest } from "vitest";
 import { subs } from "../../../src";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import {
@@ -11,7 +12,7 @@ import {
   subsCommand,
 } from "../fixtures";
 
-describe("createHandlerFor", () => {
+describe("createHandlerFor command with subcommands", () => {
   test("subs from a function", () => {
     const [fn1, fn2] = [jest.fn(), jest.fn()];
 

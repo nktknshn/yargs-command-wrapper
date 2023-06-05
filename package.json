@@ -5,26 +5,33 @@
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/.bin/jest",
+    "test": "./node_modules/.bin/vitest",
+    "coverage": "./node_modules/.bin/vitest run --coverage",
     "build": "./node_modules/.bin/tsc",
     "build-publish": "rm -rf dist/ && ./node_modules/.bin/tsc -p tsconfig.publish.json",
     "prepublishOnly": "npm run build-publish"
   },
   "homepage": "https://github.com/nktknshn/yargs-command-wrapper",
-  "files": ["/dist"],
-  "author": "Nikita Kanashin",
+  "files": [
+    "/dist"
+  ],
+  "author": {
+    "name": "Nikita Kanashin",
+    "email": "nikita@kanash.in"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.1",
+    "@types/yargs": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
+    "@vitest/coverage-istanbul": "^0.31.4",
     "eslint": "^8.41.0",
     "expect-type": "^0.15.0",
-    "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
     "tsafe": "^1.6.0",
     "typescript": "^5.0.4",
-    "@types/yargs": "^17.0.24"
+    "vitest": "^0.31.4"
   },
   "dependencies": {
     "yargs": "^17.7.2"

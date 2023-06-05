@@ -1,4 +1,5 @@
 import { expectTypeOf } from "expect-type";
+import { vi as jest } from "vitest";
 import { buildAndParseUnsafe, comp, subs } from "../../src";
 import { CommandArgs } from "../../src/command/commands/args/type-command-args";
 import { HandlerFunction } from "../../src/handler";
