@@ -1,5 +1,4 @@
 import { expectTypeOf } from "expect-type";
-import { CommandArgs } from "../ignored/test-try-handler";
 import { HandlerFunctionFor } from "../src";
 import {
   Command,
@@ -8,6 +7,7 @@ import {
   CommandComposedWithSubcommands,
   GetCommandArgs,
 } from "../src/command";
+import { CommandArgs } from "../src/command/commands/args/type-command-args";
 import { NestedCommandArgs } from "../src/command/commands/args/type-nested-command-args";
 import { EmptyRecord } from "../src/common/types";
 import { HandlerFunction } from "../src/handler";
