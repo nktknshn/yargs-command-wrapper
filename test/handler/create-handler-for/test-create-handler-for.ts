@@ -1,11 +1,11 @@
 import { expectTypeOf } from "expect-type";
-import { vi as jest } from "vitest";
+import { vi } from "vitest";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import { com1, deepNested, s1s2comp, subsCommand } from "../fixtures";
 
 describe("createHandlerFor", () => {
   test("basic command", () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
 
     const handler = createHandlerFor(com1, (args) => {
       fn(args);
@@ -35,7 +35,7 @@ describe("createHandlerFor", () => {
   });
 
   test("subs composed handler 0", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {
@@ -59,7 +59,7 @@ describe("createHandlerFor", () => {
   });
 
   test("subs composed handler 1", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {
@@ -91,7 +91,7 @@ describe("createHandlerFor", () => {
   });
 
   test("subs composed handler 2", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {

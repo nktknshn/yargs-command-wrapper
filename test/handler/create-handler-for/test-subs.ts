@@ -1,5 +1,5 @@
 import { expectTypeOf } from "expect-type";
-import { vi as jest } from "vitest";
+import { vi } from "vitest";
 import { subs } from "../../../src";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import {
@@ -14,7 +14,7 @@ import {
 
 describe("createHandlerFor command with subcommands", () => {
   test("subs from a function", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const handler = createHandlerFor(subsCommand, (args) => {
       expectTypeOf(args.command).toEqualTypeOf<"subsub1" | "subsub2">();
@@ -34,7 +34,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("subs from a composable handler", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {
@@ -58,7 +58,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("subs from a record", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const handler = createHandlerFor(subsCommand, {
       "subsub1": (args) => {
@@ -85,7 +85,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("subs from a record nested", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const cmd = subs(com("sub1"), [subsCommand, com1, com2]);
 
@@ -131,7 +131,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("subs composed handler 1", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {
@@ -163,7 +163,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("subs composed handler 2", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {
@@ -193,7 +193,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("nested function handler", () => {
-    const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
+    const [fn1, fn2, fn3, fn4] = [vi.fn(), vi.fn(), vi.fn(), vi.fn()];
 
     const handler1 = createHandlerFor(deepNested, (args) => {
       fn1(args);
@@ -217,7 +217,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("nested structure handler", () => {
-    const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
+    const [fn1, fn2, fn3, fn4] = [vi.fn(), vi.fn(), vi.fn(), vi.fn()];
 
     const sub3handler = createHandlerFor(subsCommand, {
       "subsub1": (args) => {
@@ -253,7 +253,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("nested record handler", () => {
-    const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
+    const [fn1, fn2, fn3, fn4] = [vi.fn(), vi.fn(), vi.fn(), vi.fn()];
 
     const handler1 = createHandlerFor(deepNested, {
       "sub1": (args) => {
@@ -271,7 +271,7 @@ describe("createHandlerFor command with subcommands", () => {
   });
 
   test("nested structure handler 2", () => {
-    const [fn1, fn2, fn3, fn4] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
+    const [fn1, fn2, fn3, fn4] = [vi.fn(), vi.fn(), vi.fn(), vi.fn()];
 
     const command34handler = createHandlerFor(deepNested, {
       "sub1": (args) => {},

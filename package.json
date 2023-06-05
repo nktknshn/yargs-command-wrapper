@@ -21,15 +21,12 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^29.5.1",
     "@types/yargs": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
     "@vitest/coverage-istanbul": "^0.31.4",
     "eslint": "^8.41.0",
     "expect-type": "^0.15.0",
-    "ts-jest": "^29.1.0",
-    "tsafe": "^1.6.0",
     "typescript": "^5.0.4",
     "vitest": "^0.31.4"
   },

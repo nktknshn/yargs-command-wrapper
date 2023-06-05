@@ -1,5 +1,5 @@
 import { expectTypeOf } from "expect-type";
-import { vi as jest } from "vitest";
+import { vi } from "vitest";
 import { subs } from "../../../src";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import { com1, com1com2, com3, subsCommand } from "../fixtures";

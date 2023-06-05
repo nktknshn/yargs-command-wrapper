@@ -1,5 +1,4 @@
 import assert from "assert";
-import { vi as jest } from "vitest";
 import yargs from "yargs";
 import {
   buildAndParse,

@@ -1,11 +1,11 @@
-import { vi as jest } from "vitest";
+import { vi } from "vitest";
 import { comp } from "../../../src";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import { com1, com2, com2com3, com3, s1s2comp, subsCommand } from "../fixtures";
 
 describe("createHandlerFor composed", () => {
   test("basic command", () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
 
     const handler = createHandlerFor(com1, (args) => {
       fn(args);
@@ -18,7 +18,7 @@ describe("createHandlerFor composed", () => {
   });
 
   test("composed command from a function", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const handler1 = createHandlerFor(com2com3, (args) => {
       if (args.command === "com2") {
@@ -39,7 +39,7 @@ describe("createHandlerFor composed", () => {
   });
 
   test("composed command from a record", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const handler1 = createHandlerFor(com2com3, {
       "com2": (args) => {
@@ -60,7 +60,7 @@ describe("createHandlerFor composed", () => {
   });
 
   test("composed composed command from a record", () => {
-    const [fn1, fn2, fn3] = [jest.fn(), jest.fn(), jest.fn()];
+    const [fn1, fn2, fn3] = [vi.fn(), vi.fn(), vi.fn()];
 
     const handler1 = createHandlerFor(
       comp(com1, com2com3),
@@ -87,7 +87,7 @@ describe("createHandlerFor composed", () => {
   });
 
   test("composed to subs function", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const _cmd = comp(com1, com2, subsCommand);
 
@@ -114,7 +114,7 @@ describe("createHandlerFor composed", () => {
   });
 
   test("subs composed handler 3", () => {
-    const [fn1, fn2] = [jest.fn(), jest.fn()];
+    const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
       "subsub1": (args) => {
@@ -144,7 +144,7 @@ describe("createHandlerFor composed", () => {
   });
 
   test("composed structure mixed handlers", () => {
-    const [hcom2, hcom3] = [jest.fn(), jest.fn()];
+    const [hcom2, hcom3] = [vi.fn(), vi.fn()];
 
     const com2Handler = createHandlerFor(com2, (args) => {
       hcom2(args);
