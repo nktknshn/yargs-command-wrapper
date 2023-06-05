@@ -10,6 +10,7 @@
     "build-publish": "rm -rf dist/ && ./node_modules/.bin/tsc -p tsconfig.publish.json",
     "prepublishOnly": "npm run build-publish"
   },
+  "homepage": "https://github.com/nktknshn/yargs-command-wrapper",
   "files": ["/dist"],
   "author": "Nikita Kanashin",
   "license": "ISC",
