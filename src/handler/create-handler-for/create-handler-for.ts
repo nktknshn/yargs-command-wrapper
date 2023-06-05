@@ -37,7 +37,7 @@ import { InputHandlerFunctionFor } from "./type-input-function";
 /**
  * @description Create a composable handler for a command.
  * @param command A command to create a handler for.
- * @param functionOrRecord A function or a record that defines a handler for the command.
+ * @param handler A function or a record or a composed command that defines a handler for the command.
  * @returns A composable handler for the command.
  */
 export function createHandlerFor<
