@@ -13,6 +13,12 @@ import {
   HelperObjectWithSubcommands,
 } from "./type";
 
+/**
+ * @description A command with subcommands
+ * @param command the parent basic command
+ * @param subcommands either a composed command or a tuple of commands
+ * @returns a command with subcommands
+ */
 export function subs<
   TCommandName extends string,
   TArgv extends EmptyRecord,
