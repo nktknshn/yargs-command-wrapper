@@ -1,5 +1,5 @@
 import { CommandArgs } from "../../command/commands/args/type-command-args";
-import { ComposableHandler } from "./type";
+import { ComposableHandler } from "./type-composable-handler";
 import { ComposeArgv, ComposedHandlers } from "./types-compose";
 
 type CompHand = ComposableHandler<CommandArgs, readonly string[]>;

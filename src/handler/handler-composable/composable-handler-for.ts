@@ -11,9 +11,9 @@ import {
   GetComposedCommandsNames,
 } from "../../command/commands/composed/type-helpers";
 import { EmptyRecord } from "../../common/types";
-import { Cast, FallbackType, ToList } from "../../common/types-util";
+import { Cast, ToList } from "../../common/types-util";
 import { HandlerSyncType } from "../handler-function/type";
-import { ComposableHandler } from "./type";
+import { ComposableHandler } from "./type-composable-handler";
 
 /**
  * @description Gets the type of a composable handler for the given command
@@ -31,11 +31,7 @@ export type ComposableHandlerFor<
   >
   : TCommand extends CommandComposed ? ComposableHandler<
       GetComposedParseResult<TCommand, TGlobalArgv>,
-      FallbackType<
-        Cast<ToList<GetComposedCommandsNames<TCommand>>, readonly string[]>,
-        [],
-        string[]
-      >,
+      Cast<ToList<GetComposedCommandsNames<TCommand>>, readonly string[]>,
       TSyncType,
       TReturn
     >

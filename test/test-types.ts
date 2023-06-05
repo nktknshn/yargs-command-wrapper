@@ -17,7 +17,7 @@ import {
 } from "../src/handler/create-handler-for/type-create-handler-for";
 import { InputHandlerFunctionFor } from "../src/handler/create-handler-for/type-input-function";
 import { ComposableHandlerFor } from "../src/handler/handler-composable/composable-handler-for";
-import { ComposableHandler } from "../src/handler/handler-composable/type";
+import { ComposableHandler } from "../src/handler/handler-composable/type-composable-handler";
 
 type Extends<T1, T2> = T1 extends T2 ? true : false;
 
@@ -98,6 +98,7 @@ describe.skip("test types hierarchy", () => {
     expectTypeOf<TCommandComposedWithSubcommands>().toMatchTypeOf<TCommand>();
 
     type TBC1 = HandlerFunctionFor<BC1>;
+    type _TBC1 = HandlerFunction<GetCommandArgs<BC1>>;
     type TCC1 = HandlerFunctionFor<CC1>;
     type TSC1 = HandlerFunctionFor<SC1>;
 

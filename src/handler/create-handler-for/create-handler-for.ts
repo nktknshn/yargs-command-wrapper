@@ -18,7 +18,7 @@ import { showCommand } from "../../command/commands/helpers";
 import { EmptyRecord } from "../../common/types";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { showComposableHandler } from "../handler-composable/helpers";
-import { ComposableHandler } from "../handler-composable/type";
+import { ComposableHandler } from "../handler-composable/type-composable-handler";
 import { HandlerFunction } from "../handler-function/type";
 import { createHandler } from "./create-handler";
 import {
@@ -118,59 +118,6 @@ const _createHandlerForCommand = (
   );
 };
 
-const composedHandlerFunction = (
-  args: CommandArgs,
-  commandToHandle: CommandBasic | CommandComposedWithSubcommands,
-  handler:
-    | HandlerFunction<EmptyRecord>
-    | ComposableHandler<any>
-    | InputHandlerRecordType<EmptyRecord>,
-) => {
-  const commandName = args.command;
-
-  if (commandToHandle.type === "command") {
-    if (isFunctionHandler(handler)) {
-      return handler(args.argv);
-    }
-    else if (isComposableHandler(handler)) {
-      if (handler.supports.includes(commandName)) {
-        return handler.handle(args);
-      }
-      else {
-        throw new Error(
-          `Invalid handler for ${commandToHandle.commandName}: ${
-            showComposableHandler(handler)
-          }`,
-        );
-      }
-    }
-    else {
-      throw new Error(
-        `Invalid handler for command ${commandName}. Expected function or composable handler.`,
-      );
-    }
-  }
-  else {
-    if (isFunctionHandler(handler)) {
-      return handler(popCommand(args));
-    }
-    else if (isComposableHandler(handler)) {
-      if (handler.supports.includes(args.command)) {
-        return handler.handle(args);
-      }
-
-      return _createHandlerForSubcommands(commandToHandle, handler).handle(
-        args,
-      );
-    }
-    else {
-      return _createHandlerForSubcommands(commandToHandle, handler).handle(
-        args,
-      );
-    }
-  }
-};
-
 const _createHandlerForComposed = (
   command: CommandComposed,
   functionOrRecord:
@@ -229,8 +176,9 @@ const _createHandlerForSubcommands = (
     // either a function or a record
     | InputHandlerFunctionFor<CommandBasic>
     | InputHandlerRecordType
-    | ComposableHandler<any>,
+    | ComposableHandler<CommandArgs>,
 ): ComposableHandler<any> => {
+  // XXX remove `any`
   // InputHandlerFunctionFor
   if (isFunctionHandler(functionOrRecord)) {
     return createHandler(
@@ -292,4 +240,71 @@ const _createHandlerForSubcommands = (
   }
 
   return functionOrRecord;
+};
+
+/**
+ * @description handle args by a handler for a named command
+ */
+const composedHandlerFunction = (
+  args: CommandArgs,
+  commandToHandle: CommandBasic | CommandComposedWithSubcommands,
+  handler:
+    | HandlerFunction<EmptyRecord>
+    | ComposableHandler<CommandArgs>
+    | InputHandlerRecordType<EmptyRecord>,
+) => {
+  const commandName = args.command;
+
+  if (commandToHandle.type === "command") {
+    // the command is a basic command
+    if (isFunctionHandler(handler)) {
+      // and the handler is a function for args.argv
+      return handler(args.argv);
+    }
+    else if (isComposableHandler(handler)) {
+      // and the handler is a composable handler
+      if (handler.supports.includes(commandName)) {
+        return handler.handle(args);
+      }
+      else {
+        // somehow the handler does not support the command (shouldn't happen if the typing works properly)
+        throw new Error(
+          `Invalid handler for ${commandToHandle.commandName}: ${
+            showComposableHandler(handler)
+          }`,
+        );
+      }
+    }
+    else {
+      // handler for a basic command is a record (shouldn't happen if the typing works properly)
+      throw new Error(
+        `Invalid handler for command ${commandName}. Expected function or composable handler.`,
+      );
+    }
+  }
+  else {
+    // the command is a command with subcommands
+    if (isFunctionHandler(handler)) {
+      // the handler function is a handler for the union of subcommands
+      // we remove command from args
+      return handler(popCommand(args));
+    }
+    else if (isComposableHandler(handler)) {
+      // the composed handler is a handler for the command with subcommands
+      if (handler.supports.includes(args.command)) {
+        return handler.handle(args);
+      }
+
+      // the composed handler is a handler for the subcommands
+      return _createHandlerForSubcommands(commandToHandle, handler).handle(
+        args,
+      );
+    }
+    else {
+      // the record defines the handler for the subcommands
+      return _createHandlerForSubcommands(commandToHandle, handler).handle(
+        args,
+      );
+    }
+  }
 };

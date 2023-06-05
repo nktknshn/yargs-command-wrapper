@@ -1,9 +1,10 @@
 import y from "yargs";
+import { GetCommandArgs } from "./command";
 import { Command } from "./command/commands/command";
 import * as E from "./common/either";
 import { ErrorType } from "./common/error";
 import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";
-import { HandlerFunctionFor } from "./handler/handler-function/type-handler-function-for";
+import { HandlerFunction } from "./handler";
 import { buildAndParse } from "./parser/parser";
 
 /**
@@ -33,7 +34,7 @@ export function failClient(
 
 export const createMain = <
   TCommand extends Command,
-  THandler extends HandlerFunctionFor<TCommand>,
+  THandler extends HandlerFunction<GetCommandArgs<TCommand>>,
 >(
   cmd: TCommand,
   handler: THandler,
@@ -44,7 +45,7 @@ async () => {
   if (E.isLeft(result)) {
     failClient(yargs, result);
   }
-  const res = handler(result.right as any);
+  const res = handler(result.right);
 
   if (isPromiseLike(res)) {
     await res;

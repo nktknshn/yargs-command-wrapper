@@ -1,6 +1,6 @@
 import { Command } from "../../command";
 import { isObjectWithOwnProperty } from "../../common/util";
-import { ComposableHandler } from "../handler-composable/type";
+import { ComposableHandler } from "../handler-composable/type-composable-handler";
 import { InputHandlerRecordType } from "./type-create-handler-for";
 import { InputHandlerFunctionFor } from "./type-input-function";
 

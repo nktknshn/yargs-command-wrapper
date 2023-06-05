@@ -5,5 +5,5 @@ import { handler } from "./handler";
 const main = createMain(cmd, handler.handle);
 
 if (require.main === module) {
-  main();
+  main().catch(console.error);
 }

@@ -11,7 +11,7 @@ import { GetNestedComposedCommand } from "../../command/commands/with-subcommand
 import { EmptyRecord } from "../../common/types";
 import { Cast, TupleKeys } from "../../common/types-util";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
-import { ComposableHandler } from "../handler-composable/type";
+import { ComposableHandler } from "../handler-composable/type-composable-handler";
 import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
 import { InputHandlerFunctionFor } from "./type-input-function";
 
@@ -22,7 +22,9 @@ export type InputHandlerRecordType<TArgv extends EmptyRecord = EmptyRecord> = {
   [key: string]:
     | HandlerFunction<TArgv>
     | InputHandlerRecordType<TArgv>
+    // | ComposableHandler<CommandArgs>;
     | ComposableHandler<any>;
+  // XXX remove any...
 };
 
 /**

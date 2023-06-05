@@ -1,10 +1,10 @@
 import { EmptyRecord } from "../../../common/types";
 import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
 import { NestedCommandArgs } from "../args/type-nested-command-args";
+import { PushCommand } from "../args/type-push-command";
 import { Command } from "../command";
 import { GetCommandArgs } from "../type-parse-result";
 import { CommandComposedWithSubcommands } from "./type";
-import { PushCommand } from "./type-push-command";
 
 export type GetSubcommandsParseResult<
   TCommands extends readonly Command[],

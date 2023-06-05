@@ -7,7 +7,7 @@ import { createHandlerFor } from "../../src/handler/create-handler-for/create-ha
 import { ComposableHandlerForSubcommands } from "../../src/handler/create-handler-for/type-create-handler-for";
 import { GetReturnType } from "../../src/handler/create-handler-for/type-helpers";
 import { composeHandlers } from "../../src/handler/handler-composable/compose";
-import { ComposableHandler } from "../../src/handler/handler-composable/type";
+import { ComposableHandler } from "../../src/handler/handler-composable/type-composable-handler";
 import {
   ComposedHandlers,
   ComposeReturnType,

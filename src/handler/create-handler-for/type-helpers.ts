@@ -1,5 +1,5 @@
 import { Command } from "../../command";
-import { ComposableHandler } from "../handler-composable/type";
+import { ComposableHandler } from "../handler-composable/type-composable-handler";
 import {
   GetComposableHandlerReturnType,
   GetComposableHandlerSyncType,

@@ -1,5 +1,5 @@
 import { GetFunctionReturnType, GetFunctionSyncType } from "../type-helpers";
-import { ComposableHandler } from "./type";
+import { ComposableHandler } from "./type-composable-handler";
 
 export type GetComposableHandlerSyncType<
   T extends ComposableHandler,

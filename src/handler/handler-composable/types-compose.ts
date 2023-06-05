@@ -1,6 +1,6 @@
 import { Cast, FallbackType, ToList, ToUnion } from "../../common/types-util";
 
-import { ComposableHandler } from "./type";
+import { ComposableHandler } from "./type-composable-handler";
 import {
   GetComposableHandlerArgv,
   GetComposableHandlerNames,

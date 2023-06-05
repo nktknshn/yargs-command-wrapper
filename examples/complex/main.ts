@@ -51,4 +51,4 @@ async function main() {
   await handler.handle(result.right);
 }
 
-main();
+main().catch(console.error);

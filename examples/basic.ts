@@ -157,14 +157,12 @@ switch (result.right.command) {
         switch (result.right.subsubcommand) {
           case "get":
             console.log(
-              `List server config ${result.right.subsubcommand} ${
-                result.right.argv.key ?? "all"
-              }`,
+              `List server config ${result.right.argv.key ?? "all"}`,
             );
             break;
           case "set":
             console.log(
-              `Update server config ${result.right.subsubcommand} ${result.right.argv.key} ${result.right.argv.value}`,
+              `Update server config ${result.right.argv.key} ${result.right.argv.value}`,
             );
             break;
         }

@@ -1,7 +1,7 @@
 import { CommandArgs } from "../../../ignored/test-try-handler";
 import { Command } from "../../command";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
-import { ComposableHandler } from "../handler-composable/type";
+import { ComposableHandler } from "../handler-composable/type-composable-handler";
 import { HandlerFunction } from "../handler-function/type";
 import { GetFunctionReturnType, GetFunctionSyncType } from "../type-helpers";
 
