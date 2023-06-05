@@ -4,7 +4,7 @@
   <a href="https://github.com/nktknshn/yargs-command-wrapper/actions">
     <img src="https://github.com/nktknshn/yargs-command-wrapper/actions/workflows/node.js.yml/badge.svg?branch=master" alt="build status" height="20">
   </a>
-  <a href="https://www.npmjs.com/package/fp-ts">
+  <a href="https://www.npmjs.com/package/yargs-command-wrapper">
     <img src="https://img.shields.io/npm/v/yargs-command-wrapper.svg" alt="npm link" height="20">
   </a>
 </p>
