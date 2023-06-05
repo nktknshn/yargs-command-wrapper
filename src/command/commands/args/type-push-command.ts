@@ -6,7 +6,7 @@ import {
 } from "./type-command-args-generic";
 
 /**
- * @description
+ * @description Add a command to the args prefixing other commands with "sub"
  */
 export type PushCommand<
   T extends CommandArgs,

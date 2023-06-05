@@ -8,7 +8,6 @@ import { ErrorType } from "../common/error";
  * @param command
  * @returns Either an error or a tuple of the full command name and the subcommands if any
  */
-
 export const findAlias = <TCommand extends Command>(
   command: TCommand,
   alias: string,

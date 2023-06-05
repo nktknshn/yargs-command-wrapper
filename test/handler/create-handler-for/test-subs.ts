@@ -1,14 +1,10 @@
 import { expectTypeOf } from "expect-type";
-import { comp, subs } from "../../../src";
+import { subs } from "../../../src";
 import { createHandlerFor } from "../../../src/handler/create-handler-for/create-handler-for";
 import {
   com,
   com1,
-  com1com2,
   com2,
-  com2com3,
-  com3,
-  com4,
   composedCommand,
   deepNested,
   s1s2comp,

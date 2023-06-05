@@ -9,7 +9,7 @@ import {
 } from "./type-helpers";
 
 /**
- * @description Composes handlers
+ * @description Composes handlers types
  */
 export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposableHandler<

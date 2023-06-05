@@ -1,11 +1,9 @@
 import { expectTypeOf } from "expect-type";
-import { buildAndParseUnsafe, comm, comp, subs } from "../../src";
+import { buildAndParseUnsafe, comp, subs } from "../../src";
 import { CommandArgs } from "../../src/command/commands/args/type-command-args";
-import { NestedCommandArgs } from "../../src/command/commands/args/type-nested-command-args";
 import { HandlerFunction } from "../../src/handler";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
 import { ComposableHandlerForSubcommands } from "../../src/handler/create-handler-for/type-create-handler-for";
-import { GetReturnType } from "../../src/handler/create-handler-for/type-helpers";
 import { composeHandlers } from "../../src/handler/handler-composable/compose";
 import { ComposableHandler } from "../../src/handler/handler-composable/type-composable-handler";
 import {

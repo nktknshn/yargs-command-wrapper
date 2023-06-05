@@ -23,6 +23,14 @@ type _NamesToIntersect<
       & _NamesToIntersect<Cast<TRest, readonly string[]>, `sub${TPrefix}`>
   : never;
 
+/**
+ * @description Gets a tuple of all command names from args
+ * @example
+ * ```ts
+ * type A = IntersectionToNames<{ command: "a"; subcommand: "b" }> // ["a", "b"]
+ *
+ * ```
+ */
 export type IntersectionToNames<
   TIntersection extends NamesToIntersection<[string]>,
 > = _IntersectionToNames<TIntersection>;
