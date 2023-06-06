@@ -1,4 +1,3 @@
-/* eslint-disable no-empty */
 import { isObjectWithOwnProperty } from "../../../common/util";
 import { Command } from "../command";
 
@@ -84,13 +83,14 @@ export function subs<
   commandDesc: TCommandDesc,
   description: string,
   subcommands: CommandComposed<TCommands, TComposedArgv> | TCommands,
-): CommandComposedWithSubcommands<
-  GetCommandNameFromDesc<TCommandDesc>,
-  TCommands,
-  EmptyRecord,
-  TComposedArgv
->;
-// & { $: HelperObjectWithSubcommands<TCommands, TComposedArgv> };
+):
+  & CommandComposedWithSubcommands<
+    GetCommandNameFromDesc<TCommandDesc>,
+    TCommands,
+    EmptyRecord,
+    TComposedArgv
+  >
+  & { $: HelperObjectWithSubcommands<TCommands, TComposedArgv> };
 
 export function subs(
   commandOrCommandDesc: CommandBasic | string,
