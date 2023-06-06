@@ -15,6 +15,7 @@ import { CommandArgs } from "../../command/commands/args/type-command-args";
 import { CommandArgsGeneric } from "../../command/commands/args/type-command-args-generic";
 import { NestedCommandArgs } from "../../command/commands/args/type-nested-command-args";
 import { showCommand } from "../../command/commands/helpers";
+import { WrapperError } from "../../common/error";
 import { EmptyRecord } from "../../common/types";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { showComposableHandler } from "../handler-composable/helpers";
@@ -81,7 +82,7 @@ export function createHandlerFor(
       return _createHandlerForCommand(command, functionOrRecord);
     }
     else {
-      throw new Error(
+      throw WrapperError.create(
         `Invalid handler for command ${command.commandName}. Expected function.`,
       );
     }
@@ -94,7 +95,7 @@ export function createHandlerFor(
       return _createHandlerForComposed(command, functionOrRecord);
     }
     else {
-      throw new Error(
+      throw WrapperError.create(
         `Invalid handler for composed command ${showCommand(command)}.`,
       );
     }
@@ -142,7 +143,7 @@ const _createHandlerForComposed = (
       if (!(commandName in functionOrRecord)) {
         console.error(args, functionOrRecord);
 
-        throw new Error(
+        throw WrapperError.create(
           `No handler found for command ${String(commandName)} in record`,
         );
       }
@@ -155,7 +156,9 @@ const _createHandlerForComposed = (
       );
 
       if (commandToHandle === undefined) {
-        throw new Error(`No command ${String(commandName)} among composed.`);
+        throw WrapperError.create(
+          `No command ${String(commandName)} among composed.`,
+        );
       }
 
       return composedHandlerFunction(args, commandToHandle, handler);
@@ -208,7 +211,7 @@ const _createHandlerForSubcommands = (
 
       if (command.command.commandName !== commandName) {
         console.error(args, command);
-        throw new Error(`Unmatched command name ${commandName}`);
+        throw WrapperError.create(`Unmatched command name ${commandName}`);
       }
 
       const _args = popCommand(args);
@@ -216,7 +219,9 @@ const _createHandlerForSubcommands = (
       if (!(_args.command in functionOrRecord)) {
         console.error(_args, functionOrRecord);
 
-        throw new Error(`No handler found for command ${commandName}`);
+        throw WrapperError.create(
+          `No handler found for command ${commandName}`,
+        );
       }
 
       const handler = functionOrRecord[_args.command];
@@ -228,7 +233,9 @@ const _createHandlerForSubcommands = (
       );
 
       if (commandToHandle === undefined) {
-        throw new Error(`No command ${commandName} among subcommands`);
+        throw WrapperError.create(
+          `No command ${commandName} among subcommands`,
+        );
       }
 
       return composedHandlerFunction(_args, commandToHandle, handler);
@@ -268,7 +275,7 @@ const composedHandlerFunction = (
       }
       else {
         // somehow the handler does not support the command (shouldn't happen if the typing works properly)
-        throw new Error(
+        throw WrapperError.create(
           `Invalid handler for ${commandToHandle.commandName}: ${
             showComposableHandler(handler)
           }`,
@@ -277,7 +284,7 @@ const composedHandlerFunction = (
     }
     else {
       // handler for a basic command is a record (shouldn't happen if the typing works properly)
-      throw new Error(
+      throw WrapperError.create(
         `Invalid handler for command ${commandName}. Expected function or composable handler.`,
       );
     }

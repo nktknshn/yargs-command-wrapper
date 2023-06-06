@@ -5,6 +5,7 @@ import { CommandsTuple, YargsCommandBuilder } from "../../types";
 import { CommandBasic } from "../basic/type";
 
 import y from "yargs";
+import { WrapperError } from "../../../common/error";
 import { EmptyRecord } from "../../../common/types";
 import { command } from "../basic/command";
 import { GetCommandNameFromDesc } from "../basic/type-command-name";
@@ -113,7 +114,7 @@ export function subs(
   ) {
     // overload 2 or 3
     if (!(typeof subcommandsOrDescription === "string")) {
-      throw new Error("Invalid overload");
+      throw WrapperError.create("Invalid overload");
     }
 
     if (typeof builderOrSubcommands === "function") {
@@ -127,7 +128,7 @@ export function subs(
         return overload12(parentCommand, subcommands);
       }
       else {
-        throw new Error("Invalid overload");
+        throw WrapperError.create("Invalid overload");
       }
     }
     else {
@@ -139,13 +140,13 @@ export function subs(
         return overload12(parentCommand, builderOrSubcommands);
       }
       else {
-        throw new Error("Invalid overload");
+        throw WrapperError.create("Invalid overload");
       }
     }
   }
   else {
     if (typeof subcommandsOrDescription === "string") {
-      throw new Error("Invalid overload");
+      throw WrapperError.create("Invalid overload");
     }
     // overload 1 or 2
     return overload12(

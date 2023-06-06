@@ -1,4 +1,5 @@
 import { CommandArgs } from "../../command/commands/args/type-command-args";
+import { WrapperError } from "../../common/error";
 import { ComposableHandler } from "./type-composable-handler";
 import { ComposeArgv, ComposedHandlers } from "./types-compose";
 
@@ -46,7 +47,9 @@ export function composeHandlers(
       }
     }
 
-    throw new Error(`No handler found for command ${String(args.command)}`);
+    throw WrapperError.create(
+      `No handler found for command ${String(args.command)}`,
+    );
   };
 
   return {

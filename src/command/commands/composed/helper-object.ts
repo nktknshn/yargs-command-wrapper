@@ -1,3 +1,4 @@
+import { WrapperError } from "../../../common/error";
 import { EmptyRecord } from "../../../common/types";
 import { Command } from "../..";
 import { showCommands } from "../helpers";
@@ -17,7 +18,7 @@ export const createHelperObject = <
   for (const name of commandNames) {
     const cmd = findByNameInComposed(commands, name);
     if (!cmd) {
-      throw new Error(
+      throw WrapperError.create(
         `Command ${name} not found in composed command ${
           showCommands(commands)
         }`,
