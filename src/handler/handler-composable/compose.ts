@@ -57,5 +57,3 @@ export function composeHandlers(
     supports: supports,
   };
 }
-
-// type CC = readonly [string] extends readonly [string, string] ? true : false;
