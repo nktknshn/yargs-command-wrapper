@@ -1,6 +1,6 @@
 {
   "name": "yargs-command-wrapper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "enables the parsing of commands and subcommands into a unified set of types",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
