@@ -12,7 +12,8 @@ import {
 const cmd = comp(
   _ => _.option("debug", { type: "boolean", default: false }),
   subs(
-    comm(["server", "s"], "server management"),
+    ["server", "s"],
+    "server management",
     [
       comm(
         ["start", "sta"],
@@ -25,7 +26,8 @@ const cmd = comp(
         _ => _.option("force", { type: "boolean", default: false }),
       ),
       subs(
-        comm(["config", "c"], "config management"),
+        ["config", "c"],
+        "config management",
         [
           comm(
             ["get [key]", "g"],
@@ -63,7 +65,8 @@ const cmd = comp(
           files: { type: "string", array: true, demandOption: true },
         })),
       subs(
-        comm(["config", "c"], "config management"),
+        ["config", "c"],
+        "config management",
         [
           comm(
             ["get [key]", "g"],

@@ -1,12 +1,11 @@
 import { EmptyRecord } from "../../../common/types";
 import { Command } from "../..";
-import { CommandsTuple } from "../../types";
 import { showCommands } from "../helpers";
 import { composedCommandNames, findByNameInComposed } from "./helpers";
 import { HelperObjectComposed } from "./type";
 
 export const createHelperObject = <
-  TCommands extends CommandsTuple,
+  TCommands extends readonly Command[],
   TArgv extends EmptyRecord,
 >(
   commands: TCommands,

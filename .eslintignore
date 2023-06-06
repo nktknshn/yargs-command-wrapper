@@ -6,3 +6,4 @@ jest.config.js
 ignored
 /**/*.spec.ts
 vite.config.ts
+coverage

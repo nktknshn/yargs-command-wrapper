@@ -16,8 +16,8 @@ export const com9 = comm("com9", "description", opt("d6"));
 export const com1com2 = comp(com1, com2);
 export const com2com3 = comp(com2, com3);
 
-const sub1 = comm("sub1", "sub1", opt("sub1argv"));
-const sub2 = comm("sub2", "sub2", opt("sub2argv"));
+export const sub1 = comm("sub1", "sub1", opt("sub1argv"));
+export const sub2 = comm("sub2", "sub2", opt("sub2argv"));
 
 const subsub1 = comm("subsub1", "subsub1", opt("subsub1argv"));
 const subsub2 = comm("subsub2", "subsub2", opt("subsub2argv"));

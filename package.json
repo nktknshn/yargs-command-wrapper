@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "lint": "npx eslint .",
     "test": "./node_modules/.bin/vitest",
     "coverage": "./node_modules/.bin/vitest run --coverage",
     "build": "./node_modules/.bin/tsc",

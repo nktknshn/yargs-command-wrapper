@@ -43,8 +43,9 @@ const serverStop = command(
 
 const cmd = composeCommands(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-  composeCommands(serverStart, serverStop),
-  subcommands(command(["config", "c"], "config management"), config),
+  serverStart,
+  serverStop,
+  subcommands(["config", "c"], "config management", config),
 );
 
 const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));

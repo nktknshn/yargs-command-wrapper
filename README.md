@@ -45,6 +45,18 @@ import {
   subcommands,
 } from "yargs-command-wrapper";
 
+const serverStart = command(
+  ["start", "sta"],
+  "start server",
+  _ => _.option("port", { type: "number", default: 8080 }),
+);
+
+const serverStop = command(
+  ["stop", "sto"],
+  "stop server",
+  _ => _.option("force", { type: "boolean", default: false }),
+);
+
 const config = composeCommands(
   _ =>
     _.options({
@@ -65,22 +77,11 @@ const config = composeCommands(
   ),
 );
 
-const serverStart = command(
-  ["start", "sta"],
-  "start server",
-  _ => _.option("port", { type: "number", default: 8080 }),
-);
-
-const serverStop = command(
-  ["stop", "sto"],
-  "stop server",
-  _ => _.option("force", { type: "boolean", default: false }),
-);
-
 const cmd = composeCommands(
   _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
-  composeCommands(serverStart, serverStop),
-  subcommands(command(["config", "c"], "config management"), config),
+  serverStart,
+  serverStop,
+  subcommands(["config", "c"], "config management", config),
 );
 
 const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));
@@ -110,7 +111,7 @@ else if (result.right.command === "config") {
   }
 }
 
-// or with use of `createHandlerFor`:
+// or by using createHandlerFor:
 const handler = createHandlerFor(cmd, {
   config: {
     get: ({ key, file, debug }) => {
