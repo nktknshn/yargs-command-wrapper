@@ -1,13 +1,19 @@
 import { expectTypeOf } from "expect-type";
 
-import { HandlerFunctionFor } from "../../src/";
+import { command, HandlerFunctionFor, subcommands } from "../../src/";
 import { Command, CommandBasic, CommandComposed } from "../../src/command/";
 import { GetCommandArgs, GetComposedParseResult } from "../../src/command/";
+import { CommandArgsGeneric } from "../../src/command/commands/args/type-command-args-generic";
 import { PushCommand } from "../../src/command/commands/args/type-push-command";
 import {
   CommandsFlattenList,
   ComposeCommandsFlatten,
 } from "../../src/command/commands/composed/type-helpers";
+import {
+  GetSubcommandsArgs,
+  GetSubcommandsParseResult,
+} from "../../src/command/commands/with-subcommands/type-parse-result";
+import { EmptyRecord } from "../../src/common/types";
 import { InputHandlerRecordFor } from "../../src/handler/create-handler-for/type-create-handler-for";
 import { HandlerFunction } from "../../src/handler/handler-function/type";
 
@@ -69,5 +75,33 @@ describe("mapped types", () => {
     type EE = E<Command>;
 
     type HH = GetComposedParseResult<CommandComposed>;
+  });
+
+  test("type subcommands parse result", () => {
+    const cmd = subcommands("cmd", "desc", [
+      command("sub1", "desc"),
+      command("sub2", "desc"),
+    ]);
+
+    type A = GetSubcommandsArgs<typeof cmd>;
+
+    expectTypeOf<GetSubcommandsArgs<typeof cmd>>().toEqualTypeOf<
+      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
+    >();
+  });
+
+  test("type subcommands parse result", () => {
+    const cmd = subcommands("cmd", "desc", [
+      command("sub1", "desc"),
+      command("sub2", "desc"),
+    ]);
+
+    type A = GetSubcommandsArgs<typeof cmd>;
+
+    expectTypeOf<GetSubcommandsArgs<typeof cmd>>().toEqualTypeOf<
+      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
+    >();
   });
 });

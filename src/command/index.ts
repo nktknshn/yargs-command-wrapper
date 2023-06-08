@@ -4,7 +4,7 @@ export { CommandComposed as CommandComposed } from "./commands/composed/type";
 
 export { GetComposedCommandArgs as GetComposedParseResult } from "./commands/composed/type-parse-result";
 export { CommandComposedWithSubcommands } from "./commands/with-subcommands/type";
-export { GetWithSubcommandsArgs as GetWithSubcommandsParseResult } from "./commands/with-subcommands/type-parse-result";
+export { GetSubcommandsArgs as GetWithSubcommandsParseResult } from "./commands/with-subcommands/type-parse-result";
 
 export { buildYargs } from "../parser/build-yargs";
 export { Command } from "./commands/command";

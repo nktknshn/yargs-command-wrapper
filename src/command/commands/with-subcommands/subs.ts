@@ -55,7 +55,7 @@ export function subs<
   > // XXX why?
   & { $: HelperObjectWithSubcommands<TCommands, TArgv & TComposedArgv> };
 
-// new overload
+// new overloads
 export function subs<
   const TCommandDesc extends readonly string[] | string,
   TArgv extends EmptyRecord,
@@ -75,7 +75,6 @@ export function subs<
   >
   & { $: HelperObjectWithSubcommands<TCommands, TArgv> };
 
-// new overload
 export function subs<
   const TCommandDesc extends readonly string[] | string,
   const TCommands extends readonly Command[],

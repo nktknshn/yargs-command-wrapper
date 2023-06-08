@@ -11,28 +11,28 @@ export type GetSubcommandsParseResult<
   TCommandName extends string,
   TArgv,
   TGlobalArgv = EmptyRecord,
-> = FallbackNever<
-  {
-    [P in TupleKeys<TCommands>]: PushCommand<
-      GetCommandArgs<Cast<TCommands[P], Command>, TGlobalArgv>,
-      TCommandName,
-      TArgv
-    >;
-  }[TupleKeys<TCommands>],
-  NestedCommandArgs
->;
+> = {
+  [P in TupleKeys<TCommands>]: PushCommand<
+    GetCommandArgs<Cast<TCommands[P], Command>, TGlobalArgv>,
+    TCommandName,
+    TArgv
+  >;
+}[TupleKeys<TCommands>];
 
-export type GetWithSubcommandsArgs<
+export type GetSubcommandsArgs<
   T extends CommandComposedWithSubcommands,
   TGlobalArgv = EmptyRecord,
 > = T extends CommandComposedWithSubcommands<
   infer TCommandName,
   infer TCommands,
   infer TCommandArgv
-> ? GetSubcommandsParseResult<
-    TCommands,
-    TCommandName,
-    TCommandArgv,
-    TGlobalArgv
+> ? FallbackNever<
+    GetSubcommandsParseResult<
+      TCommands,
+      TCommandName,
+      TCommandArgv,
+      TGlobalArgv
+    >,
+    NestedCommandArgs
   >
   : never;
