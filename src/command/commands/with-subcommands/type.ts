@@ -3,7 +3,7 @@ import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
 import { CommandComposed, HelperObjectComposed } from "../composed/type";
 
-type SubsProps<TSelfHandle extends boolean = boolean> = {
+export type SubsProps<TSelfHandle extends boolean = boolean> = {
   readonly selfHandle: TSelfHandle;
 };
 
