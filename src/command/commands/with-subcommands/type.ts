@@ -46,7 +46,7 @@ export type HelperObjectWithSubcommands<
       TCommands,
       TArgv,
       TComposedArgv,
-      TSubsProps & { selfHandle: B }
+      { selfHandle: B }
     >;
   }
   : never;
