@@ -186,6 +186,8 @@ describe("mapped types", () => {
       { selfHandle: true }
     >;
 
+    type AC1 = GetCommandArgs<Cmd1>;
+
     type Cmd3 = CommandComposedWithSubcommands<
       "cmd3",
       [
@@ -198,9 +200,9 @@ describe("mapped types", () => {
       { selfHandle: true }
     >;
 
-    type A = GetCommandArgs<Cmd3>;
+    type AC2 = GetCommandArgs<Cmd3>;
 
-    expectTypeOf<A>().toEqualTypeOf<
+    expectTypeOf<AC2>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub2"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", ""]>
