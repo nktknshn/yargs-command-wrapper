@@ -4,7 +4,6 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
 } from "../../command";
-import { GetNestedComposedCommand } from "../../command/commands/with-subcommands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { HandlerFunction } from "../handler-function/type";
 import { HandlerFunctionFor } from "../handler-function/type-handler-function-for";
@@ -30,7 +29,7 @@ export type InputHandlerFunctionFor<
      * handler for a command with subcommands is defined by a handler of the nested composed command
      */
     : TCommand extends CommandComposedWithSubcommands ? HandlerFunctionFor<
-        GetNestedComposedCommand<TCommand>,
+        TCommand["subcommands"],
         TGlobalArgv
       >
     : never;

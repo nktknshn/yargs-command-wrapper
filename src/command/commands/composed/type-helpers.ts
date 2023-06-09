@@ -15,10 +15,8 @@ export type GetCommandsNames<TCommands extends readonly NamedCommand[]> =
 /**
  * @description Gets a union of all the composed commands names
  */
-export type GetComposedCommandsNames<T extends CommandComposed> = T extends
-  CommandComposed<infer TCommands>
-  ? GetCommandsNames<CommandsFlattenList<TCommands>>
-  : never;
+export type GetComposedCommandsNames<T extends CommandComposed> =
+  GetCommandsNames<CommandsFlattenList<T["commands"]>>;
 
 /**
  * @description Gets the name of a command. For a composed command it returns `never`

@@ -19,20 +19,26 @@ export type GetSubcommandsParseResult<
   >;
 }[TupleKeys<TCommands>];
 
+type GetSelfArgs<T extends CommandComposedWithSubcommands, B extends boolean> =
+  [B] extends [true] ? GetCommandArgs<T["command"]>
+    : never;
+
 export type GetSubcommandsArgs<
   T extends CommandComposedWithSubcommands,
   TGlobalArgv = EmptyRecord,
 > = T extends CommandComposedWithSubcommands<
   infer TCommandName,
   infer TCommands,
-  infer TCommandArgv
+  infer TCommandArgv,
+  infer TComposedArgv,
+  infer TProps
 > ? FallbackNever<
     GetSubcommandsParseResult<
       TCommands,
       TCommandName,
-      TCommandArgv,
+      TCommandArgv & TComposedArgv,
       TGlobalArgv
-    >,
+    > | GetSelfArgs<T, TProps["selfHandle"]>,
     NestedCommandArgs
   >
   : never;

@@ -1,10 +1,11 @@
+import y from "yargs";
+
 import { isObjectWithOwnProperty } from "../../../common/util";
 import { Command } from "../command";
 
 import { CommandsTuple, YargsCommandBuilder } from "../../types";
 import { CommandBasic } from "../basic/type";
 
-import y from "yargs";
 import { WrapperError } from "../../../common/error";
 import { EmptyRecord } from "../../../common/types";
 import { command } from "../basic/command";
@@ -16,6 +17,8 @@ import {
   CommandComposedWithSubcommands,
   HelperObjectWithSubcommands,
 } from "./type";
+
+type DefaultOps = { selfHandle: false };
 
 /**
  * @description A command with subcommands
@@ -35,9 +38,20 @@ export function subs<
     TCommandName,
     TCommands,
     TArgv,
-    EmptyRecord
+    EmptyRecord,
+    DefaultOps
   >
-  & { $: HelperObjectWithSubcommands<TCommands, TArgv> };
+  & {
+    $: HelperObjectWithSubcommands<
+      CommandComposedWithSubcommands<
+        TCommandName,
+        TCommands,
+        TArgv,
+        EmptyRecord,
+        DefaultOps
+      >
+    >;
+  };
 
 export function subs<
   TCommandName extends string,
@@ -51,9 +65,21 @@ export function subs<
   & CommandComposedWithSubcommands<
     TCommandName,
     TCommands,
-    TArgv & TComposedArgv
+    TArgv & TComposedArgv,
+    EmptyRecord,
+    DefaultOps
   > // XXX why?
-  & { $: HelperObjectWithSubcommands<TCommands, TArgv & TComposedArgv> };
+  & {
+    $: HelperObjectWithSubcommands<
+      CommandComposedWithSubcommands<
+        TCommandName,
+        TCommands,
+        TArgv & TComposedArgv,
+        EmptyRecord,
+        DefaultOps
+      >
+    >;
+  };
 
 // new overloads
 export function subs<
@@ -71,9 +97,20 @@ export function subs<
     GetCommandNameFromDesc<TCommandDesc>,
     TCommands,
     TArgv,
-    TComposedArgv
+    TComposedArgv,
+    DefaultOps
   >
-  & { $: HelperObjectWithSubcommands<TCommands, TArgv> };
+  & {
+    $: HelperObjectWithSubcommands<
+      CommandComposedWithSubcommands<
+        GetCommandNameFromDesc<TCommandDesc>,
+        TCommands,
+        TArgv,
+        TComposedArgv,
+        DefaultOps
+      >
+    >;
+  };
 
 export function subs<
   const TCommandDesc extends readonly string[] | string,
@@ -88,9 +125,20 @@ export function subs<
     GetCommandNameFromDesc<TCommandDesc>,
     TCommands,
     EmptyRecord,
-    TComposedArgv
+    TComposedArgv,
+    DefaultOps
   >
-  & { $: HelperObjectWithSubcommands<TCommands, TComposedArgv> };
+  & {
+    $: HelperObjectWithSubcommands<
+      CommandComposedWithSubcommands<
+        GetCommandNameFromDesc<TCommandDesc>,
+        TCommands,
+        EmptyRecord,
+        TComposedArgv,
+        DefaultOps
+      >
+    >;
+  };
 
 export function subs(
   commandOrCommandDesc: CommandBasic | string,
@@ -105,7 +153,7 @@ export function subs(
   subcommands?: CommandComposed<CommandsTuple, EmptyRecord>,
 ):
   & CommandComposedWithSubcommands
-  & { $: HelperObjectWithSubcommands<readonly Command[], EmptyRecord> }
+  & { $: HelperObjectWithSubcommands<CommandComposedWithSubcommands> }
 {
   if (
     typeof commandOrCommandDesc === "string"
@@ -170,7 +218,16 @@ function overload12<
     TArgv,
     TComposedArgv
   >
-  & { $: HelperObjectWithSubcommands<TCommands, TArgv & TComposedArgv> }
+  & {
+    $: HelperObjectWithSubcommands<
+      CommandComposedWithSubcommands<
+        TCommandName,
+        TCommands,
+        TArgv,
+        TComposedArgv
+      >
+    >;
+  }
 {
   if (
     isObjectWithOwnProperty(subcommands, "type")
@@ -180,8 +237,26 @@ function overload12<
       subcommands.commands,
     );
 
-    return { command, subcommands, type: "with-subcommands", $: helperObject };
+    const resultCommand = {
+      command,
+      subcommands,
+      type: "with-subcommands",
+      // $: helperObject,
+      props: { selfHandle: false },
+    } as const;
+
+    return {
+      ...resultCommand,
+      $: {
+        ...helperObject,
+        selfHandle: value => ({
+          ...resultCommand,
+          props: { selfHandle: value },
+        }),
+      },
+    };
   }
+
   const s = subcommands as TCommands;
 
   const composedCommand = composeCommands<TCommands, TArgv & TComposedArgv>(
@@ -189,10 +264,18 @@ function overload12<
   );
   const helperObject = createHelperObject<TCommands, TArgv & TComposedArgv>(s);
 
-  return {
+  const resultCommand = {
     command,
     subcommands: composedCommand,
     type: "with-subcommands",
-    $: helperObject,
+    props: { selfHandle: false },
+  } as const;
+
+  return {
+    ...resultCommand,
+    $: {
+      ...helperObject,
+      selfHandle: value => ({ ...resultCommand, props: { selfHandle: value } }),
+    },
   };
 }

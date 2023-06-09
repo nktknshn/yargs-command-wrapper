@@ -7,7 +7,6 @@ import {
   CommandsFlattenList,
   GetCommandName,
 } from "../../command/commands/composed/type-helpers";
-import { GetNestedComposedCommand } from "../../command/commands/with-subcommands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { Cast, TupleKeys } from "../../common/types-util";
 import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
@@ -97,7 +96,7 @@ export type ComposableHandlerForSubcommands<
   TCommand extends Command,
   TGlobalArgv extends EmptyRecord = EmptyRecord,
 > = TCommand extends CommandComposedWithSubcommands ? ComposableHandlerFor<
-    GetNestedComposedCommand<TCommand>,
+    TCommand["subcommands"],
     HandlerSyncType,
     unknown,
     TGlobalArgv
