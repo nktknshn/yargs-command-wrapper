@@ -3,6 +3,9 @@ import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
 import { CommandComposed, HelperObjectComposed } from "../composed/type";
 
+/**
+ * @description Properties of a command with subcommands.
+ */
 export type SubsProps<TSelfHandle extends boolean = boolean> = {
   readonly selfHandle: TSelfHandle;
 };

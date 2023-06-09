@@ -19,7 +19,7 @@ import {
   SubsProps,
 } from "./type";
 
-type DefaultOps = { selfHandle: false };
+type DefaultProps = { selfHandle: false };
 
 type SubsReturnType<
   TCommandName extends string,
@@ -42,7 +42,7 @@ type SubsReturnType<
         TCommands,
         TArgv,
         EmptyRecord,
-        DefaultOps
+        TSubsProps
       >
     >;
   };
@@ -65,7 +65,7 @@ export function subs<
   TCommands,
   TArgv,
   EmptyRecord,
-  DefaultOps
+  DefaultProps
 >;
 
 export function subs<
@@ -79,10 +79,12 @@ export function subs<
 ): SubsReturnType<
   TCommandName,
   TCommands,
+  // XXX why intersection?
   TArgv & TComposedArgv,
+  // XXX not TComposedArgv?
   EmptyRecord,
-  DefaultOps
->; // XXX why?
+  DefaultProps
+>;
 
 // new overloads
 export function subs<
@@ -100,7 +102,7 @@ export function subs<
   TCommands,
   TArgv,
   TComposedArgv,
-  DefaultOps
+  DefaultProps
 >;
 
 export function subs<
@@ -116,7 +118,7 @@ export function subs<
   TCommands,
   EmptyRecord,
   TComposedArgv,
-  DefaultOps
+  DefaultProps
 >;
 
 export function subs(
@@ -190,24 +192,13 @@ function overload12<
 >(
   command: CommandBasic<TCommandName, TArgv>,
   subcommands: CommandComposed<TCommands, TComposedArgv> | TCommands,
-):
-  & CommandComposedWithSubcommands<
-    TCommandName,
-    TCommands,
-    TArgv,
-    TComposedArgv
-  >
-  & {
-    $: HelperObjectWithSubcommands<
-      CommandComposedWithSubcommands<
-        TCommandName,
-        TCommands,
-        TArgv,
-        TComposedArgv
-      >
-    >;
-  }
-{
+): SubsReturnType<
+  TCommandName,
+  TCommands,
+  TArgv,
+  TComposedArgv,
+  SubsProps
+> {
   if (
     isObjectWithOwnProperty(subcommands, "type")
     && subcommands.type === "composed"
@@ -220,7 +211,6 @@ function overload12<
       command,
       subcommands,
       type: "with-subcommands",
-      // $: helperObject,
       props: { selfHandle: false },
     } as const;
 
