@@ -3,7 +3,7 @@ import { CommandsTuple, YargsCommandBuilder } from "../../types";
 import { createHelperCommands } from "./helper-object";
 import { CommandComposed, HelperCommandCompose } from "./type-command-composed";
 
-type DefaultProps = {
+export type DefaultProps = {
   readonly selfHandle: false;
 };
 

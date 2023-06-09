@@ -3,13 +3,12 @@ import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
 import { CommandArgs, CommandArgsSelfHandle } from "../args/type-command-args";
 import { Command } from "../command";
 import { GetCommandArgs } from "../type-parse-result";
-import { CommandComposed } from "./type-command-composed";
+import { CommandComposed, ComposedProps } from "./type-command-composed";
 
-type SelfArgs<T extends CommandComposed, TGlobalArgv> = T extends
-  CommandComposed<infer CS, infer TArgv, infer TProps>
-  ? [TProps["selfHandle"]] extends [true]
-    ? CommandArgsSelfHandle<TArgv & TGlobalArgv>
-  : never
+export type ComposedSelfArgs<
+  T extends ComposedProps,
+  TArgv extends EmptyRecord,
+> = [T["selfHandle"]] extends [true] ? CommandArgsSelfHandle<TArgv>
   : never;
 
 /**
@@ -26,7 +25,7 @@ export type GetComposedCommandArgs<
           TGlobalArgv & TArgv
         >;
       }[TupleKeys<CS>]
-      | SelfArgs<T, TGlobalArgv>
+      | ComposedSelfArgs<T["props"], TArgv & TGlobalArgv>
     : never,
   // Note: It is supposed to return never when the commands list is empty. But
   // api forbids creating empty commands list. So we fallback to `CommandArgs` here because the composed command will resolve to `CommandArgs` eventually anyway.

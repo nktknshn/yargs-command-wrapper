@@ -12,7 +12,7 @@ import { GetSubcommandsArgs } from "./with-subcommands/type-parse-result";
  */
 export type GetCommandArgs<
   TCommand extends Command,
-  TGlobalArgv = EmptyRecord,
+  TGlobalArgv extends EmptyRecord = EmptyRecord,
 > = TCommand extends CommandBasic ? GetBasicCommandArgs<TCommand, TGlobalArgv>
   : TCommand extends CommandComposed
     ? GetComposedCommandArgs<TCommand, TGlobalArgv>

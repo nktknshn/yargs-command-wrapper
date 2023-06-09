@@ -43,6 +43,10 @@ export type HelperCommandCompose<
 > =
   & HelperCommands<TCommands, TArgv>
   & {
+    /**
+     * @description this command will handle the lack of subcommands.
+     * no `demandCommand(1)` will be called for this command
+     */
     selfHandle: <B extends boolean>(value: B) => CommandComposed<
       TCommands,
       TArgv,

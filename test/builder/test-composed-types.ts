@@ -1,6 +1,11 @@
 import { expectTypeOf } from "expect-type";
 
-import { command, composeCommands, subcommands } from "../../src";
+import {
+  command,
+  composeCommands,
+  HandlerFunctionFor,
+  subcommands,
+} from "../../src";
 import {
   CommandBasic,
   CommandComposedWithSubcommands,
@@ -24,7 +29,7 @@ describe("mapped types", () => {
     >();
   });
 
-  test("composed args type self handle", () => {
+  test("composed args self handled", () => {
     const cmd = composeCommands(
       command("sub1", "desc"),
       command("sub2", "desc"),
@@ -40,70 +45,53 @@ describe("mapped types", () => {
       | CommandArgsGeneric<EmptyRecord, [""]>
     >();
 
-    type Z = CommandComposedWithSubcommands<
-      "cmd",
-      [CommandBasic<"sub1", EmptyRecord>, CommandBasic<"sub2", EmptyRecord>],
-      EmptyRecord,
-      EmptyRecord,
-      { selfHandle: true }
-    >;
-
-    expectTypeOf<GetCommandArgs<Z>>().toEqualTypeOf<
-      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd"]>
-    >();
+    const handler: HandlerFunctionFor<typeof cmd> = (args) => {
+      if (args.command) {
+        args.command;
+      }
+      else {
+        args.command;
+      }
+    };
   });
 
-  test("self handle subcommands args", () => {
-    const subsCmd = subcommands("cmd", "desc", [
+  test("self handle composed args nested into subs", () => {
+    const subsCmd = composeCommands(
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ]).$.selfHandle(true);
+    ).$.selfHandle(true);
 
-    const cmd = composeCommands(
-      subsCmd,
-      command("cmd2", "desc"),
-    );
+    const cmd = subcommands("cmd1", "desc", subsCmd);
 
     type A = GetCommandArgs<typeof cmd>;
 
     expectTypeOf<A>().toEqualTypeOf<
-      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
     >();
   });
 
-  test("self handle subcommands args nested", () => {
-    const subsCmd = subcommands("cmd2", "desc", [
+  test("self handle composed args nested into self handled subs", () => {
+    const subsCmd = composeCommands(
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ]).$.selfHandle(true);
+    ).$.selfHandle(true);
 
-    const cmd = subcommands(
-      "cmd1",
-      "desc",
-      [subsCmd, command("cmd3", "desc")],
-    );
+    const cmd = subcommands("cmd1", "desc", subsCmd).$.selfHandle(true);
 
     type A = GetCommandArgs<typeof cmd>;
 
+    const a: A = {
+      command: "cmd1",
+      subcommand: "sub2",
+      argv: {},
+    };
+
     expectTypeOf<A>().toEqualTypeOf<
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd3"]>
-    >();
-
-    const cmd2 = cmd.$.selfHandle(true);
-
-    expectTypeOf<GetCommandArgs<typeof cmd2>>().toEqualTypeOf<
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd3"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1"]>
     >();
   });

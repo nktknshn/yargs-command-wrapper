@@ -3,6 +3,7 @@ import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
 import {
   CommandComposed,
+  ComposedProps,
   HelperCommands,
 } from "../composed/type-command-composed";
 
@@ -28,9 +29,14 @@ export type CommandComposedWithSubcommands<
    */
   TComposedArgv extends EmptyRecord = EmptyRecord,
   TSubsProps extends SubsProps = SubsProps,
+  TComposedProps extends ComposedProps = ComposedProps,
 > = {
   readonly command: CommandBasic<TCommandName, TArgv>;
-  readonly subcommands: CommandComposed<TCommands, TComposedArgv>;
+  readonly subcommands: CommandComposed<
+    TCommands,
+    TComposedArgv,
+    TComposedProps
+  >;
   readonly props: TSubsProps;
   readonly type: "with-subcommands";
 };
@@ -42,7 +48,8 @@ export type HelperObjectWithSubcommands<
   infer TCommands,
   infer TArgv,
   infer TComposedArgv,
-  infer TSubsProps
+  infer TSubsProps,
+  infer TComposedProps
 > ? 
     & HelperCommands<TCommands, TArgv>
     & {
@@ -53,7 +60,8 @@ export type HelperObjectWithSubcommands<
         TCommands,
         TArgv,
         TComposedArgv,
-        { selfHandle: B }
+        { selfHandle: B },
+        TComposedProps
       >;
     }
   : never;

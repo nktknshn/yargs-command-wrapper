@@ -9,7 +9,12 @@ import { EmptyRecord } from "../../common/types";
 import { HandlerFunction } from "./type";
 
 /**
- * @description Returns the type of the function that will handle arguments returned after parsing by `TCommand`
+ * @description Returns the type of the function that will handle arguments returned after parsing by `TCommand`.
+ * ```
+ * const handler: HandlerFunctionFor<typeof cmd> = (args) => {}
+ * const { result } = buildAndParseUnsafeR(cmd);
+ * handler(result);
+ * ```
  */
 export type HandlerFunctionFor<
   TCommand extends Command,

@@ -10,9 +10,15 @@ import { WrapperError } from "../../../common/error";
 import { EmptyRecord } from "../../../common/types";
 import { command } from "../basic/command";
 import { GetCommandNameFromDesc } from "../basic/type-command-name";
-import { composeCommands } from "../composed/compose-commands";
+import {
+  composeCommands,
+  DefaultProps as DefaultPropsComposed,
+} from "../composed/compose-commands";
 import { createHelperCommands } from "../composed/helper-object";
-import { CommandComposed } from "../composed/type-command-composed";
+import {
+  CommandComposed,
+  ComposedProps,
+} from "../composed/type-command-composed";
 import {
   CommandComposedWithSubcommands,
   HelperObjectWithSubcommands,
@@ -27,13 +33,15 @@ type SubsReturnType<
   TArgv extends EmptyRecord,
   TComposedArgv extends EmptyRecord,
   TSubsProps extends SubsProps,
+  TComposedProps extends ComposedProps,
 > =
   & CommandComposedWithSubcommands<
     TCommandName,
     TCommands,
     TArgv,
     TComposedArgv,
-    TSubsProps
+    TSubsProps,
+    TComposedProps
   >
   & {
     $: HelperObjectWithSubcommands<
@@ -42,7 +50,8 @@ type SubsReturnType<
         TCommands,
         TArgv,
         EmptyRecord,
-        TSubsProps
+        TSubsProps,
+        TComposedProps
       >
     >;
   };
@@ -65,7 +74,8 @@ export function subs<
   TCommands,
   TArgv,
   EmptyRecord,
-  DefaultProps
+  DefaultProps,
+  DefaultPropsComposed
 >;
 
 export function subs<
@@ -73,9 +83,10 @@ export function subs<
   TArgv extends EmptyRecord,
   TCommands extends Command[],
   TComposedArgv extends EmptyRecord,
+  TComposedProps extends ComposedProps,
 >(
   command: CommandBasic<TCommandName, TArgv>,
-  subcommands: CommandComposed<TCommands, TComposedArgv>,
+  subcommands: CommandComposed<TCommands, TComposedArgv, TComposedProps>,
 ): SubsReturnType<
   TCommandName,
   TCommands,
@@ -83,7 +94,8 @@ export function subs<
   TArgv & TComposedArgv,
   // XXX not TComposedArgv?
   EmptyRecord,
-  DefaultProps
+  DefaultProps,
+  TComposedProps
 >;
 
 // new overloads
@@ -92,33 +104,41 @@ export function subs<
   TArgv extends EmptyRecord,
   const TCommands extends readonly Command[],
   TComposedArgv extends EmptyRecord,
+  TComposedProps extends ComposedProps,
 >(
   commandDesc: TCommandDesc,
   description: string,
   builder: (parent: y.Argv<EmptyRecord>) => y.Argv<TArgv>,
-  subcommands: CommandComposed<TCommands, TComposedArgv> | TCommands,
+  subcommands:
+    | CommandComposed<TCommands, TComposedArgv, TComposedProps>
+    | TCommands,
 ): SubsReturnType<
   GetCommandNameFromDesc<TCommandDesc>,
   TCommands,
   TArgv,
   TComposedArgv,
-  DefaultProps
+  DefaultProps,
+  TComposedProps
 >;
 
 export function subs<
   const TCommandDesc extends readonly string[] | string,
   const TCommands extends readonly Command[],
   TComposedArgv extends EmptyRecord,
+  TComposedProps extends ComposedProps,
 >(
   commandDesc: TCommandDesc,
   description: string,
-  subcommands: CommandComposed<TCommands, TComposedArgv> | TCommands,
+  subcommands:
+    | CommandComposed<TCommands, TComposedArgv, TComposedProps>
+    | TCommands,
 ): SubsReturnType<
   GetCommandNameFromDesc<TCommandDesc>,
   TCommands,
   EmptyRecord,
   TComposedArgv,
-  DefaultProps
+  DefaultProps,
+  TComposedProps
 >;
 
 export function subs(
@@ -189,15 +209,19 @@ function overload12<
   TArgv extends EmptyRecord,
   TCommands extends CommandsTuple,
   TComposedArgv extends EmptyRecord,
+  TComposedProps extends ComposedProps = ComposedProps,
 >(
   command: CommandBasic<TCommandName, TArgv>,
-  subcommands: CommandComposed<TCommands, TComposedArgv> | TCommands,
+  subcommands:
+    | CommandComposed<TCommands, TComposedArgv, TComposedProps>
+    | TCommands,
 ): SubsReturnType<
   TCommandName,
   TCommands,
   TArgv,
   TComposedArgv,
-  SubsProps
+  SubsProps,
+  ComposedProps
 > {
   if (
     isObjectWithOwnProperty(subcommands, "type")
