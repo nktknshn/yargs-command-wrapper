@@ -1,6 +1,6 @@
 export { CommandBasic } from "./commands/basic/type";
 export { GetBasicCommandArgs as GetBasicParseResult } from "./commands/basic/type-parse-result";
-export { CommandComposed as CommandComposed } from "./commands/composed/type";
+export { CommandComposed as CommandComposed } from "./commands/composed/type-command-composed";
 
 export { GetComposedCommandArgs as GetComposedParseResult } from "./commands/composed/type-parse-result";
 export { CommandComposedWithSubcommands } from "./commands/with-subcommands/type";

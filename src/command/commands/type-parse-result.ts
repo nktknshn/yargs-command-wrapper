@@ -2,7 +2,7 @@ import { EmptyRecord } from "../../common/types";
 import { CommandBasic } from "./basic/type";
 import { GetBasicCommandArgs } from "./basic/type-parse-result";
 import { Command } from "./command";
-import { CommandComposed } from "./composed/type";
+import { CommandComposed } from "./composed/type-command-composed";
 import { GetComposedCommandArgs } from "./composed/type-parse-result";
 import { CommandComposedWithSubcommands } from "./with-subcommands/type";
 import { GetSubcommandsArgs } from "./with-subcommands/type-parse-result";

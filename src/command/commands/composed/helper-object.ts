@@ -3,14 +3,14 @@ import { EmptyRecord } from "../../../common/types";
 import { Command } from "../..";
 import { showCommands } from "../helpers";
 import { composedCommandNames, findByNameInComposed } from "./helpers";
-import { HelperObjectComposed } from "./type";
+import { HelperCommands } from "./type-command-composed";
 
-export const createHelperObject = <
+export const createHelperCommands = <
   TCommands extends readonly Command[],
   TArgv extends EmptyRecord,
 >(
   commands: TCommands,
-): HelperObjectComposed<TCommands, TArgv> => {
+): HelperCommands<TCommands, TArgv> => {
   const commandNames = composedCommandNames(commands);
 
   const commandsObject: Record<string, Command> = {};
@@ -29,5 +29,5 @@ export const createHelperObject = <
 
   return {
     commands: commandsObject,
-  } as HelperObjectComposed<TCommands, TArgv>;
+  } as HelperCommands<TCommands, TArgv>;
 };

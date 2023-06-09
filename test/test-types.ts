@@ -9,7 +9,6 @@ import {
 } from "../src/command";
 import { CommandArgs } from "../src/command/commands/args/type-command-args";
 import { NestedCommandArgs } from "../src/command/commands/args/type-nested-command-args";
-import { GetSubcommandsParseResult } from "../src/command/commands/with-subcommands/type-parse-result";
 import { EmptyRecord } from "../src/common/types";
 import { HandlerFunction } from "../src/handler";
 import {
@@ -119,12 +118,12 @@ describe.skip("test types hierarchy", () => {
     type TSC1 = HandlerFunctionFor<SC1>;
     type TSC2 = HandlerFunctionFor<SC2>;
 
-    type A = GetSubcommandsParseResult<
-      [BC1, BC2],
-      "c",
-      EmptyRecord,
-      EmptyRecord
-    >;
+    // type A = GetSubcommandsParseResult<
+    //   [BC1, BC2],
+    //   "c",
+    //   EmptyRecord,
+    //   EmptyRecord
+    // >;
 
     expectTypeOf<TSC2>().toEqualTypeOf<
       | ((

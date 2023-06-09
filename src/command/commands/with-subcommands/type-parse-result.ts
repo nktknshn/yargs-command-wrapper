@@ -6,7 +6,7 @@ import { Command } from "../command";
 import { GetCommandArgs } from "../type-parse-result";
 import { CommandComposedWithSubcommands } from "./type";
 
-export type GetSubcommandsParseResult<
+type GetSubcommandsParseResult<
   TCommands extends readonly Command[],
   TCommandName extends string,
   TArgv,

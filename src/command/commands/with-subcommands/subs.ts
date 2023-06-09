@@ -11,8 +11,8 @@ import { EmptyRecord } from "../../../common/types";
 import { command } from "../basic/command";
 import { GetCommandNameFromDesc } from "../basic/type-command-name";
 import { composeCommands } from "../composed/compose-commands";
-import { createHelperObject } from "../composed/helper-object";
-import { CommandComposed } from "../composed/type";
+import { createHelperCommands } from "../composed/helper-object";
+import { CommandComposed } from "../composed/type-command-composed";
 import {
   CommandComposedWithSubcommands,
   HelperObjectWithSubcommands,
@@ -203,7 +203,7 @@ function overload12<
     isObjectWithOwnProperty(subcommands, "type")
     && subcommands.type === "composed"
   ) {
-    const helperObject = createHelperObject<TCommands, TArgv & TComposedArgv>(
+    const helperObject = createHelperCommands<TCommands, TArgv & TComposedArgv>(
       subcommands.commands,
     );
 
@@ -231,7 +231,10 @@ function overload12<
   const composedCommand = composeCommands<TCommands, TArgv & TComposedArgv>(
     ...s,
   );
-  const helperObject = createHelperObject<TCommands, TArgv & TComposedArgv>(s);
+
+  const helperObject = createHelperCommands<TCommands, TArgv & TComposedArgv>(
+    s,
+  );
 
   const resultCommand = {
     command,

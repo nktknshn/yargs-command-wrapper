@@ -8,3 +8,6 @@ export type CommandArgs<
   TArgv extends EmptyRecord = EmptyRecord,
   TName extends string = string,
 > = CommandArgsGeneric<TArgv, [TName]>;
+
+export type CommandArgsSelfHandle<TArgv extends EmptyRecord = EmptyRecord> =
+  CommandArgsGeneric<TArgv, [""]>;

@@ -1,7 +1,10 @@
 import { EmptyRecord } from "../../../common/types";
 import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
-import { CommandComposed, HelperObjectComposed } from "../composed/type";
+import {
+  CommandComposed,
+  HelperCommands,
+} from "../composed/type-command-composed";
 
 /**
  * @description Properties of a command with subcommands.
@@ -40,13 +43,17 @@ export type HelperObjectWithSubcommands<
   infer TArgv,
   infer TComposedArgv,
   infer TSubsProps
-> ? HelperObjectComposed<TCommands, TArgv> & {
-    selfHandle: <B extends boolean>(value: B) => CommandComposedWithSubcommands<
-      TName,
-      TCommands,
-      TArgv,
-      TComposedArgv,
-      { selfHandle: B }
-    >;
-  }
+> ? 
+    & HelperCommands<TCommands, TArgv>
+    & {
+      selfHandle: <B extends boolean>(
+        value: B,
+      ) => CommandComposedWithSubcommands<
+        TName,
+        TCommands,
+        TArgv,
+        TComposedArgv,
+        { selfHandle: B }
+      >;
+    }
   : never;

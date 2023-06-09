@@ -1,7 +1,11 @@
 import { EmptyRecord } from "../../../common/types";
 import { CommandsTuple, YargsCommandBuilder } from "../../types";
-import { createHelperObject } from "./helper-object";
-import { CommandComposed, HelperObjectComposed } from "./type";
+import { createHelperCommands } from "./helper-object";
+import { CommandComposed, HelperCommandCompose } from "./type-command-composed";
+
+type DefaultProps = {
+  readonly selfHandle: false;
+};
 
 /**
  * @description Create a command that can be one of the `commands`
@@ -16,7 +20,7 @@ export function composeCommands<
   ...commands: TCommands
 ):
   & CommandComposed<TCommands, TArgv>
-  & { $: HelperObjectComposed<TCommands, TArgv> };
+  & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> };
 
 export function composeCommands<
   TCommands extends CommandsTuple,
@@ -25,7 +29,7 @@ export function composeCommands<
   ...commands: TCommands
 ):
   & CommandComposed<TCommands, TArgv>
-  & { $: HelperObjectComposed<TCommands, TArgv> };
+  & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> };
 
 export function composeCommands<
   TCommands extends CommandsTuple,
@@ -35,7 +39,7 @@ export function composeCommands<
   ...commands: TCommands
 ):
   & CommandComposed<TCommands, TArgv>
-  & { $: HelperObjectComposed<TCommands, TArgv> }
+  & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> }
 {
   let _builder = undefined;
 
@@ -47,10 +51,22 @@ export function composeCommands<
     _builder = builder;
   }
 
-  return {
+  const resultCommand: CommandComposed<TCommands, TArgv> = {
     commands,
     builder: _builder,
     type: "composed",
-    $: createHelperObject(commands),
+    props: { selfHandle: false },
+  } as const;
+
+  const helperObject = createHelperCommands<TCommands, TArgv>(
+    resultCommand.commands,
+  );
+
+  return {
+    ...resultCommand,
+    $: {
+      ...helperObject,
+      selfHandle: value => ({ ...resultCommand, props: { selfHandle: value } }),
+    },
   };
 }
