@@ -21,7 +21,7 @@ export type CommandComposedWithSubcommands<
    * @description if the command is constructed from a composed command, this is the argv type of this command.
    */
   TComposedArgv extends EmptyRecord = EmptyRecord,
-  TSubsProps extends SubsProps<boolean> = { selfHandle: boolean },
+  TSubsProps extends SubsProps = SubsProps,
 > = {
   readonly command: CommandBasic<TCommandName, TArgv>;
   readonly subcommands: CommandComposed<TCommands, TComposedArgv>;

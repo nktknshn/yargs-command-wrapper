@@ -9,7 +9,13 @@ import { HandlerFunction } from "../handler-function/type";
 import { HandlerFunctionFor } from "../handler-function/type-handler-function-for";
 
 /**
- * @description function that is used to create a handler for a command.
+ * @description Function that is used to create a handler for a command.
+ *
+ * For a basic command it is: `(argv: TArgv) => TResult`
+ *
+ * For a composed command it is: `(args: Command1Args<TArgv1> | Command2Args<TArgv2>...) => TResult`
+ *
+ * For a command with subcommands it is: `(args: Command1Args<TArgv1> | Command2Args<TArgv2>...) => TResult`
  */
 export type InputHandlerFunctionFor<
   TCommand extends Command,
