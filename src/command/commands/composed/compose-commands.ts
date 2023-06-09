@@ -19,7 +19,7 @@ export function composeCommands<
   builder: YargsCommandBuilder<TArgv>,
   ...commands: TCommands
 ):
-  & CommandComposed<TCommands, TArgv>
+  & CommandComposed<TCommands, TArgv, DefaultProps>
   & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> };
 
 export function composeCommands<
@@ -28,7 +28,7 @@ export function composeCommands<
 >(
   ...commands: TCommands
 ):
-  & CommandComposed<TCommands, TArgv>
+  & CommandComposed<TCommands, TArgv, DefaultProps>
   & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> };
 
 export function composeCommands<
@@ -38,7 +38,7 @@ export function composeCommands<
   builder: YargsCommandBuilder<TArgv> | TCommands,
   ...commands: TCommands
 ):
-  & CommandComposed<TCommands, TArgv>
+  & CommandComposed<TCommands, TArgv, DefaultProps>
   & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> }
 {
   let _builder = undefined;
@@ -51,7 +51,7 @@ export function composeCommands<
     _builder = builder;
   }
 
-  const resultCommand: CommandComposed<TCommands, TArgv> = {
+  const resultCommand: CommandComposed<TCommands, TArgv, DefaultProps> = {
     commands,
     builder: _builder,
     type: "composed",

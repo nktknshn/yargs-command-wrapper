@@ -1,8 +1,10 @@
 export type TupleKeys<T> = Exclude<keyof T, keyof []>;
 // from https://github.com/millsp/ts-toolbelt
 
+export type ExcludeExact<T, U> = U extends T ? T extends U ? never : T : T;
+
 export type ToList<U> = [U] extends [never] ? []
-  : readonly [Last<U>, ...ToList<Exclude<U, Last<U>>>];
+  : readonly [Last<U>, ...ToList<ExcludeExact<U, Last<U>>>];
 
 export type ToUnion<L> = L extends readonly [infer A, ...infer B]
   ? A | ToUnion<B>

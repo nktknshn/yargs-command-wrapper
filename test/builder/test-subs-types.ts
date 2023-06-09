@@ -8,6 +8,7 @@ import {
 } from "../../src/command";
 import { CommandArgsGeneric } from "../../src/command/commands/args/type-command-args-generic";
 import { EmptyRecord } from "../../src/common/types";
+import { ToList } from "../../src/common/types-util";
 
 describe("mapped types", () => {
   test("type subcommands parse result", () => {
@@ -107,6 +108,42 @@ describe("mapped types", () => {
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd3"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1"]>
+    >();
+  });
+
+  test("pure types", () => {
+    type C1 = CommandComposedWithSubcommands<
+      "cmd2",
+      [CommandBasic<"sub1", EmptyRecord>, CommandBasic<"sub2", EmptyRecord>],
+      EmptyRecord,
+      EmptyRecord,
+      { selfHandle: true }
+    >;
+
+    type AC1 = GetCommandArgs<C1>;
+
+    type AC1L = ToList<AC1>;
+
+    expectTypeOf<AC1>().toEqualTypeOf<
+      | CommandArgsGeneric<EmptyRecord, ["cmd2", "sub1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd2", "sub2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd2"]>
+    >();
+
+    type CC1 = CommandComposedWithSubcommands<
+      "cmd1",
+      [C1],
+      EmptyRecord,
+      EmptyRecord,
+      { selfHandle: false }
+    >;
+
+    type A = GetCommandArgs<CC1>;
+
+    expectTypeOf<A>().toEqualTypeOf<
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
     >();
   });
 });

@@ -122,10 +122,10 @@ export function subs<
 >;
 
 export function subs<
+  TComposedProps extends ComposedProps,
   const TCommandDesc extends readonly string[] | string,
   const TCommands extends readonly Command[],
   TComposedArgv extends EmptyRecord,
-  TComposedProps extends ComposedProps,
 >(
   commandDesc: TCommandDesc,
   description: string,
