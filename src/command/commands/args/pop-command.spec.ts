@@ -25,6 +25,10 @@ describe("pop command", () => {
     expectTypeOf<
       IntersectionToNames<typeof args2>
     >().toEqualTypeOf<["a", "b"]>();
+
+    expectTypeOf<
+      IntersectionToNames<{ command: "a"; subcommand: undefined }>
+    >().toEqualTypeOf<["a", undefined]>();
   });
   test("types", () => {
     expectTypeOf<

@@ -40,7 +40,7 @@ describe("mapped types", () => {
     expectTypeOf<GetCommandArgs<typeof cmd>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd", undefined]>
     >();
 
     type Z = CommandComposedWithSubcommands<
@@ -54,7 +54,7 @@ describe("mapped types", () => {
     expectTypeOf<GetCommandArgs<Z>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd", undefined]>
     >();
   });
 
@@ -74,7 +74,7 @@ describe("mapped types", () => {
     expectTypeOf<A>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd2"]>
     >();
   });
@@ -96,7 +96,7 @@ describe("mapped types", () => {
     expectTypeOf<A>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd3"]>
     >();
 
@@ -105,9 +105,9 @@ describe("mapped types", () => {
     expectTypeOf<GetCommandArgs<typeof cmd2>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd3"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", undefined]>
     >();
   });
 
@@ -127,7 +127,7 @@ describe("mapped types", () => {
     expectTypeOf<AC1>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd2", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd2", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd2", undefined]>
     >();
 
     type CC1 = CommandComposedWithSubcommands<
@@ -143,7 +143,7 @@ describe("mapped types", () => {
     expectTypeOf<A>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", undefined]>
     >();
   });
 });

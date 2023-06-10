@@ -20,22 +20,40 @@ export const buildYargs = <TCommand extends Command>(
     );
   }
   else if (command.type === "composed") {
-    yargsObject = yargsObject.demandCommand(1);
+    yargsObject.demandCommand(0);
 
-    return command.commands.reduce(
-      (acc, cur) => buildYargs(cur)(acc),
-      command.builder ? command.builder(yargsObject) : yargsObject,
+    yargsObject = command.builder ? command.builder(yargsObject) : yargsObject;
+
+    yargsObject = command.commands.reduce(
+      (acc, composedCommand) => buildYargs(composedCommand)(acc),
+      yargsObject,
     );
+
+    if (!command.props.selfHandle) {
+      yargsObject = yargsObject.demandCommand(1);
+    }
+    else {
+      yargsObject = yargsObject.demandCommand(0);
+    }
+
+    return yargsObject;
   }
   else if (command.type === "with-subcommands") {
-    return yargsObject.command(
+    yargsObject = yargsObject.command(
       command.command.commandDesc,
       command.command.description,
       a =>
         buildYargs(command.subcommands)(
-          command.command.builder(a).demandCommand(1),
+          command.command.builder(a),
+        ).demandCommand(
+          (command.props.selfHandle
+              || command.subcommands.props.selfHandle)
+            ? 0
+            : 1,
         ),
     );
+
+    return yargsObject;
   }
   else {
     return command;

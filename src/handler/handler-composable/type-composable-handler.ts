@@ -7,7 +7,8 @@ import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
  */
 export interface ComposableHandler<
   TArgs extends CommandArgs = CommandArgsGeneric<never, never>,
-  TNames extends readonly string[] = readonly string[],
+  TNames extends readonly (string | undefined)[] =
+    readonly (string | undefined)[],
   TType extends HandlerSyncType = HandlerSyncType,
   TReturn = unknown,
 > {

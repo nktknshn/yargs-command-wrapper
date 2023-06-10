@@ -6,21 +6,25 @@ import { Cast } from "../../../common/types-util";
  */
 export type CommandArgsGeneric<
   TArgv extends EmptyRecord,
-  TNames extends NonEmptyTuple<string>,
+  TNames extends NonEmptyTuple<string | undefined>,
 > =
   & { "argv": TArgv }
   & NamesToIntersection<TNames>;
 
-export type NamesToIntersection<TNames extends NonEmptyTuple<string>> =
-  _NamesToIntersect<TNames>;
+export type NamesToIntersection<
+  TNames extends NonEmptyTuple<string | undefined>,
+> = _NamesToIntersect<TNames>;
 
 type _NamesToIntersect<
-  TNames extends readonly string[],
+  TNames extends readonly (string | undefined)[],
   TPrefix extends string = "",
 > = TNames extends [] ? EmptyRecord
   : TNames extends readonly [infer TName, ...infer TRest] ? 
       & Record<`${TPrefix}command`, TName>
-      & _NamesToIntersect<Cast<TRest, readonly string[]>, `sub${TPrefix}`>
+      & _NamesToIntersect<
+        Cast<TRest, readonly (string | undefined)[]>,
+        `sub${TPrefix}`
+      >
   : never;
 
 /**
@@ -32,7 +36,7 @@ type _NamesToIntersect<
  * ```
  */
 export type IntersectionToNames<
-  TIntersection extends NamesToIntersection<[string]>,
+  TIntersection extends NamesToIntersection<[string | undefined]>,
 > = _IntersectionToNames<TIntersection>;
 
 type _IntersectionToNames<

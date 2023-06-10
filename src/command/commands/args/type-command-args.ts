@@ -6,8 +6,8 @@ import { CommandArgsGeneric } from "./type-command-args-generic";
  */
 export type CommandArgs<
   TArgv extends EmptyRecord = EmptyRecord,
-  TName extends string = string,
+  TName extends string | undefined = string | undefined,
 > = CommandArgsGeneric<TArgv, [TName]>;
 
 export type CommandArgsSelfHandle<TArgv extends EmptyRecord = EmptyRecord> =
-  CommandArgsGeneric<TArgv, [""]>;
+  CommandArgsGeneric<TArgv, [undefined]>;

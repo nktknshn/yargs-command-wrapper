@@ -1,3 +1,5 @@
+import logging from "./common/logging";
+
 export { GetCommandArgv } from "./command";
 export type { GetCommandArgs } from "./command";
 export { command, command as comm } from "./command/commands/basic/command";
@@ -19,3 +21,5 @@ export {
   buildAndParseUnsafeR,
   parse,
 } from "./parser/parser";
+
+logging.setLevel("DEBUG");

@@ -7,5 +7,5 @@ import { CommandArgsGeneric } from "./type-command-args-generic";
 export type NestedCommandArgs<
   TArgv extends EmptyRecord = EmptyRecord,
   TName extends string = string,
-  TSubName extends string = string,
+  TSubName extends string | undefined = string | undefined,
 > = CommandArgsGeneric<TArgv, [TName, TSubName]>;

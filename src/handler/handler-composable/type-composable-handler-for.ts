@@ -31,7 +31,10 @@ export type ComposableHandlerFor<
   >
   : TCommand extends CommandComposed ? ComposableHandler<
       GetComposedParseResult<TCommand, TGlobalArgv>,
-      Cast<ToList<GetComposedCommandsNames<TCommand>>, readonly string[]>,
+      Cast<
+        ToList<GetComposedCommandsNames<TCommand>>,
+        readonly (string | undefined)[]
+      >,
       TSyncType,
       TReturn
     >

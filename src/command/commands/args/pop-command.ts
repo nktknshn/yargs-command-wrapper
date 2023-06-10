@@ -9,22 +9,25 @@ import {
  * @description removes heading command from type
  */
 export type PopCommandType<
-  T extends CommandArgsGeneric<EmptyRecord, [string]>,
-> = IntersectionToNames<T> extends [string, ...infer TTail]
+  T extends CommandArgsGeneric<EmptyRecord, [string | undefined]>,
+> = IntersectionToNames<T> extends [string | undefined, ...infer TTail]
   ? TTail extends [] ? T["argv"]
-  : CommandArgsGeneric<T["argv"], Cast<TTail, NonEmptyTuple<string>>>
+  : CommandArgsGeneric<
+    T["argv"],
+    Cast<TTail, NonEmptyTuple<string | undefined>>
+  >
   : never;
 
 /**
  * @description removes heading command
  */
 export function popCommand<
-  T extends CommandArgsGeneric<TArgv, [string]>,
+  T extends CommandArgsGeneric<TArgv, [string | undefined]>,
   TArgv extends EmptyRecord,
 >(args: T): PopCommandType<T>;
 
 export function popCommand(
-  args: CommandArgsGeneric<EmptyRecord, [string]>,
+  args: CommandArgsGeneric<EmptyRecord, [string | undefined]>,
 ): Record<string, unknown> {
   if (!("subcommand" in args)) {
     return args.argv;

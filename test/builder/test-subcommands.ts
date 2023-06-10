@@ -19,9 +19,9 @@ describe("test subcommands", () => {
       subs(
         command1,
         [subcommand1, subcommand2],
-      ).subcommands,
+      ).subcommands.commands,
     ).toStrictEqual(
-      comp(subcommand1, subcommand2),
+      [subcommand1, subcommand2],
     );
   });
 
@@ -37,7 +37,7 @@ describe("test subcommands", () => {
     expect(cmd1.command.builder(y)).toBe(y);
     expect(cmd1.command.type).toBe("command");
     expect(cmd1.command.description).toBe("command 1");
-    expect(cmd1.subcommands).toStrictEqual(comp(sub1, sub2));
+    expect(cmd1.subcommands.commands).toStrictEqual([sub1, sub2]);
 
     const addOptParent = opt("com1arg");
     const addOptComp = opt("s1s2compargv");
@@ -53,7 +53,7 @@ describe("test subcommands", () => {
     expect(cmd2.command.builder).toBe(addOptParent);
     expect(cmd2.command.type).toBe("command");
     expect(cmd2.command.description).toBe("command 1");
-    expect(cmd2.subcommands).toStrictEqual(comp(sub1, sub2));
+    expect(cmd2.subcommands.commands).toStrictEqual([sub1, sub2]);
 
     const s1s2comp: CommandComposed<[
       typeof sub1,
@@ -76,7 +76,7 @@ describe("test subcommands", () => {
     expect(cmd3.command.builder(y)).toBe(y);
     expect(cmd3.command.type).toBe("command");
     expect(cmd3.command.description).toBe("command 1");
-    expect(cmd3.subcommands).toStrictEqual(s1s2comp);
+    expect(cmd3.subcommands.commands).toStrictEqual([sub1, sub2]);
 
     const cmd4 = subs("com1", "command 1", addOptParent, s1s2comp);
 
@@ -94,6 +94,6 @@ describe("test subcommands", () => {
     expect(cmd2.command.builder).toBe(addOptParent);
     expect(cmd3.command.type).toBe("command");
     expect(cmd3.command.description).toBe("command 1");
-    expect(cmd3.subcommands).toStrictEqual(s1s2comp);
+    expect(cmd3.subcommands.commands).toStrictEqual([sub1, sub2]);
   });
 });

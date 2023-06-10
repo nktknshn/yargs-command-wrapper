@@ -17,9 +17,9 @@ import { NestedCommandArgs } from "../../command/commands/args/type-nested-comma
 import { showCommand } from "../../command/commands/helpers";
 import { WrapperError } from "../../common/error";
 import { EmptyRecord } from "../../common/types";
-import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { showComposableHandler } from "../handler-composable/helpers";
 import { ComposableHandler } from "../handler-composable/type-composable-handler";
+import { ComposableHandlerFor } from "../handler-composable/type-composable-handler-for";
 import { HandlerFunction } from "../handler-function/type";
 import { createHandler } from "./create-handler";
 import {
@@ -31,9 +31,14 @@ import {
   ComposableHandlerForSubcommands,
   InputHandlerRecordFor,
   InputHandlerRecordType,
+  SelfHandlerKey,
 } from "./type-create-handler-for";
 import { GetReturnType, GetSyncType } from "./type-helpers";
 import { InputHandlerFunctionFor } from "./type-input-function";
+
+import logging from "../../common/logging";
+
+const logger = logging.getLogger("createHandlerFor");
 
 /**
  * @description Create a composable handler for a command.
@@ -77,6 +82,8 @@ export function createHandlerFor(
     | InputHandlerRecordType
     | ComposableHandlerForSubcommands<Command>,
 ): ComposableHandler {
+  logger.debug(`createHandlerFor ${showCommand(command)}.`);
+
   if (command.type === "command") {
     if (isFunctionHandler<CommandBasic>(functionOrRecord)) {
       return _createHandlerForCommand(command, functionOrRecord);
@@ -111,6 +118,8 @@ const _createHandlerForCommand = (
   command: CommandBasic,
   functionOrRecord: InputHandlerFunctionFor<CommandBasic>,
 ): ComposableHandler => {
+  logger.debug(`_createHandlerForCommand ${showCommand(command)}.`);
+
   return createHandler(
     (args: CommandArgs) => {
       return functionOrRecord(args.argv);
@@ -126,6 +135,11 @@ const _createHandlerForComposed = (
     | HandlerFunction
     | InputHandlerRecordType,
 ): ComposableHandler => {
+  logger.debug(
+    `_createHandlerForComposed ${showCommand(command)}.`,
+    functionOrRecord,
+  );
+
   // handler function for composed is a union of functions for each command
   if (isFunctionHandler(functionOrRecord)) {
     return createHandler(
@@ -181,6 +195,8 @@ const _createHandlerForSubcommands = (
     | InputHandlerRecordType
     | ComposableHandler<CommandArgs>,
 ): ComposableHandler<any> => {
+  logger.debug(`_createHandlerForSubcommands ${showCommand(command)}.`);
+
   // XXX remove `any`
   // InputHandlerFunctionFor
   if (isFunctionHandler(functionOrRecord)) {
@@ -215,8 +231,9 @@ const _createHandlerForSubcommands = (
       }
 
       const _args = popCommand(args);
+      const _commandName = _args.command ?? SelfHandlerKey;
 
-      if (!(_args.command in functionOrRecord)) {
+      if (!(_commandName in functionOrRecord)) {
         console.error(_args, functionOrRecord);
 
         throw WrapperError.create(
@@ -224,13 +241,19 @@ const _createHandlerForSubcommands = (
         );
       }
 
-      const handler = functionOrRecord[_args.command];
+      const handler = functionOrRecord[_commandName];
 
+      let commandToHandle;
+      if (_commandName !== SelfHandlerKey) {
+        commandToHandle = findByNameInComposed(
+          command.subcommands.commands,
+          _commandName,
+        );
+      }
+      else {
+        commandToHandle = command.command;
+      }
       // find the command from `args.subcommand`
-      const commandToHandle = findByNameInComposed(
-        command.subcommands.commands,
-        _args.command,
-      );
 
       if (commandToHandle === undefined) {
         throw WrapperError.create(

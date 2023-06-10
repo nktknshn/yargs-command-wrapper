@@ -1,6 +1,11 @@
 import { expectTypeOf } from "expect-type";
 import { vi } from "vitest";
-import { buildAndParseUnsafe, comp, subs } from "../../src";
+import {
+  buildAndParseUnsafe,
+  buildAndParseUnsafeR,
+  comp,
+  subs,
+} from "../../src";
 import { CommandArgs } from "../../src/command/commands/args/type-command-args";
 import { HandlerFunction } from "../../src/handler";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
@@ -175,5 +180,18 @@ describe("compose handlers", () => {
       com4argv: "123",
       sub1argv: "456",
     });
+  });
+
+  test("self handle composed", () => {
+    const com1handler = createHandlerFor(com1, (args) => {});
+    const com2handler = createHandlerFor(com2, (args) => {});
+
+    const cmd = comp(com1, com2).$.selfHandle(true);
+
+    const com1com2handler = composeHandlers(com1handler, com2handler);
+
+    const result = buildAndParseUnsafeR(cmd, "com1 -a");
+
+    com1com2handler.handle(result);
   });
 });

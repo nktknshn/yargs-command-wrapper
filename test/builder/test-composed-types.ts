@@ -9,22 +9,15 @@ import {
 } from "../../src";
 import {
   CommandBasic,
-  CommandComposed,
   CommandComposedWithSubcommands,
   GetCommandArgs,
 } from "../../src/command";
 import { CommandArgsGeneric } from "../../src/command/commands/args/type-command-args-generic";
 import { PushCommand } from "../../src/command/commands/args/type-push-command";
 import {
-  GetSubcommandsArgs,
-  GetSubcommandsParseResult,
   GetSubsSelfArgs,
 } from "../../src/command/commands/with-subcommands/type-parse-result";
 import { EmptyRecord } from "../../src/common/types";
-import { ExcludeExact, ToList } from "../../src/common/types-util";
-import { IntersectOf } from "../../src/common/types-util";
-import { Last } from "../../src/common/types-util";
-import { newFunction } from "./newFunction";
 
 describe("mapped types", () => {
   test("composed args type", () => {
@@ -54,7 +47,7 @@ describe("mapped types", () => {
     expectTypeOf<GetCommandArgs<typeof cmd>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["sub2"]>
-      | CommandArgsGeneric<EmptyRecord, [""]>
+      | CommandArgsGeneric<EmptyRecord, [undefined]>
     >();
 
     const handler: HandlerFunctionFor<typeof cmd> = (args) => {
@@ -80,8 +73,9 @@ describe("mapped types", () => {
     expectTypeOf<A>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
-    >();
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", undefined]>
+    > // | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
+    ();
   });
 
   test("self handle composed args nested", () => {
@@ -100,9 +94,11 @@ describe("mapped types", () => {
     expectTypeOf<ComposedCmd1Args>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd2"]>
     >();
+
+    type P = PushCommand<ComposedCmd1Args, "cmd3", {}>;
 
     const nestedComposedCmd1 = subcommands("cmd3", "desc", composedCmd1);
 
@@ -113,7 +109,7 @@ describe("mapped types", () => {
     expectTypeOf<NestedCmd1Args>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1"]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd2"]>
     >();
   });
@@ -131,9 +127,11 @@ describe("mapped types", () => {
     expectTypeOf<A>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1"]>
+      // | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", undefined]>
     >();
+
+    type Z = CommandArgsGeneric<EmptyRecord, ["cmd1", undefined]>;
 
     const composedCmd1 = comp(
       cmd1,
@@ -143,10 +141,10 @@ describe("mapped types", () => {
     expectTypeOf<GetCommandArgs<typeof composedCmd1>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd1"]>
+      // | CommandArgsGeneric<EmptyRecord, ["cmd1", ""]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd1", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd2"]>
-      | CommandArgsGeneric<EmptyRecord, [""]>
+      | CommandArgsGeneric<EmptyRecord, [undefined]>
     >();
 
     const nestedComposedCmd1 = subcommands(
@@ -162,17 +160,30 @@ describe("mapped types", () => {
 
     const b: B = {
       command: "cmd3",
+      subcommand: undefined,
       argv: {},
     };
+
+    if (b.command === "cmd3") {
+      b.subcommand;
+    }
 
     expectTypeOf<B>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", ""]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1"]>
+      // | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", ""]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", ""]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3"]>
+      // | CommandArgsGeneric<EmptyRecord, ["cmd3", ""]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd3", undefined]>
+    >();
+
+    const rootComp = comp(
+      nestedComposedCmd1,
+    ).$.selfHandle(true);
+
+    expectTypeOf<GetCommandArgs<typeof rootComp>>().toEqualTypeOf<
+      B | CommandArgsGeneric<EmptyRecord, [undefined]>
     >();
   });
 
@@ -190,10 +201,7 @@ describe("mapped types", () => {
 
     type Cmd3 = CommandComposedWithSubcommands<
       "cmd3",
-      [
-        CommandBasic<"cmd2">,
-        Cmd1,
-      ],
+      [CommandBasic<"cmd2">, Cmd1],
       EmptyRecord,
       EmptyRecord,
       { selfHandle: true },
@@ -205,11 +213,11 @@ describe("mapped types", () => {
     expectTypeOf<AC2>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub1"]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", "sub2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", ""]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1"]>
+      // | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", ""]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd1", undefined]>
       | CommandArgsGeneric<EmptyRecord, ["cmd3", "cmd2"]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3", ""]>
-      | CommandArgsGeneric<EmptyRecord, ["cmd3"]>
+      // | CommandArgsGeneric<EmptyRecord, ["cmd3", ""]>
+      | CommandArgsGeneric<EmptyRecord, ["cmd3", undefined]>
     >();
   });
 });

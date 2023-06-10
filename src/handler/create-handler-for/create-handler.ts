@@ -1,7 +1,7 @@
 import { Command } from "../../command";
 import { CommandArgs } from "../../command/commands/args/type-command-args";
-import { ComposableHandlerFor } from "../handler-composable/composable-handler-for";
 import { ComposableHandler } from "../handler-composable/type-composable-handler";
+import { ComposableHandlerFor } from "../handler-composable/type-composable-handler-for";
 import { HandlerFunction } from "../handler-function/type";
 import { GetFunctionReturnType, GetFunctionSyncType } from "../type-helpers";
 

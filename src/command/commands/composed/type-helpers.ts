@@ -9,7 +9,7 @@ import {
 } from "../..";
 import { NamedCommand } from "../command";
 
-export type GetCommandsNames<TCommands extends readonly NamedCommand[]> =
+export type GetCommandsNames<TCommands extends readonly Command[]> =
   GetCommandName<Cast<ToUnion<CommandsFlattenList<TCommands>>, Command>>;
 
 /**

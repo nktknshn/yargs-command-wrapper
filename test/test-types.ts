@@ -16,8 +16,8 @@ import {
   InputHandlerRecordType,
 } from "../src/handler/create-handler-for/type-create-handler-for";
 import { InputHandlerFunctionFor } from "../src/handler/create-handler-for/type-input-function";
-import { ComposableHandlerFor } from "../src/handler/handler-composable/composable-handler-for";
 import { ComposableHandler } from "../src/handler/handler-composable/type-composable-handler";
+import { ComposableHandlerFor } from "../src/handler/handler-composable/type-composable-handler-for";
 
 type Extends<T1, T2> = T1 extends T2 ? true : false;
 
@@ -25,6 +25,7 @@ type BC1 = CommandBasic<"a", { a: number }>;
 type BC2 = CommandBasic<"b", { b: number }>;
 
 type CC1 = CommandComposed<[BC1, BC2]>;
+type CC2 = CommandComposed<[BC1, BC2], EmptyRecord, { selfHandle: true }>;
 
 type SC1 = CommandComposedWithSubcommands<"c", [BC1, BC2]>;
 
@@ -118,25 +119,18 @@ describe.skip("test types hierarchy", () => {
     type TSC1 = HandlerFunctionFor<SC1>;
     type TSC2 = HandlerFunctionFor<SC2>;
 
-    // type A = GetSubcommandsParseResult<
-    //   [BC1, BC2],
-    //   "c",
-    //   EmptyRecord,
-    //   EmptyRecord
-    // >;
-
     expectTypeOf<TSC2>().toEqualTypeOf<
       | ((
         args:
           | NestedCommandArgs<{ a: number }, "c", "a">
           | NestedCommandArgs<{ b: number }, "c", "b">
-          | CommandArgs<EmptyRecord, "c">,
+          | NestedCommandArgs<EmptyRecord, "c", undefined>,
       ) => Promise<unknown>)
       | ((
         args:
           | NestedCommandArgs<{ a: number }, "c", "a">
           | NestedCommandArgs<{ b: number }, "c", "b">
-          | CommandArgs<EmptyRecord, "c">,
+          | NestedCommandArgs<EmptyRecord, "c", undefined>,
       ) => unknown)
     >();
 
@@ -173,6 +167,8 @@ describe.skip("test types hierarchy", () => {
 
     type TBC1 = ComposableHandlerFor<BC1>;
     type TCC1 = ComposableHandlerFor<CC1>;
+    type TCC2 = ComposableHandlerFor<CC2>;
+
     type TSC1 = ComposableHandlerFor<SC1>;
     type TSC2 = ComposableHandlerFor<SC2>;
 

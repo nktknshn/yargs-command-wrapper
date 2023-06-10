@@ -4,9 +4,19 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
 } from "../../command";
+import {
+  CommandArgsSelfHandle,
+} from "../../command/commands/args/type-command-args";
+import {
+  GetCommandArgv,
+  IsSelfHandled,
+} from "../../command/commands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { HandlerFunction } from "../handler-function/type";
-import { HandlerFunctionFor } from "../handler-function/type-handler-function-for";
+import {
+  HandlerFunctionFor,
+} from "../handler-function/type-handler-function-for";
+import { HandlerFunctionExtendArgs } from "../handler-function/type-helpers";
 
 /**
  * @description Function that is used to create a handler for a command.
@@ -34,8 +44,11 @@ export type InputHandlerFunctionFor<
     /**
      * handler for a command with subcommands is defined by a handler of the nested composed command
      */
-    : TCommand extends CommandComposedWithSubcommands ? HandlerFunctionFor<
-        TCommand["subcommands"],
-        TGlobalArgv
+    : TCommand extends CommandComposedWithSubcommands
+      ? HandlerFunctionExtendArgs<
+        HandlerFunctionFor<TCommand["subcommands"], TGlobalArgv>,
+        IsSelfHandled<TCommand> extends true
+          ? CommandArgsSelfHandle<GetCommandArgv<TCommand> & TGlobalArgv>
+          : never
       >
     : never;

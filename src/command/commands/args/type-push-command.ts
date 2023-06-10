@@ -26,6 +26,6 @@ type _PushCommand<
   TArgv,
 > = IntersectionToNames<T> extends infer CS ? CommandArgsGeneric<
     T["argv"] & TArgv,
-    [C, ...Cast<CS, readonly string[]>]
+    [C, ...Cast<CS, readonly (string | undefined)[]>]
   >
   : never;
