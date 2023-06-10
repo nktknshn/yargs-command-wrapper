@@ -1,3 +1,5 @@
+import { CommandName } from "./type-command-args-generic";
+
 export const pushCommand = (
   args: Record<string, unknown>,
   command: string,
@@ -20,7 +22,7 @@ export const pushCommand = (
 
 export const appendSubcommand = (
   args: Record<string, unknown>,
-  subcommand: string,
+  subcommand: CommandName,
 ): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
 

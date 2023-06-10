@@ -32,7 +32,7 @@ describe("parser composed command", () => {
     ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(cmd, "")).toStrictEqual(
-      { command: "", argv: {} },
+      { command: undefined, argv: {} },
     );
 
     expect(buildAndParseUnsafeR(cmd, "cmd1")).toStrictEqual(
@@ -47,7 +47,7 @@ describe("parser composed command", () => {
     ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(cmd, "")).toStrictEqual(
-      { command: "", argv: {} },
+      { command: undefined, argv: {} },
     );
 
     expect(buildAndParseUnsafeR(cmd, "cmd1")).toStrictEqual(

@@ -12,7 +12,10 @@ import {
 } from "../../command/commands/composed/helpers";
 
 import { CommandArgs } from "../../command/commands/args/type-command-args";
-import { CommandArgsGeneric } from "../../command/commands/args/type-command-args-generic";
+import {
+  CommandArgsGeneric,
+  CommandName,
+} from "../../command/commands/args/type-command-args-generic";
 import { NestedCommandArgs } from "../../command/commands/args/type-nested-command-args";
 import { showCommand } from "../../command/commands/helpers";
 import { WrapperError } from "../../common/error";
@@ -38,7 +41,7 @@ import { InputHandlerFunctionFor } from "./type-input-function";
 
 import logging from "../../common/logging";
 
-const logger = logging.getLogger("createHandlerFor");
+const logger = logging.getLogger("create-handler-for");
 
 /**
  * @description Create a composable handler for a command.
@@ -46,6 +49,7 @@ const logger = logging.getLogger("createHandlerFor");
  * @param handler A function or a record or a composed command that defines a handler for the command.
  * @returns A composable handler for the command.
  */
+
 export function createHandlerFor<
   TCommand extends CommandBasic,
   H extends InputHandlerFunctionFor<TCommand>,
@@ -150,9 +154,11 @@ const _createHandlerForComposed = (
   // ComposableHandler
   else if (isRecordHandler(functionOrRecord)) {
     const handlerFunction = (
-      args: CommandArgsGeneric<EmptyRecord, [string]>,
+      args: CommandArgsGeneric<EmptyRecord, [CommandName]>,
     ): unknown | Promise<unknown> => {
-      const commandName = args.command;
+      logger.debug(`handlerFunction for ${showCommand(command)}.`);
+
+      const commandName = args.command ?? SelfHandlerKey;
 
       if (!(commandName in functionOrRecord)) {
         console.error(args, functionOrRecord);
@@ -163,6 +169,17 @@ const _createHandlerForComposed = (
       }
 
       const handler = functionOrRecord[commandName];
+
+      if (commandName === SelfHandlerKey) {
+        if (!isFunctionHandler(handler)) {
+          throw WrapperError.create(
+            `Invalid handler for command ${
+              showCommand(command)
+            } itself. Expected function.`,
+          );
+        }
+        return handler(args.argv);
+      }
 
       const commandToHandle = findByNameInComposed(
         command.commands,
@@ -223,6 +240,8 @@ const _createHandlerForSubcommands = (
     const _handlerFunction = (
       args: NestedCommandArgs,
     ): unknown | Promise<unknown> => {
+      logger.info(`handlerFunction for ${showCommand(command)}.`);
+
       const commandName = args.command;
 
       if (command.command.commandName !== commandName) {

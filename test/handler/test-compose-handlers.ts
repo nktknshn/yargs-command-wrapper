@@ -7,6 +7,7 @@ import {
   subs,
 } from "../../src";
 import { CommandArgs } from "../../src/command/commands/args/type-command-args";
+import logging from "../../src/common/logging";
 import { EmptyRecord } from "../../src/common/types";
 import { HandlerFunction } from "../../src/handler";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
@@ -17,6 +18,7 @@ import {
   ComposedHandlers,
   ComposeReturnType,
 } from "../../src/handler/handler-composable/types-compose";
+import { opt } from "../types/addOption";
 import {
   com,
   com1,
@@ -28,6 +30,8 @@ import {
   com7,
   deepNested,
 } from "./fixtures";
+
+logging.setFilter("handler");
 
 describe("compose handlers", () => {
   test("basic", () => {
@@ -198,12 +202,19 @@ describe("compose handlers", () => {
   });
 
   test("self handle composed 2", () => {
-    const com1handler = createHandlerFor(com1, (args) => {});
-    const com2handler = createHandlerFor(com2, (args) => {});
+    const [com1fn, com2fn, selfFn] = [vi.fn(), vi.fn(), vi.fn()];
+    const com1handler = createHandlerFor(com1, (args) => {
+      com1fn(args);
+    });
+    const com2handler = createHandlerFor(com2, (args) => {
+      com2fn(args);
+    });
 
-    const cmd = comp(com1, com2).selfHandle(true);
+    const cmd = comp(opt("g"), com1, com2).selfHandle(true);
 
-    const com2SelfHandler = createHandlerFor(cmd.$.$self, (args) => {});
+    const com2SelfHandler = createHandlerFor(cmd.$.$self, (args) => {
+      selfFn(args);
+    });
 
     const com1com2handler = composeHandlers(
       com1handler,
@@ -211,8 +222,22 @@ describe("compose handlers", () => {
       com2SelfHandler,
     );
 
-    const result = buildAndParseUnsafeR(cmd, "com1 -a");
+    com1com2handler.handle(
+      buildAndParseUnsafeR(cmd, "com1 -a -g123"),
+    );
 
-    com1com2handler.handle(result);
+    expect(com1fn).toBeCalledWith({ a: "", g: "123" });
+
+    com1com2handler.handle(
+      buildAndParseUnsafeR(cmd, "com2 -c -g123"),
+    );
+
+    expect(com2fn).toBeCalledWith({ c: "", g: "123" });
+
+    com1com2handler.handle(
+      buildAndParseUnsafeR(cmd, ["-g123"]),
+    );
+
+    expect(selfFn).toBeCalledWith({ g: "123" });
   });
 });

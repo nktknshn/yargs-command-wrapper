@@ -1,8 +1,12 @@
 import { CommandArgs } from "../../command/commands/args/type-command-args";
 import { CommandName } from "../../command/commands/args/type-command-args-generic";
 import { WrapperError } from "../../common/error";
+import logging from "../../common/logging";
+import { SelfHandlerKey } from "../create-handler-for/type-create-handler-for";
 import { ComposableHandler } from "./type-composable-handler";
 import { ComposeArgv, ComposedHandlers } from "./types-compose";
+
+const logger = logging.getLogger("handler-composed");
 
 type CompHand = ComposableHandler<CommandArgs, readonly CommandName[]>;
 /**
@@ -40,8 +44,10 @@ export function composeHandlers(
   const _handler = (
     args: ComposeArgv<[CompHand]>,
   ): unknown | Promise<unknown> => {
+    logger.debug(`Composed handler for ${args.command ?? "undefined"}`, args);
+
     for (const h of handlers) {
-      if (h.supports.includes(args.command)) {
+      if (h.supports.includes(args.command ?? SelfHandlerKey)) {
         return h.handle(args);
       }
     }

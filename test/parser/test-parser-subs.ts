@@ -35,6 +35,7 @@ describe("parser composed command", () => {
 
     expect(buildAndParseUnsafeR(cmd, "cmd1")).toStrictEqual({
       command: "cmd1",
+      subcommand: undefined,
       argv: {},
     });
 
@@ -60,7 +61,7 @@ describe("parser composed command", () => {
 
     expect(buildAndParseUnsafeR(cmd, "cmd1")).toStrictEqual({
       command: "cmd1",
-      subcommand: "",
+      subcommand: undefined,
       argv: {},
     });
 
@@ -95,12 +96,13 @@ describe("parser composed command", () => {
     ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(rootComposed, "")).toStrictEqual({
-      command: "",
+      command: undefined,
       argv: {},
     });
 
     expect(buildAndParseUnsafeR(rootComposed, "cmd3")).toStrictEqual({
       command: "cmd3",
+      subcommand: undefined,
       argv: {},
     });
 
@@ -113,6 +115,7 @@ describe("parser composed command", () => {
     expect(buildAndParseUnsafeR(rootComposed, "cmd3 cmd1")).toStrictEqual({
       command: "cmd3",
       subcommand: "cmd1",
+      subsubcommand: undefined,
       argv: {},
     });
 
@@ -148,20 +151,20 @@ describe("parser composed command", () => {
     ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(rootComposed, "")).toStrictEqual({
-      command: "",
+      command: undefined,
       argv: {},
     });
 
     expect(buildAndParseUnsafeR(rootComposed, "cmd3")).toStrictEqual({
       command: "cmd3",
-      subcommand: "",
+      subcommand: undefined,
       argv: {},
     });
 
     expect(buildAndParseUnsafeR(rootComposed, "cmd3 cmd1")).toStrictEqual({
       command: "cmd3",
       subcommand: "cmd1",
-      subsubcommand: "",
+      subsubcommand: undefined,
       argv: {},
     });
 

@@ -80,65 +80,6 @@ export const buildAndParseUnsafeR = <TCommand extends Command>(
  * @param
  * @returns
  */
-// export const parse2 = <TCommand extends Command>(
-//   command: TCommand,
-//   yargsObject: y.Argv,
-//   arg?: string | readonly string[],
-//   stripArgv = true,
-// ): E.Either<ErrorType, GetCommandArgs<TCommand>> => {
-// try {
-//   const argv = arg !== undefined
-//     ? yargsObject.parseSync(arg)
-//     : yargsObject.parseSync(process.argv.slice(2));
-
-//   let result: Record<string, unknown> = {};
-
-//   let currentCommand: Command | undefined = command;
-
-//   const parsedCommands = argv._;
-
-//   for (let cmd of parsedCommands.map(String)) {
-//     if (currentCommand === undefined) {
-//       return E.left({
-//         error: "command not found",
-//         message: "out of commands",
-//       });
-//     }
-
-//     const alias =  findAlias(
-//         currentCommand,
-//         cmd,
-//       );
-
-//     if (E.isLeft(alias)) {
-//       return alias;
-//     }
-//     const {currentCommand, fullName, nextCommands, type} = alias.right;
-
-//     result = appendSubcommand(result, cmd);
-//     // const prefix = replicate(idx, `sub`).join("");
-
-//     // result[`${prefix}command`] = cmd;
-//   }
-
-//   const _argv: Partial<typeof argv> = { ...argv };
-//   if (stripArgv) {
-//     delete _argv["_"];
-//     delete _argv["$0"];
-//   }
-//   result["argv"] = _argv;
-
-//   return E.of(result as GetCommandArgs<TCommand>);
-// } catch (e) {
-//   return E.left({ error: "yargs error", message: String(e) });
-// }
-// };
-
-/**
- * @description parse arguments with yargs object built from command
- * @param
- * @returns
- */
 export const parse = <TCommand extends Command>(
   command: TCommand,
   yargsObject: y.Argv,
@@ -197,7 +138,7 @@ const _parse = (
   else if (command.type === "composed") {
     if (parsedCommands.length === 0) {
       if (command.props.selfHandle) {
-        return E.right(appendSubcommand(context, ""));
+        return E.right(appendSubcommand(context, undefined));
       }
       else {
         return E.left({
@@ -245,14 +186,16 @@ const _parse = (
       if (restCommandArgs.length == 0) {
         // valid if the command is self handle
         if (currentCommand.props.selfHandle) {
-          return E.right(appendSubcommand(context, fullName));
+          return E.right(
+            appendSubcommand(appendSubcommand(context, fullName), undefined),
+          );
         }
         // or the composed is self handled
         else if (
           nextCommands.props.selfHandle
         ) {
           return E.right(
-            appendSubcommand(appendSubcommand(context, fullName), ""),
+            appendSubcommand(appendSubcommand(context, fullName), undefined),
           );
         }
         else {
@@ -297,7 +240,7 @@ const _parse = (
 
     if (rest.length == 0 && !command.subcommands.props.selfHandle) {
       if (command.props.selfHandle) {
-        return E.right(context);
+        return E.right(appendSubcommand(context, undefined));
       }
       else {
         return E.left({
