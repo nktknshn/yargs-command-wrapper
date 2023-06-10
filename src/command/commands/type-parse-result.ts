@@ -4,8 +4,8 @@ import { GetBasicCommandArgs } from "./basic/type-parse-result";
 import { Command } from "./command";
 import { CommandComposed } from "./composed/type-command-composed";
 import { GetComposedCommandArgs } from "./composed/type-parse-result";
-import { CommandComposedWithSubcommands } from "./with-subcommands/type";
 import { GetSubcommandsArgs } from "./with-subcommands/type-parse-result";
+import { CommandComposedWithSubcommands } from "./with-subcommands/type-subs";
 
 /**
  * @description Gets the return type of a parsed arguments

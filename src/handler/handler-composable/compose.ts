@@ -1,9 +1,10 @@
 import { CommandArgs } from "../../command/commands/args/type-command-args";
+import { CommandName } from "../../command/commands/args/type-command-args-generic";
 import { WrapperError } from "../../common/error";
 import { ComposableHandler } from "./type-composable-handler";
 import { ComposeArgv, ComposedHandlers } from "./types-compose";
 
-type CompHand = ComposableHandler<CommandArgs, readonly string[]>;
+type CompHand = ComposableHandler<CommandArgs, readonly CommandName[]>;
 /**
  * @description Composes handlers created by `createHandlerFor`
  * @example
@@ -30,7 +31,7 @@ export function composeHandlers<
 export function composeHandlers(
   ...handlers: CompHand[]
 ): ComposedHandlers<[CompHand]> {
-  const supports: string[] = [];
+  const supports: CommandName[] = [];
 
   for (const h of handlers) {
     supports.push(...h.supports);
@@ -40,10 +41,8 @@ export function composeHandlers(
     args: ComposeArgv<[CompHand]>,
   ): unknown | Promise<unknown> => {
     for (const h of handlers) {
-      if (typeof args.command === "string") {
-        if (h.supports.includes(args.command)) {
-          return h.handle(args);
-        }
+      if (h.supports.includes(args.command)) {
+        return h.handle(args);
       }
     }
 

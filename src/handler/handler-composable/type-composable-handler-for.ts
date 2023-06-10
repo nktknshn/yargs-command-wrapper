@@ -9,11 +9,15 @@ import {
 import {
   GetCommandName,
   GetComposedCommandsNames,
+  GetComposedCommandsNamesList,
 } from "../../command/commands/composed/type-helpers";
+import { IsSelfHandled } from "../../command/commands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { Cast, ToList } from "../../common/types-util";
 import { HandlerSyncType } from "../handler-function/type";
 import { ComposableHandler } from "./type-composable-handler";
+
+//  | IsSelfHandled<TCommand> extends true ? undefined : never
 
 /**
  * @description Gets the type of a composable handler for the given command
@@ -31,10 +35,9 @@ export type ComposableHandlerFor<
   >
   : TCommand extends CommandComposed ? ComposableHandler<
       GetComposedParseResult<TCommand, TGlobalArgv>,
-      Cast<
-        ToList<GetComposedCommandsNames<TCommand>>,
-        readonly (string | undefined)[]
-      >,
+      IsSelfHandled<TCommand> extends true
+        ? [...GetComposedCommandsNamesList<TCommand>, undefined]
+        : GetComposedCommandsNamesList<TCommand>,
       TSyncType,
       TReturn
     >

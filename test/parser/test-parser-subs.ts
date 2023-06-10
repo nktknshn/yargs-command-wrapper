@@ -28,7 +28,7 @@ describe("parser composed command", () => {
     const cmd = subs("cmd1", "desc", [
       comm("sub1", "desc"),
       comm("sub2", "desc"),
-    ]).$.selfHandle(true);
+    ]).selfHandle(true);
 
     expect(buildAndParse(cmd, "nocmd").result._tag).toStrictEqual("Left");
     expect(buildAndParse(cmd, []).result._tag).toStrictEqual("Left");
@@ -52,7 +52,7 @@ describe("parser composed command", () => {
       comp(
         comm("sub1", "desc"),
         comm("sub2", "desc"),
-      ).$.selfHandle(true),
+      ).selfHandle(true),
     );
 
     expect(buildAndParse(cmd, "nocmd").result._tag).toStrictEqual("Left");
@@ -75,24 +75,24 @@ describe("parser composed command", () => {
     const subsCmd = comp(
       comm("sub1", "desc"),
       comm("sub2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
-    const cmd1 = subs("cmd1", "desc", subsCmd).$.selfHandle(true);
+    const cmd1 = subs("cmd1", "desc", subsCmd).selfHandle(true);
 
     const composedCmd1 = comp(
       cmd1,
       comm("cmd2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     const nestedComposedCmd1 = subs(
       "cmd3",
       "desc",
       composedCmd1,
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     const rootComposed = comp(
       nestedComposedCmd1,
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(rootComposed, "")).toStrictEqual({
       command: "",
@@ -128,14 +128,14 @@ describe("parser composed command", () => {
     const subsCmd = comp(
       comm("sub1", "desc"),
       comm("sub2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     const cmd1 = subs("cmd1", "desc", subsCmd);
 
     const composedCmd1 = comp(
       cmd1,
       comm("cmd2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     const nestedComposedCmd1 = subs(
       "cmd3",
@@ -145,7 +145,7 @@ describe("parser composed command", () => {
 
     const rootComposed = comp(
       nestedComposedCmd1,
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(rootComposed, "")).toStrictEqual({
       command: "",

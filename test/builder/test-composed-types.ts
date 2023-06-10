@@ -38,7 +38,7 @@ describe("mapped types", () => {
     const cmd = composeCommands(
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expectTypeOf<typeof cmd["props"]>().toEqualTypeOf<{ selfHandle: true }>;
 
@@ -64,7 +64,7 @@ describe("mapped types", () => {
     const subsCmd = composeCommands(
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     const cmd = subcommands("cmd1", "desc", subsCmd);
 
@@ -85,7 +85,7 @@ describe("mapped types", () => {
     );
 
     const cmd1 = subcommands("cmd1", "desc", subsCmd)
-      .$.selfHandle(true);
+      .selfHandle(true);
 
     const composedCmd1 = comp(cmd1, command("cmd2", "desc"));
 
@@ -118,9 +118,9 @@ describe("mapped types", () => {
     const subsCmd = composeCommands(
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
-    const cmd1 = subcommands("cmd1", "desc", subsCmd).$.selfHandle(true);
+    const cmd1 = subcommands("cmd1", "desc", subsCmd).selfHandle(true);
 
     type A = GetCommandArgs<typeof cmd1>;
 
@@ -136,7 +136,7 @@ describe("mapped types", () => {
     const composedCmd1 = comp(
       cmd1,
       command("cmd2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expectTypeOf<GetCommandArgs<typeof composedCmd1>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "sub1"]>
@@ -151,7 +151,7 @@ describe("mapped types", () => {
       "cmd3",
       "desc",
       composedCmd1,
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expectTypeOf<typeof nestedComposedCmd1["props"]["selfHandle"]>()
       .toEqualTypeOf<true>();
@@ -180,7 +180,7 @@ describe("mapped types", () => {
 
     const rootComp = comp(
       nestedComposedCmd1,
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expectTypeOf<GetCommandArgs<typeof rootComp>>().toEqualTypeOf<
       B | CommandArgsGeneric<EmptyRecord, [undefined]>

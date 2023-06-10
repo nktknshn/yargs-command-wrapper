@@ -16,8 +16,8 @@ import { ComposableHandlerFor } from "../handler-composable/type-composable-hand
 import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
 import { InputHandlerFunctionFor } from "./type-input-function";
 
-export const SelfHandlerKey = "";
-
+export const SelfHandlerKey = "$self";
+export type SelfHandlerKey = typeof SelfHandlerKey;
 /**
  * @description Generic type for a record that defines a handler for a command.
  */

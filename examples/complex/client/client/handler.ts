@@ -22,7 +22,7 @@ const downloadHandler = async (
 };
 
 const uploadHandler = async (
-  argv: GetCommandArgv<typeof cmd.$.commands.upload>,
+  argv: GetCommandArgv<typeof cmd.$.upload>,
 ) => {
   argv.debug;
   console.log(

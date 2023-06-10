@@ -1,3 +1,4 @@
+import { CommandName } from "../../command/commands/args/type-command-args-generic";
 import { Cast, FallbackType, ToList, ToUnion } from "../../common/types-util";
 
 import { ComposableHandler } from "./type-composable-handler";
@@ -14,7 +15,7 @@ import {
 export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposableHandler<
     ComposeArgv<THandlers>,
-    FallbackType<ComposeNames<THandlers>, [], readonly string[]>,
+    FallbackType<ComposeNames<THandlers>, [], readonly CommandName[]>,
     ComposeSyncTypes<THandlers>,
     ComposeReturnType<THandlers>
   >;

@@ -14,16 +14,15 @@ import {
   composeCommands,
   DefaultProps as DefaultPropsComposed,
 } from "../composed/compose-commands";
-import { createHelperCommands } from "../composed/helper-object";
 import {
   CommandComposed,
   ComposedProps,
 } from "../composed/type-command-composed";
 import {
   CommandComposedWithSubcommands,
-  HelperObjectWithSubcommands,
+  CommandComposedWithSubcommandsImpl,
   SubsProps,
-} from "./type";
+} from "./type-subs";
 
 type DefaultProps = { selfHandle: false };
 
@@ -34,27 +33,14 @@ type SubsReturnType<
   TComposedArgv extends EmptyRecord,
   TSubsProps extends SubsProps,
   TComposedProps extends ComposedProps,
-> =
-  & CommandComposedWithSubcommands<
-    TCommandName,
-    TCommands,
-    TArgv,
-    TComposedArgv,
-    TSubsProps,
-    TComposedProps
-  >
-  & {
-    $: HelperObjectWithSubcommands<
-      CommandComposedWithSubcommands<
-        TCommandName,
-        TCommands,
-        TArgv,
-        EmptyRecord,
-        TSubsProps,
-        TComposedProps
-      >
-    >;
-  };
+> = CommandComposedWithSubcommandsImpl<
+  TCommandName,
+  TCommands,
+  TArgv,
+  TComposedArgv,
+  TSubsProps,
+  TComposedProps
+>;
 
 /**
  * @description A command with subcommands
@@ -142,7 +128,7 @@ export function subs<
 >;
 
 export function subs(
-  commandOrCommandDesc: CommandBasic | string,
+  commandOrCommandDesc: CommandBasic | string | string[],
   subcommandsOrDescription:
     | CommandComposed<CommandsTuple, EmptyRecord>
     | CommandsTuple
@@ -152,10 +138,7 @@ export function subs(
     | CommandsTuple
     | CommandComposed<CommandsTuple, EmptyRecord>,
   subcommands?: CommandComposed<CommandsTuple, EmptyRecord>,
-):
-  & CommandComposedWithSubcommands
-  & { $: HelperObjectWithSubcommands<CommandComposedWithSubcommands> }
-{
+): CommandComposedWithSubcommands {
   if (
     typeof commandOrCommandDesc === "string"
     || Array.isArray(commandOrCommandDesc)
@@ -227,10 +210,6 @@ function overload12<
     isObjectWithOwnProperty(subcommands, "type")
     && subcommands.type === "composed"
   ) {
-    const helperObject = createHelperCommands<TCommands, TArgv & TComposedArgv>(
-      subcommands.commands,
-    );
-
     const resultCommand = {
       command,
       subcommands,
@@ -238,26 +217,17 @@ function overload12<
       props: { selfHandle: false },
     } as const;
 
-    return {
-      ...resultCommand,
-      $: {
-        ...helperObject,
-        selfHandle: value => ({
-          ...resultCommand,
-          props: { selfHandle: value },
-        }),
-      },
-    };
+    return new CommandComposedWithSubcommandsImpl(
+      resultCommand.command,
+      resultCommand.subcommands,
+      resultCommand.props,
+    );
   }
 
   const s = subcommands as TCommands;
 
   const composedCommand = composeCommands<TCommands, TArgv & TComposedArgv>(
     ...s,
-  );
-
-  const helperObject = createHelperCommands<TCommands, TArgv & TComposedArgv>(
-    s,
   );
 
   const resultCommand = {
@@ -267,11 +237,9 @@ function overload12<
     props: { selfHandle: false },
   } as const;
 
-  return {
-    ...resultCommand,
-    $: {
-      ...helperObject,
-      selfHandle: value => ({ ...resultCommand, props: { selfHandle: value } }),
-    },
-  };
+  return new CommandComposedWithSubcommandsImpl(
+    resultCommand.command,
+    resultCommand.subcommands,
+    resultCommand.props,
+  );
 }

@@ -29,7 +29,7 @@ describe("parser composed command", () => {
     const cmd = comp(
       comm("cmd1", "desc"),
       comm("cmd2", "desc"),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(cmd, "")).toStrictEqual(
       { command: "", argv: {} },
@@ -44,7 +44,7 @@ describe("parser composed command", () => {
     const cmd = comp(
       comp(comm("cmd1", "desc"), comm("cmd2", "desc")),
       comp(comm("cmd3", "desc"), comm("cmd4", "desc")),
-    ).$.selfHandle(true);
+    ).selfHandle(true);
 
     expect(buildAndParseUnsafeR(cmd, "")).toStrictEqual(
       { command: "", argv: {} },

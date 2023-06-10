@@ -7,6 +7,7 @@ import {
   subs,
 } from "../../src";
 import { CommandArgs } from "../../src/command/commands/args/type-command-args";
+import { EmptyRecord } from "../../src/common/types";
 import { HandlerFunction } from "../../src/handler";
 import { createHandlerFor } from "../../src/handler/create-handler-for/create-handler-for";
 import { ComposableHandlerForSubcommands } from "../../src/handler/create-handler-for/type-create-handler-for";
@@ -183,12 +184,32 @@ describe("compose handlers", () => {
   });
 
   test("self handle composed", () => {
+    const cmd = comp(com1, com2).selfHandle(true);
+
+    const com1com2handler = createHandlerFor(cmd, (args) => {
+      expectTypeOf(args.command).toEqualTypeOf<"com1" | "com2" | undefined>();
+      if (args.command === undefined) {
+        expectTypeOf(args.argv).toEqualTypeOf<EmptyRecord>();
+      }
+      else {
+        expectTypeOf(args.argv).toEqualTypeOf<{ a: string } | { c: string }>();
+      }
+    });
+  });
+
+  test("self handle composed 2", () => {
     const com1handler = createHandlerFor(com1, (args) => {});
     const com2handler = createHandlerFor(com2, (args) => {});
 
-    const cmd = comp(com1, com2).$.selfHandle(true);
+    const cmd = comp(com1, com2).selfHandle(true);
 
-    const com1com2handler = composeHandlers(com1handler, com2handler);
+    const com2SelfHandler = createHandlerFor(cmd.$.$self, (args) => {});
+
+    const com1com2handler = composeHandlers(
+      com1handler,
+      com2handler,
+      com2SelfHandler,
+    );
 
     const result = buildAndParseUnsafeR(cmd, "com1 -a");
 

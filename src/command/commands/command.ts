@@ -1,7 +1,7 @@
 import { EmptyRecord } from "../../common/types";
 import { CommandBasic } from "./basic/type";
 import { CommandComposed as CommandComposed } from "./composed/type-command-composed";
-import { CommandComposedWithSubcommands } from "./with-subcommands/type";
+import { CommandComposedWithSubcommands } from "./with-subcommands/type-subs";
 
 export type NamedCommand = CommandComposedWithSubcommands | CommandBasic;
 

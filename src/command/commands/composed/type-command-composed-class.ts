@@ -5,6 +5,7 @@ import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
 import { AddArgv } from "../type-add-argv";
 import { IsSelfHandled } from "../type-helpers";
+import { createCommandsRecord } from "./helper-object";
 import { CommandsFlatten, GetCommandName } from "./type-helpers";
 
 /**
@@ -28,18 +29,33 @@ export type CommandComposed<
   readonly type: "composed";
 };
 
-export type HelperCommands<
+export class CommandComposedImpl<
   TCommands extends readonly Command[],
   TArgv extends EmptyRecord,
   TComposedProps extends ComposedProps,
-> = {
-  readonly commands:
-    & {
-      [C in CommandsFlatten<TCommands> as GetCommandName<C>]:
-        & C
-        & AddArgv<C, TArgv>;
-    }
-    & (IsSelfHandled<TComposedProps> extends true
-      ? { [SelfHandlerKey]: CommandBasic<SelfHandlerKey, TArgv> }
-      : EmptyRecord);
-};
+> implements CommandComposed<TCommands, TArgv, TComposedProps> {
+  readonly type = "composed";
+
+  constructor(
+    readonly commands: TCommands,
+    readonly props: TComposedProps,
+    readonly builder?: YargsCommandBuilder<TArgv>,
+  ) {}
+
+  selfHandle<B extends boolean>(value: B): CommandComposedImpl<
+    TCommands,
+    TArgv,
+    { selfHandle: B }
+  > {
+    return new CommandComposedImpl(
+      this.commands,
+      { selfHandle: value },
+      this.builder,
+    );
+  }
+
+  $ = createCommandsRecord<TCommands, TArgv, TComposedProps>(
+    this.commands,
+    this.props,
+  ).commands;
+}

@@ -7,6 +7,7 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
 } from "../..";
+import { CommandName } from "../args/type-command-args-generic";
 import { NamedCommand } from "../command";
 
 export type GetCommandsNames<TCommands extends readonly Command[]> =
@@ -17,6 +18,14 @@ export type GetCommandsNames<TCommands extends readonly Command[]> =
  */
 export type GetComposedCommandsNames<T extends CommandComposed> =
   GetCommandsNames<CommandsFlattenList<T["commands"]>>;
+
+/**
+ * @description Gets a list of all the composed commands names
+ */
+export type GetComposedCommandsNamesList<T extends CommandComposed> = Cast<
+  ToList<GetComposedCommandsNames<T>>,
+  readonly CommandName[]
+>;
 
 /**
  * @description Gets the name of a command. For a composed command it returns `never`

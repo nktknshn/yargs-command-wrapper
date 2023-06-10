@@ -24,7 +24,7 @@ describe("InputHandlerRecordFor", () => {
     expectTypeOf<A>().toMatchTypeOf<{
       "sub1": any;
       "sub2": any;
-      "": any;
+      "$self": any;
     }>();
   });
 
@@ -34,7 +34,7 @@ describe("InputHandlerRecordFor", () => {
     expectTypeOf<A>().toMatchTypeOf<{
       "sub1": any;
       "sub2": any;
-      "": any;
+      "$self": any;
     }>();
   });
 });

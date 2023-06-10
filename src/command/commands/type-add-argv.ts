@@ -2,7 +2,7 @@ import { EmptyRecord } from "../../common/types";
 import { CommandBasic } from "./basic/type";
 import { Command } from "./command";
 import { CommandComposed } from "./composed/type-command-composed";
-import { CommandComposedWithSubcommands } from "./with-subcommands/type";
+import { CommandComposedWithSubcommands } from "./with-subcommands/type-subs";
 
 /**
  * @description adds argv to a command.

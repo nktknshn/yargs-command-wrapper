@@ -8,7 +8,7 @@ import { GetCommandsNames } from "../composed/type-helpers";
 import { ComposedSelfArgs } from "../composed/type-parse-result";
 import { IsSelfHandled } from "../type-helpers";
 import { GetCommandArgs } from "../type-parse-result";
-import { CommandComposedWithSubcommands } from "./type";
+import { CommandComposedWithSubcommands } from "./type-subs";
 
 export type GetSubcommandsParseResult<
   TCommands extends readonly Command[],

@@ -99,10 +99,10 @@ if (result.right.argv.debug) {
 
 // using helpers to handle commands
 if (result.right.command === "client") {
-  const clientCommand = cmd.$.commands.client;
+  const clientCommand = cmd.$.client;
 
   const configHandler = createHandlerFor(
-    clientCommand.$.commands.config,
+    clientCommand.$.config,
     {
       "get": async ({ key }) => {
         console.log(`get config ${key ?? "all"}`);
@@ -114,7 +114,7 @@ if (result.right.command === "client") {
   );
 
   const clientHandler = createHandlerFor(
-    cmd.$.commands.client,
+    cmd.$.client,
     {
       "list": async ({ address, path }) => {
         console.log(`list ${address} ${path}`);

@@ -1,11 +1,19 @@
 import { EmptyRecord } from "../../../common/types";
 import { CommandsTuple, YargsCommandBuilder } from "../../types";
-import { createHelperCommands } from "./helper-object";
-import { CommandComposed, HelperCommandCompose } from "./type-command-composed";
+import { createCommandsRecord } from "./helper-object";
+import { CommandComposed, ComposedProps } from "./type-command-composed";
+import { CommandComposedImpl } from "./type-command-composed-class";
+import { HelperCommandCompose } from "./type-helper-command-compose";
 
 export type DefaultProps = {
   readonly selfHandle: false;
 };
+
+export type ComposeCommandsResult<
+  TCommands extends CommandsTuple,
+  TArgv extends EmptyRecord,
+  TProps extends ComposedProps,
+> = CommandComposedImpl<TCommands, TArgv, TProps>;
 
 /**
  * @description Create a command that can be one of the `commands`
@@ -18,18 +26,14 @@ export function composeCommands<
 >(
   builder: YargsCommandBuilder<TArgv>,
   ...commands: TCommands
-):
-  & CommandComposed<TCommands, TArgv, DefaultProps>
-  & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> };
+): ComposeCommandsResult<TCommands, TArgv, DefaultProps>;
 
 export function composeCommands<
   TCommands extends CommandsTuple,
   TArgv extends EmptyRecord = EmptyRecord,
 >(
   ...commands: TCommands
-):
-  & CommandComposed<TCommands, TArgv, DefaultProps>
-  & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> };
+): ComposeCommandsResult<TCommands, TArgv, DefaultProps>;
 
 export function composeCommands<
   TCommands extends CommandsTuple,
@@ -37,11 +41,8 @@ export function composeCommands<
 >(
   builder: YargsCommandBuilder<TArgv> | TCommands,
   ...commands: TCommands
-):
-  & CommandComposed<TCommands, TArgv, DefaultProps>
-  & { $: HelperCommandCompose<TCommands, TArgv, DefaultProps> }
-{
-  let _builder = undefined;
+): ComposeCommandsResult<TCommands, TArgv, DefaultProps> {
+  let _builder: YargsCommandBuilder<TArgv> | undefined = undefined;
 
   if (typeof builder !== "function") {
     commands = [builder, ...commands] as unknown as TCommands;
@@ -58,15 +59,9 @@ export function composeCommands<
     props: { selfHandle: false },
   } as const;
 
-  const helperObject = createHelperCommands<TCommands, TArgv>(
+  return new CommandComposedImpl(
     resultCommand.commands,
+    resultCommand.props,
+    resultCommand.builder,
   );
-
-  return {
-    ...resultCommand,
-    $: {
-      ...helperObject,
-      selfHandle: value => ({ ...resultCommand, props: { selfHandle: value } }),
-    },
-  };
 }

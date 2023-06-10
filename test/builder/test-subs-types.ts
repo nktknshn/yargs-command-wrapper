@@ -31,7 +31,7 @@ describe("mapped types", () => {
     const cmd = subcommands("cmd", "desc", [
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ]).$.selfHandle(true);
+    ]).selfHandle(true);
 
     expectTypeOf<typeof cmd["props"]>().toEqualTypeOf<{ selfHandle: true }>;
 
@@ -62,7 +62,7 @@ describe("mapped types", () => {
     const subsCmd = subcommands("cmd", "desc", [
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ]).$.selfHandle(true);
+    ]).selfHandle(true);
 
     const cmd = composeCommands(
       subsCmd,
@@ -83,7 +83,7 @@ describe("mapped types", () => {
     const subsCmd = subcommands("cmd2", "desc", [
       command("sub1", "desc"),
       command("sub2", "desc"),
-    ]).$.selfHandle(true);
+    ]).selfHandle(true);
 
     const cmd = subcommands(
       "cmd1",
@@ -100,7 +100,7 @@ describe("mapped types", () => {
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd3"]>
     >();
 
-    const cmd2 = cmd.$.selfHandle(true);
+    const cmd2 = cmd.selfHandle(true);
 
     expectTypeOf<GetCommandArgs<typeof cmd2>>().toEqualTypeOf<
       | CommandArgsGeneric<EmptyRecord, ["cmd1", "cmd2", "sub1"]>
