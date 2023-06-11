@@ -46,7 +46,8 @@ const cmd = composeCommands(
   serverStart,
   serverStop,
   subcommands(["config", "c"], "config management", config),
-);
+  // allow command without a subcommand
+).selfHandle(true);
 
 const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));
 
@@ -58,7 +59,11 @@ if (result.right.argv.debug) {
   console.log("debug mode enabled");
 }
 
-if (result.right.command === "start") {
+if (result.right.command === undefined) {
+  console.log(`cli was called without any commands`);
+  yargs.showHelp();
+}
+else if (result.right.command === "start") {
   console.log(`starting server on port ${result.right.argv.port}`);
 }
 else if (result.right.command === "stop") {
@@ -77,6 +82,12 @@ else if (result.right.command === "config") {
 
 // or by using createHandlerFor:
 const handler = createHandlerFor(cmd, {
+  "$self": ({ debug }) => {
+    console.log(
+      `cli was called without any commands. debug: ${debug ? "yes" : "no"}`,
+    );
+    yargs.showHelp();
+  },
   config: {
     get: ({ key, file, debug }) => {
       console.log(`getting config ${file} key ${key ?? "all"}`);
