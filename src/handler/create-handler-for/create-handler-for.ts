@@ -327,7 +327,9 @@ const composedHandlerFunction = (
     else {
       // handler for a basic command is a record (shouldn't happen if the typing works properly)
       throw WrapperError.create(
-        `Invalid handler for command ${commandName}. Expected function or composable handler.`,
+        `Invalid handler for command ${
+          commandName ?? `undefined (${SelfHandlerKey}}`
+        }. Expected function or composable handler.`,
       );
     }
   }

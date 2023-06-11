@@ -59,12 +59,67 @@ describe("self handle with composable handler", () => {
     const cmdComp1Handler = createHandlerFor(cmdComp1, {
       sub1: (args) => {},
       sub2: (args) => {},
-      $self: (args) => {},
+      $self: (args) => {
+        selfFn(args);
+      },
     });
 
     const s1Handler = createHandlerFor(s1, cmdComp1Handler);
+
+    s1Handler.handle({
+      command: "cmd",
+      subcommand: undefined,
+      argv: { cmdArgv: "cmdArgv", cmd1argv: "cmd1argv" },
+    });
+
+    expect(selfFn).toBeCalledWith({ cmdArgv: "cmdArgv", cmd1argv: "cmd1argv" });
   });
 
   test("subs handler from a composable subs handler as a record value", () => {
+    const [fn1, fn2, selfFn] = [vi.fn(), vi.fn(), vi.fn()];
+
+    const cmdComp1 = comp(opt("cmd1argv"), sub1, sub2).selfHandle(true);
+    const cmd = subs("cmd", "cmd", opt("cmdArgv"), cmdComp1);
+    const root = comp(cmd);
+
+    const cmdComp1Handler = createHandlerFor(cmdComp1, {
+      sub1: (args) => {},
+      sub2: (args) => {},
+      $self: (args) => {
+        selfFn(args);
+      },
+    });
+
+    const cmdHandler = createHandlerFor(cmd, {
+      sub1: (args) => {},
+      sub2: (args) => {},
+      $self: (args) => {
+        selfFn(args);
+      },
+    });
+
+    const handler = createHandlerFor(root, {
+      "cmd": cmdHandler,
+    });
+
+    handler.handle({
+      command: "cmd",
+      subcommand: undefined,
+      argv: { cmdArgv: "cmdArgv", cmd1argv: "cmd1argv" },
+    });
+
+    expect(selfFn).toBeCalledWith({ cmdArgv: "cmdArgv", cmd1argv: "cmd1argv" });
+
+    const handler2 = createHandlerFor(root, {
+      "cmd": cmdComp1Handler,
+    });
+
+    handler2.handle({
+      command: "cmd",
+      subcommand: undefined,
+      argv: { cmdArgv: "cmdArgv", cmd1argv: "cmd1argv" },
+    });
+
+    expect(selfFn).toBeCalledWith({ cmdArgv: "cmdArgv", cmd1argv: "cmd1argv" });
   });
 });

@@ -4,11 +4,16 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
 } from "../../command";
+import { ComposedProps } from "../../command/commands/composed/type-command-composed";
 import {
   CommandsFlattenList,
   GetCommandName,
 } from "../../command/commands/composed/type-helpers";
-import { IsSelfHandled } from "../../command/commands/type-helpers";
+import {
+  IsSelfHandled,
+  IsSelfHandledU,
+} from "../../command/commands/type-helpers";
+import { GetSubsPropsUnion } from "../../command/commands/with-subcommands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { Cast, TupleKeys } from "../../common/types-util";
 import { ComposableHandler } from "../handler-composable/type-composable-handler";
@@ -116,7 +121,17 @@ export type InputHandlerRecordForCommands<
 export type ComposableHandlerForSubcommands<
   TCommand extends Command,
   TGlobalArgv extends EmptyRecord = EmptyRecord,
-> = TCommand extends CommandComposedWithSubcommands ? ComposableHandlerFor<
+> = TCommand extends CommandComposedWithSubcommands
+  //
+  ? IsSelfHandled<GetSubsPropsUnion<TCommand>> extends true
+    ? ComposableHandlerFor<
+      TCommand["subcommands"] & ComposedProps<true>,
+      HandlerSyncType,
+      unknown,
+      TGlobalArgv
+    >
+    //
+  : ComposableHandlerFor<
     TCommand["subcommands"],
     HandlerSyncType,
     unknown,

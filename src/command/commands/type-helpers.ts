@@ -20,9 +20,9 @@ export type IsSelfHandled<
     | CommandComposedWithSubcommands
     | SubsProps
     | ComposedProps,
-> = T extends { selfHandle: infer B } ? B
-  : T extends CommandComposedWithSubcommands | CommandComposed
-    ? T["props"]["selfHandle"]
+> = T extends CommandComposedWithSubcommands | CommandComposed
+  ? T["props"]["selfHandle"]
+  : T extends { selfHandle: infer B } ? B
   : never;
 
 export type IsSelfHandledU<

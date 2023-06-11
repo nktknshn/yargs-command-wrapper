@@ -14,6 +14,7 @@ import {
 import { IsSelfHandled } from "../../command/commands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { Cast, ToList } from "../../common/types-util";
+import { SelfHandlerKey } from "../create-handler-for/type-create-handler-for";
 import { HandlerSyncType } from "../handler-function/type";
 import { ComposableHandler } from "./type-composable-handler";
 
@@ -36,7 +37,7 @@ export type ComposableHandlerFor<
   : TCommand extends CommandComposed ? ComposableHandler<
       GetCommandArgs<TCommand, TGlobalArgv>,
       IsSelfHandled<TCommand> extends true
-        ? [...GetComposedCommandsNamesList<TCommand>, undefined]
+        ? readonly [...GetComposedCommandsNamesList<TCommand>, SelfHandlerKey]
         : GetComposedCommandsNamesList<TCommand>,
       TSyncType,
       TReturn
