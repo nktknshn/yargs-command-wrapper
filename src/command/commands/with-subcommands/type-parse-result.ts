@@ -23,22 +23,6 @@ export type GetSubcommandsParseResult<
   >;
 }[TupleKeys<TCommands>];
 
-export type GetSubsSelfArgs<
-  T extends CommandComposedWithSubcommands,
-  TGlobalArgv extends EmptyRecord = EmptyRecord,
-> = T extends CommandComposedWithSubcommands<
-  infer TCommandName,
-  infer TCommands,
-  infer TCommandArgv,
-  infer TComposedArgv,
-  infer TProps,
-  infer TComposedProps
->
-  ? TProps["selfHandle"] extends true
-    ? NestedCommandArgs<TCommandArgv & TGlobalArgv, TCommandName, undefined>
-  : never
-  : never;
-
 export type GetSubcommandsArgs<
   T extends CommandComposedWithSubcommands,
   TGlobalArgv extends EmptyRecord = EmptyRecord,
@@ -56,18 +40,20 @@ export type GetSubcommandsArgs<
       TCommandArgv & TComposedArgv,
       TGlobalArgv
     >
-    // add inner composed self handle argument { command: TCommandName, subcommand: "" }
-    // | PushCommand<
-    //   ComposedSelfArgs<TComposedProps, TCommandArgv & TComposedArgv>,
-    //   TCommandName,
-    //   TGlobalArgv
-    // >
     | (IsSelfHandled<TComposedProps> extends true
-      ? NestedCommandArgs<TCommandArgv & TGlobalArgv, TCommandName, undefined>
+      ? NestedCommandArgs<
+        TCommandArgv & TComposedArgv & TGlobalArgv,
+        TCommandName,
+        undefined
+      >
       : never)
     // add subs self handle argument { command: TCommandName; subcommand: undefined }
     | (IsSelfHandled<TProps> extends true
-      ? NestedCommandArgs<TCommandArgv & TGlobalArgv, TCommandName, undefined>
+      ? NestedCommandArgs<
+        TCommandArgv & TComposedArgv & TGlobalArgv,
+        TCommandName,
+        undefined
+      >
       : never),
     NestedCommandArgs
   >

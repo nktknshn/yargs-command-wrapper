@@ -12,7 +12,7 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
 } from "../../src/command/";
-import { GetCommandArgs, GetComposedParseResult } from "../../src/command/";
+import { GetCommandArgs, GetComposedCommandArgs } from "../../src/command/";
 import { CommandArgsGeneric } from "../../src/command/commands/args/type-command-args-generic";
 import { PushCommand } from "../../src/command/commands/args/type-push-command";
 import {
@@ -84,6 +84,6 @@ describe("mapped types", () => {
 
     type EE = E<Command>;
 
-    type HH = GetComposedParseResult<CommandComposed>;
+    type HH = GetComposedCommandArgs<CommandComposed>;
   });
 });

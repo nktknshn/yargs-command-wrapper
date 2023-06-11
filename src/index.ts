@@ -22,4 +22,4 @@ export {
   parse,
 } from "./parser/parser";
 
-logging.setLevel("DEBUG");
+// logging.setLevel("DEBUG");

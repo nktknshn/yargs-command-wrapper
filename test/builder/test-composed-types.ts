@@ -14,9 +14,7 @@ import {
 } from "../../src/command";
 import { CommandArgsGeneric } from "../../src/command/commands/args/type-command-args-generic";
 import { PushCommand } from "../../src/command/commands/args/type-push-command";
-import {
-  GetSubsSelfArgs,
-} from "../../src/command/commands/with-subcommands/type-parse-result";
+
 import { EmptyRecord } from "../../src/common/types";
 
 describe("mapped types", () => {
@@ -101,8 +99,6 @@ describe("mapped types", () => {
     type P = PushCommand<ComposedCmd1Args, "cmd3", {}>;
 
     const nestedComposedCmd1 = subcommands("cmd3", "desc", composedCmd1);
-
-    type G = GetSubsSelfArgs<typeof nestedComposedCmd1>;
 
     type NestedCmd1Args = GetCommandArgs<typeof nestedComposedCmd1>;
 

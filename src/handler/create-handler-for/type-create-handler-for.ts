@@ -67,7 +67,7 @@ export type InputHandlerRecordFor<
           TGlobalArgv & TCommandArgv & TArgv
         >
         & (IsSelfHandled<TProps> & IsSelfHandled<TComposedProps> extends true
-          ? InputSelfHandlerCommandRecord<TArgv & TGlobalArgv>
+          ? InputSelfHandlerCommandRecord<TArgv & TCommandArgv & TGlobalArgv>
           : EmptyRecord)
     : never;
 

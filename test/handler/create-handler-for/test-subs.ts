@@ -13,7 +13,7 @@ import {
 } from "../fixtures";
 
 describe("createHandlerFor command with subcommands", () => {
-  test("subs from a function", () => {
+  test("subs handler from a function", () => {
     const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const handler = createHandlerFor(subsCommand, (args) => {
@@ -33,7 +33,7 @@ describe("createHandlerFor command with subcommands", () => {
     });
   });
 
-  test("subs from a composable handler", () => {
+  test("subs handler from a composable handler", () => {
     const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
@@ -57,7 +57,7 @@ describe("createHandlerFor command with subcommands", () => {
     });
   });
 
-  test("subs from a record", () => {
+  test("subs handler from a record", () => {
     const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const handler = createHandlerFor(subsCommand, {
@@ -84,7 +84,7 @@ describe("createHandlerFor command with subcommands", () => {
     });
   });
 
-  test("subs from a record nested", () => {
+  test("subs handler from a record nested", () => {
     const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const cmd = subs(com("sub1"), [subsCommand, com1, com2]);
@@ -130,7 +130,7 @@ describe("createHandlerFor command with subcommands", () => {
     });
   });
 
-  test("subs composed handler 1", () => {
+  test("subs handler from a composable subs handler as a record value", () => {
     const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
@@ -162,7 +162,7 @@ describe("createHandlerFor command with subcommands", () => {
     });
   });
 
-  test("subs composed handler 2", () => {
+  test("subs handler from a composable composed handler as a record value", () => {
     const [fn1, fn2] = [vi.fn(), vi.fn()];
 
     const s1s2compHandler = createHandlerFor(s1s2comp, {
@@ -192,7 +192,7 @@ describe("createHandlerFor command with subcommands", () => {
     });
   });
 
-  test("nested function handler", () => {
+  test("subs handler from a function handler for deep nested command", () => {
     const [fn1, fn2, fn3, fn4] = [vi.fn(), vi.fn(), vi.fn(), vi.fn()];
 
     const handler1 = createHandlerFor(deepNested, (args) => {

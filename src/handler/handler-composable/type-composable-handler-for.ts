@@ -4,7 +4,7 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
   GetCommandArgs,
-  GetComposedParseResult,
+  GetComposedCommandArgs,
 } from "../../command";
 import {
   GetCommandName,
@@ -34,7 +34,7 @@ export type ComposableHandlerFor<
     TReturn
   >
   : TCommand extends CommandComposed ? ComposableHandler<
-      GetComposedParseResult<TCommand, TGlobalArgv>,
+      GetCommandArgs<TCommand, TGlobalArgv>,
       IsSelfHandled<TCommand> extends true
         ? [...GetComposedCommandsNamesList<TCommand>, undefined]
         : GetComposedCommandsNamesList<TCommand>,
