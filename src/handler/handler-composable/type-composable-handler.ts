@@ -1,5 +1,8 @@
 import { CommandArgs } from "../../command/commands/args/type-command-args";
-import { CommandArgsGeneric } from "../../command/commands/args/type-command-args-generic";
+import {
+  CommandArgsGeneric,
+  CommandName,
+} from "../../command/commands/args/type-command-args-generic";
 import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
 
 /**
@@ -7,8 +10,7 @@ import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
  */
 export interface ComposableHandler<
   TArgs extends CommandArgs = CommandArgsGeneric<never, never>,
-  TNames extends readonly (string | undefined)[] =
-    readonly (string | undefined)[],
+  TNames extends readonly CommandName[] = readonly CommandName[],
   TType extends HandlerSyncType = HandlerSyncType,
   TReturn = unknown,
 > {

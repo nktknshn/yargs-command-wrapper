@@ -125,7 +125,7 @@ export type ComposableHandlerForSubcommands<
   //
   ? IsSelfHandled<GetSubsPropsUnion<TCommand>> extends true
     ? ComposableHandlerFor<
-      TCommand["subcommands"] & ComposedProps<true>,
+      TCommand["subcommands"] & { props: ComposedProps<true> },
       HandlerSyncType,
       unknown,
       TGlobalArgv

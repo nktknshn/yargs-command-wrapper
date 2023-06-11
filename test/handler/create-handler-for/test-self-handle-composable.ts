@@ -1,4 +1,6 @@
 import { comp, composeHandlers, createHandlerFor, subs } from "../../../src";
+import { IsSelfHandled } from "../../../src/command/commands/type-helpers";
+import { GetSubsPropsUnion } from "../../../src/command/commands/with-subcommands/type-helpers";
 import { opt } from "../../types/addOption";
 import { sub1, sub2 } from "../fixtures";
 
@@ -48,6 +50,28 @@ describe("self handle with composable handler", () => {
     });
 
     expect(selfFn).toBeCalledWith({ cmd1argv: "cmd1argv" });
+  });
+
+  test("subs handler from composable subcommands handler", () => {
+    const [fn1, fn2, selfFn] = [vi.fn(), vi.fn(), vi.fn()];
+
+    const cmdComp1 = comp(opt("cmd1argv"), sub1, sub2);
+
+    const cmd1CompHandler = createHandlerFor(cmdComp1, (args) => {});
+
+    const cmd1 = subs("cmd", "cmd", cmdComp1).selfHandle(true);
+
+    type A = IsSelfHandled<GetSubsPropsUnion<typeof cmd1>>;
+
+    const cmd1Handler = composeHandlers(
+      cmd1CompHandler,
+      createHandlerFor(cmd1.$.$self, args => {
+        selfFn(args);
+      }),
+    );
+
+    // supposed an error
+    const handler = createHandlerFor(cmd1, cmd1Handler);
   });
 
   test("subs handler from composable subcommands handler", () => {
