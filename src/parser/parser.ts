@@ -16,6 +16,8 @@ import { findAlias } from "./helpers";
 
 import log from "../common/logging";
 
+export type YargsObject = y.Argv<EmptyRecord>;
+
 const logger = log.getLogger("parser");
 
 type BuildAndParseResult<TCommand extends Command> = {

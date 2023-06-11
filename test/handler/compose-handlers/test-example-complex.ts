@@ -32,12 +32,14 @@ describe("complex example test", () => {
     const clientHandler = createHandlerFor(clientArgs, args => {});
     const configHandler = createHandlerFor(configArgs, args => {});
 
+    const cfgHandler = composeHandlers(
+      createHandlerFor(cmd.$.config.$.$self, args => {}),
+      configHandler,
+    );
+
     const configSubHandler = createHandlerFor(
       cmd.$.config,
-      composeHandlers(
-        createHandlerFor(cmd.$.config.$.$self, args => {}),
-        configHandler,
-      ),
+      cfgHandler,
     );
 
     const cmdHandler = composeHandlers(
@@ -45,7 +47,7 @@ describe("complex example test", () => {
       configSubHandler,
     );
 
-    const result = buildAndParseUnsafeR(cmd, []);
+    const result = buildAndParseUnsafeR(cmd, "config --debug --file 123");
 
     cmdHandler.handle(result);
   });

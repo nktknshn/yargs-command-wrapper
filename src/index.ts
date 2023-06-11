@@ -20,6 +20,8 @@ export {
   buildAndParseUnsafe,
   buildAndParseUnsafeR,
   parse,
+  YargsObject,
 } from "./parser/parser";
 
+export const setDebugLevel = logging.setLevel;
 // logging.setLevel("DEBUG");

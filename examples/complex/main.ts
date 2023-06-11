@@ -34,7 +34,9 @@ async function main() {
     );
   }
 
-  await handler.handle(result.right);
+  const f = handler.handle(result.right);
+
+  await f({ yargs });
 }
 
 main().catch(console.error);
