@@ -15,7 +15,7 @@ import {
 export type ComposedHandlers<THandlers extends readonly ComposableHandler[]> =
   ComposableHandler<
     ComposeArgv<THandlers>,
-    FallbackType<ComposeNames<THandlers>, [], readonly CommandName[]>,
+    ComposeNames<THandlers>,
     ComposeSyncTypes<THandlers>,
     ComposeReturnType<THandlers>
   >;
@@ -32,14 +32,10 @@ export type ComposeReturnType<
   ? GetComposableHandlerReturnType<Cast<T, ComposableHandler>>
   : never;
 
-export type ComposeNames<THandlers extends readonly ComposableHandler[]> = Cast<
-  ToList<
-    ToUnion<THandlers> extends infer T
-      ? ToUnion<GetComposableHandlerNames<Cast<T, ComposableHandler>>>
-      : never
-  >,
-  readonly string[]
->;
+export type ComposeNames<THandlers extends readonly ComposableHandler[]> =
+  ToUnion<THandlers> extends infer T
+    ? GetComposableHandlerNames<Cast<T, ComposableHandler>>
+    : never;
 
 export type ComposeSyncTypes<THandlers extends readonly ComposableHandler[]> =
   ToUnion<THandlers> extends infer T

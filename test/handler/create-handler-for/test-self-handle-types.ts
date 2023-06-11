@@ -35,7 +35,7 @@ describe("self handle related types", () => {
           argv: { sub2argv: string; cmd1argv: string };
         }
         | CommandArgsSelfHandle<{ cmd1argv: string }>,
-        readonly ["sub2", "sub1", "$self"],
+        "sub2" | "sub1" | "$self",
         "sync",
         void
       >

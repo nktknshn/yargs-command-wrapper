@@ -26,18 +26,10 @@ describe("composable handler self handle", () => {
 
     expectTypeOf(com1com2handler).toEqualTypeOf<
       ComposableHandler<
-        CommandArgsSelfHandle<EmptyRecord> | {
-          command: "com1";
-          argv: {
-            a: string;
-          };
-        } | {
-          command: "com2";
-          argv: {
-            c: string;
-          };
-        },
-        readonly ["com2", "com1", SelfHandlerKey],
+        | CommandArgsSelfHandle<EmptyRecord>
+        | { command: "com1"; argv: { a: string } }
+        | { command: "com2"; argv: { c: string } },
+        "com2" | "com1" | SelfHandlerKey,
         "sync",
         void
       >

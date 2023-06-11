@@ -30,21 +30,21 @@ export type ComposableHandlerFor<
   TGlobalArgv extends EmptyRecord = EmptyRecord,
 > = TCommand extends CommandBasic ? ComposableHandler<
     GetCommandArgs<TCommand, TGlobalArgv>,
-    [TCommand["commandName"]],
+    TCommand["commandName"],
     TSyncType,
     TReturn
   >
   : TCommand extends CommandComposed ? ComposableHandler<
       GetCommandArgs<TCommand, TGlobalArgv>,
       IsSelfHandled<TCommand> extends true
-        ? readonly [...GetComposedCommandsNamesList<TCommand>, SelfHandlerKey]
-        : GetComposedCommandsNamesList<TCommand>,
+        ? GetComposedCommandsNames<TCommand> | SelfHandlerKey
+        : GetComposedCommandsNames<TCommand>,
       TSyncType,
       TReturn
     >
   : TCommand extends CommandComposedWithSubcommands ? ComposableHandler<
       GetCommandArgs<TCommand, TGlobalArgv>,
-      [GetCommandName<TCommand>],
+      GetCommandName<TCommand>,
       TSyncType,
       TReturn
     >

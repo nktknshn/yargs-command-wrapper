@@ -39,18 +39,18 @@ type SC2 = CommandComposedWithSubcommands<
 
 type BC1H1 = ComposableHandler<
   CommandArgs<{ a: number }, "a">,
-  [BC1["commandName"]]
+  BC1["commandName"]
 >;
 
 type BC2H1 = ComposableHandler<
   CommandArgs<{ b: number }, "b">,
-  [BC2["commandName"]]
+  BC2["commandName"]
 >;
 
 type SC1H1 = ComposableHandler<
   | NestedCommandArgs<{ a: number }, "c", "a">
   | NestedCommandArgs<{ b: number }, "c", "b">,
-  ["c"]
+  "c"
 >;
 
 describe.skip("test types hierarchy", () => {

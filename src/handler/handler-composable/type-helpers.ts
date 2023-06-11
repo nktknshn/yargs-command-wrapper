@@ -1,3 +1,4 @@
+import { CommandArgs } from "../../command/commands/args/type-command-args";
 import { GetFunctionReturnType, GetFunctionSyncType } from "../type-helpers";
 import { ComposableHandler } from "./type-composable-handler";
 
@@ -11,7 +12,7 @@ export type GetComposableHandlerReturnType<
 
 export type GetComposableHandlerNames<
   T extends ComposableHandler,
-> = T["supports"];
+> = T extends ComposableHandler<never, infer TNames> ? TNames : never;
 
 export type GetComposableHandlerArgv<
   T extends ComposableHandler,

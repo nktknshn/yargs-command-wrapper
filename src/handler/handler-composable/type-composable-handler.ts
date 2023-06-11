@@ -10,10 +10,10 @@ import { HandlerFunction, HandlerSyncType } from "../handler-function/type";
  */
 export interface ComposableHandler<
   TArgs extends CommandArgs = CommandArgsGeneric<never, never>,
-  TNames extends readonly CommandName[] = readonly CommandName[],
+  TNames extends CommandName = CommandName,
   TType extends HandlerSyncType = HandlerSyncType,
   TReturn = unknown,
 > {
   handle: HandlerFunction<TArgs, TType, TReturn>;
-  supports: TNames;
+  supports: readonly TNames[];
 }

@@ -70,8 +70,15 @@ describe("self handle with composable handler", () => {
       }),
     );
 
-    // supposed an error
     const handler = createHandlerFor(cmd1, cmd1Handler);
+
+    handler.handle({
+      command: "cmd",
+      subcommand: undefined,
+      argv: { cmd1argv: "cmd1argv" },
+    });
+
+    expect(selfFn).toBeCalledWith({ cmd1argv: "cmd1argv" });
   });
 
   test("subs handler from composable subcommands handler", () => {

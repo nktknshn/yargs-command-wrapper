@@ -8,7 +8,7 @@ import { ComposeArgv, ComposedHandlers } from "./types-compose";
 
 const logger = logging.getLogger("handler-composed");
 
-type CompHand = ComposableHandler<CommandArgs, readonly CommandName[]>;
+type CompHand = ComposableHandler<CommandArgs, CommandName>;
 /**
  * @description Composes handlers created by `createHandlerFor`
  * @example
