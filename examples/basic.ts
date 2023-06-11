@@ -10,7 +10,7 @@ import {
 } from "../src";
 
 const cmd = comp(
-  _ => _.option("debug", { type: "boolean", default: false }),
+  _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
   subs(
     ["server", "s"],
     "server management",
@@ -45,7 +45,8 @@ const cmd = comp(
         ],
       ),
     ],
-  ),
+    // the server command will be valid without a subcommand
+  ).selfHandle(true),
   subs(
     comm(["client", "c"], "client management"),
     [
@@ -84,7 +85,8 @@ const cmd = comp(
         ],
       ),
     ],
-  ),
+    // the client command will be valid without a subcommand
+  ).selfHandle(true),
 );
 
 const { result, yargs } = buildAndParse(cmd);
@@ -116,6 +118,11 @@ if (result.right.command === "client") {
   const clientHandler = createHandlerFor(
     cmd.$.client,
     {
+      "$self": async ({ debug }) => {
+        // handle client command without subcommand
+        console.log(`Client managements ${debug ? "with" : "without"} debug`);
+        yargs.showHelp();
+      },
       "list": async ({ address, path }) => {
         console.log(`list ${address} ${path}`);
       },
@@ -129,15 +136,6 @@ if (result.right.command === "client") {
     },
   );
 
-  /*
-  the handler can be used like this:
-    clientHandler.handle({
-      command: "client",
-      subcommand: "config",
-      subsubcommand: "set",
-      argv: { key: "foo", value: "bar" },
-    });
- */
   // handle parsed arguments
   clientHandler.handle(result.right).catch(console.error);
 }
@@ -169,6 +167,16 @@ switch (result.right.command) {
             );
             break;
         }
+        break;
+      case undefined:
+        // handle server command without subcommand
+        console.log(
+          `Server management ${
+            result.right.argv.debug ? "with" : "without"
+          } debug`,
+        );
+        yargs.showHelp();
+        break;
     }
     break;
 }

@@ -127,6 +127,25 @@ describe("parser composed command", () => {
     });
   });
 
+  test("composed self handled subs", () => {
+    const cmd = comp(
+      subs("cmd1", "desc", [
+        comm("sub1", "desc"),
+        comm("sub2", "desc"),
+      ]).selfHandle(true),
+      subs("cmd2", "desc", [
+        comm("sub1", "desc"),
+        comm("sub2", "desc"),
+      ]).selfHandle(true),
+    );
+
+    expect(buildAndParseUnsafeR(cmd, "cmd1")).toStrictEqual({
+      command: "cmd1",
+      subcommand: undefined,
+      argv: {},
+    });
+  });
+
   test("basic self handle nested with self handle composed", () => {
     const subsCmd = comp(
       comm("sub1", "desc"),
