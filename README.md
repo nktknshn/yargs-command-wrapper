@@ -30,9 +30,13 @@ type ParsedArgs =
 npm install --save yargs-command-wrapper
 ```
 
-# Example
+# Examples
 
 **API might change in the future.**
+
+[https://github.com/nktknshn/yargs-command-wrapper/tree/master/examples](https://github.com/nktknshn/yargs-command-wrapper/tree/master/examples)
+
+[https://github.com/nktknshn/typescript-money-tracker/blob/master/src/cli.ts](https://github.com/nktknshn/typescript-money-tracker/blob/master/src/cli.ts)
 
 ```typescript
 import {
