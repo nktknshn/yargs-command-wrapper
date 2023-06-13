@@ -1,6 +1,6 @@
 {
   "name": "yargs-command-wrapper",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "enables the parsing of commands and subcommands into a unified set of types",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
@@ -22,12 +22,15 @@
   },
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
     "@types/yargs": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
     "@vitest/coverage-istanbul": "^0.31.4",
     "eslint": "^8.41.0",
     "expect-type": "^0.15.0",
+    "husky": "^8.0.3",
     "typescript": "^5.0.4",
     "vitest": "^0.31.4"
   },
