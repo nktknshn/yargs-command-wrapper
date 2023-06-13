@@ -51,7 +51,7 @@ type SubsReturnType<
 export function subs<
   TCommandName extends string,
   TArgv extends EmptyRecord,
-  const TCommands extends readonly Command[],
+  const TCommands extends CommandsTuple,
 >(
   command: CommandBasic<TCommandName, TArgv>,
   subcommands: TCommands,
@@ -88,7 +88,7 @@ export function subs<
 export function subs<
   const TCommandDesc extends readonly string[] | string,
   TArgv extends EmptyRecord,
-  const TCommands extends readonly Command[],
+  const TCommands extends CommandsTuple,
   TComposedArgv extends EmptyRecord,
   TComposedProps extends ComposedProps,
 >(
@@ -110,7 +110,7 @@ export function subs<
 export function subs<
   TComposedProps extends ComposedProps,
   const TCommandDesc extends readonly string[] | string,
-  const TCommands extends readonly Command[],
+  const TCommands extends CommandsTuple,
   TComposedArgv extends EmptyRecord,
 >(
   commandDesc: TCommandDesc,
