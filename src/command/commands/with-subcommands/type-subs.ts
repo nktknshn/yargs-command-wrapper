@@ -1,5 +1,4 @@
 import { EmptyRecord } from "../../../common/types";
-import { Extends } from "../../../common/types-util";
 import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
 import { createCommandsRecord } from "../composed/helper-object";
@@ -7,7 +6,7 @@ import {
   CommandComposed,
   ComposedProps,
 } from "../composed/type-command-composed";
-import { IsSelfHandledU, SelfHandledU } from "../type-helpers";
+import { SelfHandledU } from "../type-helpers";
 
 /**
  * @description Properties of a command with subcommands.

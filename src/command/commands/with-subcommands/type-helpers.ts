@@ -1,4 +1,4 @@
-import { IsSelfHandledU, SelfHandledU } from "../type-helpers";
+import { SelfHandledU } from "../type-helpers";
 import { CommandComposedWithSubcommands } from "./type-subs";
 
 export type GetSubsPropsUnion<T extends CommandComposedWithSubcommands> =

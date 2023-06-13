@@ -4,12 +4,7 @@ import { Command } from "./command/commands/command";
 import * as E from "./common/either";
 import { ErrorType } from "./common/error";
 import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";
-import { HandlerFunction } from "./handler";
-import {
-  buildAndParse,
-  BuildAndParseResult,
-  YargsObject,
-} from "./parser/parser";
+import { buildAndParse, YargsObject } from "./parser/parser";
 
 /**
  * @description show help and error message and exit with code 1

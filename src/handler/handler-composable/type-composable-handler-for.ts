@@ -4,16 +4,13 @@ import {
   CommandComposed,
   CommandComposedWithSubcommands,
   GetCommandArgs,
-  GetComposedCommandArgs,
 } from "../../command";
 import {
   GetCommandName,
   GetComposedCommandsNames,
-  GetComposedCommandsNamesList,
 } from "../../command/commands/composed/type-helpers";
 import { IsSelfHandled } from "../../command/commands/type-helpers";
 import { EmptyRecord } from "../../common/types";
-import { Cast, ToList } from "../../common/types-util";
 import { SelfHandlerKey } from "../create-handler-for/type-create-handler-for";
 import { HandlerSyncType } from "../handler-function/type";
 import { ComposableHandler } from "./type-composable-handler";

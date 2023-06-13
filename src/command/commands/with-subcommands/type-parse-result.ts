@@ -3,9 +3,6 @@ import { Cast, FallbackNever, TupleKeys } from "../../../common/types-util";
 import { NestedCommandArgs } from "../args/type-nested-command-args";
 import { PushCommand } from "../args/type-push-command";
 import { Command } from "../command";
-import { ComposedProps } from "../composed/type-command-composed";
-import { GetCommandsNames } from "../composed/type-helpers";
-import { ComposedSelfArgs } from "../composed/type-parse-result";
 import { IsSelfHandled } from "../type-helpers";
 import { GetCommandArgs } from "../type-parse-result";
 import { CommandComposedWithSubcommands } from "./type-subs";
@@ -40,16 +37,14 @@ export type GetSubcommandsArgs<
       TCommandArgv & TComposedArgv,
       TGlobalArgv
     >
-    | (IsSelfHandled<TComposedProps> extends true
-      ? NestedCommandArgs<
+    | (IsSelfHandled<TComposedProps> extends true ? NestedCommandArgs<
         TCommandArgv & TComposedArgv & TGlobalArgv,
         TCommandName,
         undefined
       >
       : never)
     // add subs self handle argument { command: TCommandName; subcommand: undefined }
-    | (IsSelfHandled<TProps> extends true
-      ? NestedCommandArgs<
+    | (IsSelfHandled<TProps> extends true ? NestedCommandArgs<
         TCommandArgv & TComposedArgv & TGlobalArgv,
         TCommandName,
         undefined

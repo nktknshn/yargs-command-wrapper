@@ -1,9 +1,7 @@
 import { EmptyRecord } from "../../../common/types";
 import { CommandsTuple, YargsCommandBuilder } from "../../types";
-import { createCommandsRecord } from "./helper-object";
 import { CommandComposed, ComposedProps } from "./type-command-composed";
 import { CommandComposedImpl } from "./type-command-composed-class";
-import { HelperCommandCompose } from "./type-helper-command-compose";
 
 export type DefaultProps = {
   readonly selfHandle: false;

@@ -1,12 +1,7 @@
 import { EmptyRecord } from "../../../common/types";
-import { SelfHandlerKey } from "../../../handler/create-handler-for/type-create-handler-for";
 import { YargsCommandBuilder } from "../../types";
-import { CommandBasic } from "../basic/type";
 import { Command } from "../command";
-import { AddArgv } from "../type-add-argv";
-import { IsSelfHandled } from "../type-helpers";
 import { createCommandsRecord } from "./helper-object";
-import { CommandsFlatten, GetCommandName } from "./type-helpers";
 
 /**
  * @description Properties of a command with subcommands.

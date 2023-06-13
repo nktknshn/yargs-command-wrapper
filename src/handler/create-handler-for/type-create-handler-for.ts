@@ -9,10 +9,7 @@ import {
   CommandsFlattenList,
   GetCommandName,
 } from "../../command/commands/composed/type-helpers";
-import {
-  IsSelfHandled,
-  IsSelfHandledU,
-} from "../../command/commands/type-helpers";
+import { IsSelfHandled } from "../../command/commands/type-helpers";
 import { GetSubsPropsUnion } from "../../command/commands/with-subcommands/type-helpers";
 import { EmptyRecord } from "../../common/types";
 import { Cast, TupleKeys } from "../../common/types-util";
