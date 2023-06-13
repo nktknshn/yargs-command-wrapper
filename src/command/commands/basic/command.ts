@@ -16,7 +16,7 @@ import { GetCommandNameFromDesc } from "./type-command-name";
 // dprint-ignore
 export const command = <const TCommandDesc extends readonly string[] | string, TArgv extends EmptyRecord>(
   // XXX the line above requires typescript ^5.0
-  commandDesc: TCommandDesc,
+  commandDesc:  TCommandDesc,
   description: string,
   // XXX try to avoid using `as` here
   builder: YargsCommandBuilder<TArgv> = (yargs) => yargs as y.Argv<TArgv>

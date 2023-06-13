@@ -1,8 +1,12 @@
+type StripSpaces<T extends string> = T extends ` ${infer U}` ? StripSpaces<U>
+  : T;
+
 /**
  * @description
  */
 export type GetCommandNameString<TCommandDesc extends string> =
-  TCommandDesc extends `${infer TCommandName} ${string}` ? TCommandName
+  StripSpaces<TCommandDesc> extends `${infer TCommandName} ${string}`
+    ? TCommandName
     : TCommandDesc;
 
 /**
