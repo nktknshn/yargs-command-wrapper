@@ -1,5 +1,6 @@
 import { comm, comp } from "../../../../src";
 import { parseAddress } from "../../common";
+import { defaultConfigFile } from "../config/args";
 
 export const commandList = comm(
   "list <address> [path]",
@@ -42,7 +43,15 @@ export const commandUpload = comm(
 );
 
 export const cmd = comp(
-  _ => _.option("debug", { alias: "d", type: "boolean", default: false }),
+  _ =>
+    _.options({
+      "debug": { alias: "d", type: "boolean", default: false },
+      "configFile": {
+        alias: "c",
+        type: "string",
+        default: defaultConfigFile,
+      },
+    }),
   commandList,
   commandDownload,
   commandUpload,

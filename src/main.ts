@@ -5,7 +5,11 @@ import * as E from "./common/either";
 import { ErrorType } from "./common/error";
 import { isObjectWithOwnProperty, isPromiseLike } from "./common/util";
 import { HandlerFunction } from "./handler";
-import { buildAndParse } from "./parser/parser";
+import {
+  buildAndParse,
+  BuildAndParseResult,
+  YargsObject,
+} from "./parser/parser";
 
 /**
  * @description show help and error message and exit with code 1
@@ -34,18 +38,24 @@ export function failClient(
 
 export const createMain = <
   TCommand extends Command,
-  THandler extends HandlerFunction<GetCommandArgs<TCommand>>,
 >(
   cmd: TCommand,
-  handler: THandler,
+  mainFunction: (result: {
+    yargs: YargsObject;
+    args: GetCommandArgs<TCommand>;
+  }) => Promise<void> | void,
 ) =>
 async () => {
-  const { yargs, result } = buildAndParse(cmd, process.argv.slice(2));
+  const parseResult = buildAndParse(cmd, process.argv.slice(2));
 
-  if (E.isLeft(result)) {
-    failClient(yargs, result);
+  if (E.isLeft(parseResult.result)) {
+    failClient(parseResult.yargs, parseResult.result);
   }
-  const res = handler(result.right);
+
+  const res = mainFunction({
+    yargs: parseResult.yargs,
+    args: parseResult.result.right,
+  });
 
   if (isPromiseLike(res)) {
     await res;

@@ -1,6 +1,14 @@
 import { comm, comp } from "../../../../src";
 
+export const defaultConfigFile = "config.json";
+
 export const cmd = comp(
+  _ =>
+    _.option("configFile", {
+      alias: "c",
+      type: "string",
+      default: defaultConfigFile,
+    }),
   comm(
     ["get [key]", "g"],
     "get config value",

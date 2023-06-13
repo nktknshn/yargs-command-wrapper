@@ -24,4 +24,3 @@ export {
 } from "./parser/parser";
 
 export const setDebugLevel = logging.setLevel;
-// logging.setLevel("DEBUG");

@@ -5,12 +5,14 @@ import { HandlerResult } from "./types";
 
 export const handler = createHandlerFor(
   cmd,
-  (args): HandlerResult => async () => {
+  (args): HandlerResult => async ({ yargs }) => {
     if (args.argv.debug) {
       console.log("debug mode");
     }
-
-    if (args.command === "start") {
+    if (args.command === undefined) {
+      yargs.showHelp();
+    }
+    else if (args.command === "start") {
       const address = args.argv.address ?? { address: "0.0.0.0", port: 8080 };
       console.log(
         `start server at ${address.address}:${address.port}`,

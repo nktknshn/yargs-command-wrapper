@@ -46,7 +46,7 @@ const cmd = composeCommands(
   serverStart,
   serverStop,
   subcommands(["config", "c"], "config management", config),
-  // allow command without a subcommand
+  // allow handling command without a subcommand
 ).selfHandle(true);
 
 const { result, yargs } = buildAndParse(cmd, process.argv.slice(2));

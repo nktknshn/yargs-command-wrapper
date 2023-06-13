@@ -20,7 +20,7 @@ export type YargsObject = y.Argv<EmptyRecord>;
 
 const logger = log.getLogger("parser");
 
-type BuildAndParseResult<TCommand extends Command> = {
+export type BuildAndParseResult<TCommand extends Command> = {
   result: E.Either<ErrorType, GetCommandArgs<TCommand>>;
   yargs: y.Argv;
 };

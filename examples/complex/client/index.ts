@@ -14,10 +14,13 @@ const configSubHandler = createHandlerFor(
   cmd.$.config,
   composeHandlers(
     config.handler,
+    // extend config handler with self handler
     createHandlerFor(
       cmd.$.config.$.$self,
-      (): HandlerResult => async ({ yargs }) => {
-        console.log(`Config management`);
+      (argv): HandlerResult => async ({ yargs }) => {
+        console.log(`Config management: ${argv.configFile}`);
+        console.log();
+
         yargs.showHelp();
       },
     ),
