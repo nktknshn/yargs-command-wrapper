@@ -13,19 +13,28 @@ import { buildAndParse, YargsObject } from "./parser/parser";
  */
 export function failClient(
   yargs: y.Argv,
-  error: string | ErrorType | E.Left<ErrorType>,
+  error: string | ErrorType | E.Left<ErrorType> | undefined = undefined,
+  stderr = false,
 ): never {
-  yargs.showHelp();
-  console.error();
+  let f = console.log.bind(console.log);
+
+  if (stderr) {
+    f = console.error.bind(console.error);
+  }
+
+  yargs.showHelp(stderr ? "error" : "log");
 
   if (typeof error === "string") {
-    console.error(error);
+    f();
+    f(error);
   }
   else if (isObjectWithOwnProperty(error, "message")) {
-    console.error(error.message);
+    f();
+    f(error.message);
   }
-  else {
-    console.error(error.left.message);
+  else if (error !== undefined) {
+    f();
+    f(error.left.message);
   }
 
   process.exit(1);
