@@ -2,6 +2,7 @@ import { EmptyRecord } from "../../../common/types";
 import { YargsCommandBuilder } from "../../types";
 import { Command } from "../command";
 import { createCommandsRecord } from "./helper-object";
+import { HelperCommands } from "./type-command-composed";
 
 /**
  * @description Properties of a command with subcommands.
@@ -35,7 +36,12 @@ export class CommandComposedImpl<
     readonly commands: TCommands,
     readonly props: TComposedProps,
     readonly builder?: YargsCommandBuilder<TArgv>,
-  ) {}
+  ) {
+    this.$ = createCommandsRecord<TCommands, TArgv, TComposedProps>(
+      this.commands,
+      this.props,
+    ).commands;
+  }
 
   selfHandle<B extends boolean>(value: B): CommandComposedImpl<
     TCommands,
@@ -49,8 +55,5 @@ export class CommandComposedImpl<
     );
   }
 
-  $ = createCommandsRecord<TCommands, TArgv, TComposedProps>(
-    this.commands,
-    this.props,
-  ).commands;
+  $: HelperCommands<TCommands, TArgv, TComposedProps>["commands"];
 }

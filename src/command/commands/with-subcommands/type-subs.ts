@@ -5,6 +5,7 @@ import { createCommandsRecord } from "../composed/helper-object";
 import {
   CommandComposed,
   ComposedProps,
+  HelperCommands,
 } from "../composed/type-command-composed";
 import { SelfHandledU } from "../type-helpers";
 
@@ -69,7 +70,19 @@ export class CommandComposedWithSubcommandsImpl<
       TComposedProps
     >,
     readonly props: TSubsProps,
-  ) {}
+  ) {
+    this.$ = createCommandsRecord<
+      TCommands,
+      TArgv & TComposedArgv,
+      SelfHandledU<TSubsProps, TComposedProps>
+    >(
+      this.subcommands.commands,
+      {
+        selfHandle: this.props.selfHandle
+          || this.subcommands.props.selfHandle,
+      } as SelfHandledU<TSubsProps, TComposedProps>,
+    ).commands;
+  }
 
   selfHandle<B extends boolean>(value: B): CommandComposedWithSubcommandsImpl<
     TCommandName,
@@ -86,15 +99,9 @@ export class CommandComposedWithSubcommandsImpl<
     );
   }
 
-  $ = createCommandsRecord<
+  $: HelperCommands<
     TCommands,
     TArgv & TComposedArgv,
     SelfHandledU<TSubsProps, TComposedProps>
-  >(
-    this.subcommands.commands,
-    {
-      selfHandle: this.props.selfHandle
-        || this.subcommands.props.selfHandle,
-    } as SelfHandledU<TSubsProps, TComposedProps>,
-  ).commands;
+  >["commands"];
 }

@@ -1,13 +1,6 @@
 import y from "yargs";
-import { comm, command, comp, subs } from "../../src";
-import {
-  CommandBasic,
-  CommandComposed,
-  CommandComposedWithSubcommands,
-} from "../../src/command";
-import { EmptyRecord } from "../../src/common/types";
-import { com1, com2, sub1, sub2 } from "../handler/fixtures";
-import { opt } from "../types/addOption";
+import { comm, comp } from "../../src";
+import { CommandBasic } from "../../src/command";
 
 describe("test builder functions", () => {
   test("test command", () => {

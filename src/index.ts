@@ -1,7 +1,7 @@
 import logging from "./common/logging";
 
-export { GetCommandArgv } from "./command";
-export type { GetCommandArgs } from "./command";
+export { type GetCommandArgv } from "./command";
+export { type GetCommandArgs } from "./command";
 export { command, command as comm } from "./command/commands/basic/command";
 export {
   composeCommands,
@@ -13,14 +13,14 @@ export {
 } from "./command/commands/with-subcommands/subs";
 export * as Either from "./common/either";
 export { composeHandlers, createHandlerFor } from "./handler";
-export { HandlerFunctionFor } from "./handler/handler-function/type-handler-function-for";
+export { type HandlerFunctionFor } from "./handler/handler-function/type-handler-function-for";
 export { failClient } from "./main";
 export {
   buildAndParse,
   buildAndParseUnsafe,
   buildAndParseUnsafeR,
   parse,
-  YargsObject,
+  type YargsObject,
 } from "./parser/parser";
 
 export const setDebugLevel = logging.setLevel;
