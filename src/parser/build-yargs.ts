@@ -72,5 +72,6 @@ const createYargs = () => {
     })
     .demandCommand(1)
     .strict()
-    .strictCommands();
+    .strictCommands()
+    .exitProcess(true);
 };
