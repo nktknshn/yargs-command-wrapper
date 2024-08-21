@@ -34,9 +34,6 @@
     "typescript": "^5.5.4",
     "vitest": "^0.31.4"
   },
-  "publishConfig": {
-    "@nktknshn:registry": "https://npm.pkg.github.com"
-  },
   "dependencies": {
     "yargs": "^17.7.2"
   },
