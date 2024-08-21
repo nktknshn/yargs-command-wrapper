@@ -1,5 +1,5 @@
 {
-  "name": "@nktknshn/yargs-command-wrapper",
+  "name": "yargs-command-wrapper",
   "version": "1.0.6",
   "description": "enables the parsing of commands and subcommands into a unified set of types",
   "main": "dist/index.js",
