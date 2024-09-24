@@ -1,6 +1,6 @@
 {
   "name": "yargs-command-wrapper",
-  "version": "1.0.7",
+  "version": "1.0.7-1",
   "description": "enables the parsing of commands and subcommands into a unified set of types",
   "main": "index.js",
   "types": "index.d.ts",
@@ -9,14 +9,10 @@
     "test": "./node_modules/.bin/vitest",
     "coverage": "./node_modules/.bin/vitest run --coverage",
     "build": "./node_modules/.bin/tsc",
-    "build-publish": "rm -rf dist/ && ./node_modules/.bin/tsc -p tsconfig.publish.json && cp package.json dist/ && cp README.md dist/",
-    "prepublishOnly": "npm run build-publish",
+    "prepublishOnly": "echo 'use scripts/publish.sh instead' && exit 1",
     "clean": "rm -rf dist/"
   },
   "homepage": "https://github.com/nktknshn/yargs-command-wrapper",
-  "files": [
-    "/dist"
-  ],
   "author": {
     "name": "Nikita Kanashin",
     "email": "nikita@kanash.in"
@@ -46,6 +42,8 @@
     "parser",
     "parsing",
     "cli",
-    "command"
+    "command",
+    "fp-ts",
+    "fp"
   ]
 }
