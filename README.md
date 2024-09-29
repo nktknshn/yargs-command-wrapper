@@ -36,7 +36,7 @@ npm install --save yargs-command-wrapper
 
 [https://github.com/nktknshn/yargs-command-wrapper/tree/master/examples](https://github.com/nktknshn/yargs-command-wrapper/tree/master/examples)
 
-[https://github.com/nktknshn/typescript-money-tracker/blob/master/src/cli.ts](https://github.com/nktknshn/typescript-money-tracker/blob/master/src/cli.ts)
+[https://github.com/nktknshn/idrive-cli](https://github.com/nktknshn/idrive-cli/blob/ff36093d6a874d7da2605d19cb0a686a845d39ba/src/cli/drive/handler.ts#L12)
 
 ```typescript
 import {
